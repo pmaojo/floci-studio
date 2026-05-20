@@ -1,0 +1,6 @@
+{
+  "name": "Floci Manager",
+  "description": "An AWS management console with an Autoinstall Software Marketplace for the Floci.io local emulator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
