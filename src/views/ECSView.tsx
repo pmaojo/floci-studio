@@ -1,30 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  ListClustersCommand, 
+import { useState, useEffect } from 'react';
+import {
+  ListClustersCommand,
   DescribeClustersCommand,
-  ListContainerInstancesCommand
+  CreateClusterCommand,
 } from '@aws-sdk/client-ecs';
-import { 
-  DescribeInstancesCommand, 
-  StartInstancesCommand, 
-  StopInstancesCommand 
+import {
+  DescribeInstancesCommand,
+  StartInstancesCommand,
+  StopInstancesCommand,
+  RunInstancesCommand,
 } from '@aws-sdk/client-ec2';
 import { useAws } from '../contexts/AwsContext';
-import { 
-  Server, 
-  Cpu, 
-  Database, 
-  Box, 
-  Search, 
-  Power, 
-  RotateCcw, 
-  ExternalLink, 
-  Activity,
+import {
+  Server,
+  Power,
   Layers,
-  Terminal
+  Search,
+  Terminal,
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
-import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
 const ECSView = () => {
@@ -87,9 +81,7 @@ const ECSView = () => {
       const name = prompt('Cluster Name:');
       if (!name) return;
       try {
-        await clients.ecs.send(new ListClustersCommand({})); // Just a dummy call to verify connection
-        // Note: Floci ECS usually requires more complex setup, but we'll try a simple cluster creation if supported
-        // If not, we log the attempt.
+        await clients.ecs.send(new CreateClusterCommand({ clusterName: name }));
         logActivity('ECS', `CreateCluster: ${name}`, 'success', 'Note: Floci-managed compute');
         fetchData();
       } catch (err: any) {
@@ -98,7 +90,16 @@ const ECSView = () => {
     } else {
       const name = prompt('Instance Name Tag (optional):');
       try {
-        // RunInstances stub
+        await clients.ec2.send(new RunInstancesCommand({
+          ImageId: 'ami-floci-local',
+          InstanceType: 't2.micro',
+          MinCount: 1,
+          MaxCount: 1,
+          TagSpecifications: name ? [{
+            ResourceType: 'instance',
+            Tags: [{ Key: 'Name', Value: name }],
+          }] : undefined,
+        }));
         logActivity('EC2', 'RunInstances', 'success', `count: 1, type: t2.micro ${name ? `(tag:${name})` : ''}`);
         fetchData();
       } catch (err: any) {

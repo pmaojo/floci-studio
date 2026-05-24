@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand } from '@aws-sdk/client-glue';
 import { useAws } from '../contexts/AwsContext';
-import { Layers, Search, CirclePlus, Trash2, Database, Table, Settings, ExternalLink } from 'lucide-react';
+import { Layers, CirclePlus, Trash2, Database, Table, Settings } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const GlueView = () => {

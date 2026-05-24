@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DescribeDBInstancesCommand, CreateDBInstanceCommand, DeleteDBInstanceCommand } from '@aws-sdk/client-rds';
 import { useAws } from '../contexts/AwsContext';
-import { Database, Search, CirclePlus, Trash2, Settings, HardDrive, Shield } from 'lucide-react';
+import { Database, CirclePlus, Trash2, Settings, HardDrive, Shield } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
-import { format } from 'date-fns';
 
 const RDSView = () => {
   const { clients, logActivity } = useAws();
@@ -147,7 +146,7 @@ const RDSView = () => {
                       <div className="flex items-center gap-3 mt-1 text-[9px] font-mono opacity-50 uppercase">
                         <span className="flex items-center gap-1"><Settings size={10} /> {db.Engine}</span>
                         <span className="flex items-center gap-1"><HardDrive size={10} /> 20GB</span>
-                        <span className="flex items-center gap-1"><Shield size={10} /> VPC_SECURED</span>
+                        <span className="flex items-center gap-1"><Shield size={10} /> {db.DBSubnetGroup?.VpcId || 'NETWORK_DEFAULT'}</span>
                       </div>
                     </div>
                   </div>

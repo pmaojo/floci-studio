@@ -9,6 +9,7 @@ import {
   Users, 
   Settings, 
   ChevronRight,
+  ChevronDown,
   Activity,
   Shield,
   Archive,
@@ -56,7 +57,10 @@ interface SidebarProps {
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { isHealthy } = useAws();
   const [filterText, setFilterText] = React.useState('');
-  const [memUsage, setMemUsage] = React.useState('13.4 MiB');
+  const [collapsedCategories, setCollapsedCategories] = React.useState<Record<string, boolean>>({
+    'Unsupported in Floci': true
+  });
+  const [memUsage, setMemUsage] = React.useState('N/A');
 
   React.useEffect(() => {
     const updateMemory = () => {
@@ -66,13 +70,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           const used = perf.memory.usedJSHeapSize / (1024 * 1024);
           setMemUsage(`${used.toFixed(1)} MiB`);
         } else {
-          // Calculate high-fidelity dynamic memory representation based on DOM nodes
-          const elCount = document.getElementsByTagName('*').length;
-          const base = 12.3;
-          const variable = (elCount * 5.2) / 1024; // 5.2 KB allocation mock footprint
-          const oscillation = Math.sin(Date.now() / 8000) * 0.4;
-          const total = base + variable + oscillation;
-          setMemUsage(`${total.toFixed(1)} MiB`);
+          setMemUsage('N/A');
         }
       }
     };
@@ -88,6 +86,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       items: [
         { to: '/lambda', icon: Zap, label: 'Lambda' },
         { to: '/ecs', icon: Cloud, label: 'ECS / EC2' },
+        { to: '/ec2', icon: Cloud, label: 'EC2 Inventory' },
+        { to: '/autoscaling', icon: Activity, label: 'Auto Scaling' },
         { to: '/eks', icon: Terminal, label: 'EKS Clusters (K8s)' },
         { to: '/apprunner', icon: Cloud, label: 'App Runner Containers' },
         { to: '/beanstalk', icon: Compass, label: 'Elastic Beanstalk' },
@@ -102,19 +102,20 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { to: '/ecr', icon: EcrIcon, label: 'ECR Registries' },
         { to: '/efs', icon: HardDriveIcon, label: 'EFS Filesystems' },
         { to: '/backup', icon: Archive, label: 'Backup Vault Cycles' },
+        { to: '/transfer', icon: Share, label: 'Transfer Family' },
       ]
     },
     {
       label: 'Security & Identity',
       items: [
         { to: '/iam', icon: Users, label: 'IAM Roles' },
+        { to: '/sts', icon: Fingerprint, label: 'STS Identity' },
         { to: '/cognito', icon: Users2, label: 'Cognito Pools' },
         { to: '/identitycenter', icon: Shield, label: 'IAM Identity Center' },
         { to: '/secrets', icon: Shield, label: 'Secrets Manager' },
         { to: '/ssm', icon: KeyRound, label: 'SSM Parameters' },
         { to: '/kms', icon: Fingerprint, label: 'KMS Keys' },
         { to: '/acm', icon: BadgeCheck, label: 'ACM Certs' },
-        { to: '/waf', icon: ShieldAlert, label: 'WAF Web ACLs' },
       ]
     },
     {
@@ -146,6 +147,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       label: 'IoT & Machine Learning',
       items: [
         { to: '/sagemaker', icon: Binary, label: 'SageMaker Models' },
+        { to: '/bedrock-runtime', icon: Sparkles, label: 'Bedrock Runtime' },
+        { to: '/textract', icon: FileText, label: 'Textract' },
         { to: '/iotcore', icon: Radio, label: 'IoT Core Registry' },
       ]
     },
@@ -153,30 +156,51 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       label: 'DevOps & App Integration',
       items: [
         { to: '/cloudformation', icon: Box, label: 'Stacks' },
+        { to: '/appconfig', icon: Settings, label: 'AppConfig' },
+        { to: '/appconfigdata', icon: Terminal, label: 'AppConfig Data' },
         { to: '/codebuild', icon: Hammer, label: 'CodeBuild' },
         { to: '/codepipeline', icon: GitFork, label: 'CodePipeline' },
+        { to: '/codedeploy', icon: GitFork, label: 'CodeDeploy' },
         { to: '/sqs', icon: MessageSquare, label: 'SQS Queues' },
         { to: '/sns', icon: Bell, label: 'SNS Topics' },
         { to: '/eventbridge', icon: Share2, label: 'EventBridge' },
+        { to: '/scheduler', icon: Activity, label: 'Scheduler' },
         { to: '/stepfunctions', icon: GitBranch, label: 'Step Functions' },
         { to: '/kinesis', icon: Share, label: 'Kinesis Streams' },
+        { to: '/firehose', icon: Share, label: 'Data Firehose' },
       ]
     },
     {
       label: 'Observability',
       items: [
         { to: '/cloudwatch', icon: Activity, label: 'CloudWatch Logs' },
+        { to: '/cloudwatch-metrics', icon: BarChart2, label: 'CloudWatch Metrics' },
         { to: '/cloudtrail', icon: FileText, label: 'CloudTrail Audit' },
+      ]
+    },
+    {
+      label: 'Billing & Cost',
+      items: [
+        { to: '/costexplorer', icon: DatabaseIcon, label: 'Cost Explorer' },
       ]
     },
     {
       label: 'Floci Management',
       items: [
-        { to: '/awsq', icon: Sparkles, label: 'AWS Q Developer' },
         { to: '/roadmap', icon: Target, label: 'Roadmap' },
         { to: '/codeartifact', icon: Archive, label: 'CodeArtifact' },
         { to: '/ses', icon: Mail, label: 'SES Sink' },
         { to: '/settings', icon: Settings, label: 'System Settings' },
+      ]
+    },
+    {
+      label: 'Unsupported in Floci',
+      items: [
+        { to: '/waf', icon: ShieldAlert, label: 'WAF Web ACLs', badge: 'NOT IN FLOCI' },
+        { to: '/pricing', icon: BarChart2, label: 'Pricing', badge: 'NOT IN FLOCI' },
+        { to: '/cur', icon: FileText, label: 'Cost Reports', badge: 'NOT IN FLOCI' },
+        { to: '/bcmdataexports', icon: Archive, label: 'BCM Data Exports', badge: 'NOT IN FLOCI' },
+        { to: '/awsq', icon: Sparkles, label: 'AWS Q Developer', badge: 'NOT IN FLOCI' },
       ]
     }
   ];
@@ -278,29 +302,55 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             </NavLink>
           )}
 
-          {filteredCategories.map((cat) => (
-            <div key={cat.label} className="mt-4">
-              <div className="px-4 py-1 text-[10px] uppercase font-bold opacity-40 tracking-widest">{cat.label}</div>
-              {cat.items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center px-4 py-1.5 text-xs transition-colors",
-                      isActive 
-                        ? "bg-brand-text text-brand-bg font-bold" 
-                        : "hover:bg-brand-text hover:text-brand-bg"
-                    )
-                  }
-                >
-                  <item.icon size={14} className="mr-2 opacity-70" />
-                  <span>{item.label}</span>
-                </NavLink>
-              ))}
-            </div>
-          ))}
+          {filteredCategories.map((cat) => {
+            const isCollapsible = cat.label === 'Unsupported in Floci';
+            const isCollapsed = collapsedCategories[cat.label];
+            return (
+              <div key={cat.label} className="mt-4">
+                {isCollapsible ? (
+                  <button
+                    onClick={() => setCollapsedCategories(prev => ({ ...prev, [cat.label]: !prev[cat.label] }))}
+                    className="w-full text-left px-4 py-1 text-[10px] uppercase font-bold opacity-45 tracking-widest flex items-center justify-between hover:opacity-80 transition-opacity cursor-pointer group"
+                  >
+                    <span>{cat.label}</span>
+                    <ChevronDown
+                      size={10}
+                      className={cn(
+                        "opacity-50 group-hover:opacity-100 transition-transform duration-200",
+                        isCollapsed ? "-rotate-90" : "rotate-0"
+                      )}
+                    />
+                  </button>
+                ) : (
+                  <div className="px-4 py-1 text-[10px] uppercase font-bold opacity-40 tracking-widest">{cat.label}</div>
+                )}
+                
+                {(!isCollapsible || !isCollapsed) && cat.items.map((item: any) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center px-4 py-1.5 text-xs transition-colors",
+                        isActive 
+                          ? "bg-brand-text text-brand-bg font-bold" 
+                          : "hover:bg-brand-text hover:text-brand-bg"
+                      )
+                    }
+                  >
+                    <item.icon size={14} className="mr-2 opacity-70 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className="ml-auto text-[7px] font-bold px-1.5 py-0.5 border border-amber-600/30 bg-amber-500/10 text-amber-700 uppercase tracking-widest shrink-0 font-mono scale-90 rounded-xs">
+                        {item.badge}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+            );
+          })}
         </div>
 
         <div className="p-4 border-t border-brand-text text-[10px] font-mono bg-brand-muted/50">

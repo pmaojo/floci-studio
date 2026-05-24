@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DescribeCacheClustersCommand, CreateCacheClusterCommand, DeleteCacheClusterCommand } from '@aws-sdk/client-elasticache';
 import { useAws } from '../contexts/AwsContext';
-import { Database, Search, CirclePlus, Trash2, Zap, Settings, HardDrive, Cpu } from 'lucide-react';
+import { Database, CirclePlus, Trash2, Settings, HardDrive, Cpu } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
 
 const ElastiCacheView = () => {

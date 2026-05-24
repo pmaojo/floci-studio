@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { useState } from 'react';
 import { useAws } from '../contexts/AwsContext';
 import { Settings as SettingsIcon, Save, RefreshCw, AlertCircle } from 'lucide-react';
 import { PageHeader, Card, Button, Input } from '../components/ui-elements';

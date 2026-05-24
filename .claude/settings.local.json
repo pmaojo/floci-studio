@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Test-Path \"C:\\\\Users\\\\Pelayo\\\\Proyectos\\\\floci-gui\\\\floci-gui-main\\\\.env.example\")",
+      "Bash(Test-Path \"C:\\\\Users\\\\Pelayo\\\\Proyectos\\\\floci-gui\\\\floci-gui-main\\\\.gitignore\")",
+      "PowerShell(\"---\")",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(npx vite *)",
+      "Bash(npx vitest *)",
+      "Bash(node --check scripts/smoke-kms.mjs)"
+    ]
+  }
+}

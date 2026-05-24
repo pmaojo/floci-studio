@@ -1,0 +1,37 @@
+{
+  "id": "rabbitmq",
+  "name": "RabbitMQ Broker",
+  "description": "An open-source message broker that supports multiple messaging protocols, equipped with the Management Console.",
+  "version": "3.11.0",
+  "accessUrl": "http://localhost:{{RABBITMQ_MANAGEMENT_PORT}}",
+  "variables": [
+    {
+      "key": "RABBITMQ_PORT",
+      "label": "AMQP Broker Port",
+      "type": "number",
+      "default": 5672,
+      "description": "Port on your host machine to bind the RabbitMQ AMQP messaging broker."
+    },
+    {
+      "key": "RABBITMQ_MANAGEMENT_PORT",
+      "label": "Management Console Port",
+      "type": "number",
+      "default": 15672,
+      "description": "Port on your host machine to bind the RabbitMQ Web Management interface."
+    },
+    {
+      "key": "RABBITMQ_DEFAULT_USER",
+      "label": "Admin Username",
+      "type": "text",
+      "default": "guest",
+      "description": "Default admin username to access the web management portal."
+    },
+    {
+      "key": "RABBITMQ_DEFAULT_PASS",
+      "label": "Admin Password",
+      "type": "password",
+      "default": "guest",
+      "description": "Default admin password to access the web management portal."
+    }
+  ]
+}

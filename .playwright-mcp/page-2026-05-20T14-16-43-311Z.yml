@@ -1,0 +1,312 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: F
+      - generic [ref=e8]: Floci.io
+    - generic [ref=e9]:
+      - generic [ref=e10]: REAL DATA ONLY
+      - generic [ref=e11]: AWS Local Emulation Console
+  - generic [ref=e12]:
+    - navigation [ref=e13]:
+      - textbox "Filter Services..." [ref=e16]
+      - generic [ref=e17]:
+        - link "Dashboard" [ref=e18] [cursor=pointer]:
+          - /url: /
+          - img [ref=e19]
+          - text: Dashboard
+        - link "Event Stream" [ref=e21] [cursor=pointer]:
+          - /url: /events
+          - img [ref=e22]
+          - text: Event Stream
+        - link "Software Marketplace" [ref=e24] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e25]
+          - text: Software Marketplace
+        - generic [ref=e28]:
+          - generic [ref=e29]: Computing
+          - link "Lambda" [ref=e30] [cursor=pointer]:
+            - /url: /lambda
+            - img [ref=e31]
+            - generic [ref=e33]: Lambda
+          - link "ECS / EC2" [ref=e34] [cursor=pointer]:
+            - /url: /ecs
+            - img [ref=e35]
+            - generic [ref=e37]: ECS / EC2
+          - link "EKS Clusters (K8s)" [ref=e38] [cursor=pointer]:
+            - /url: /eks
+            - img [ref=e39]
+            - generic [ref=e41]: EKS Clusters (K8s)
+          - link "App Runner Containers" [ref=e42] [cursor=pointer]:
+            - /url: /apprunner
+            - img [ref=e43]
+            - generic [ref=e45]: App Runner Containers
+          - link "Elastic Beanstalk" [ref=e46] [cursor=pointer]:
+            - /url: /beanstalk
+            - img [ref=e47]
+            - generic [ref=e50]: Elastic Beanstalk
+          - link "AWS Batch Jobs" [ref=e51] [cursor=pointer]:
+            - /url: /batch
+            - img [ref=e52]
+            - generic [ref=e55]: AWS Batch Jobs
+        - generic [ref=e56]:
+          - generic [ref=e57]: Storage
+          - link "S3 Buckets" [ref=e58] [cursor=pointer]:
+            - /url: /s3
+            - img [ref=e59]
+            - generic [ref=e62]: S3 Buckets
+          - link "DynamoDB" [ref=e63] [cursor=pointer]:
+            - /url: /dynamodb
+            - img [ref=e64]
+            - generic [ref=e65]: DynamoDB
+          - link "ECR Registries" [ref=e66] [cursor=pointer]:
+            - /url: /ecr
+            - img [ref=e67]
+            - generic [ref=e71]: ECR Registries
+          - link "EFS Filesystems" [ref=e72] [cursor=pointer]:
+            - /url: /efs
+            - img [ref=e73]
+            - generic [ref=e75]: EFS Filesystems
+          - link "Backup Vault Cycles" [ref=e76] [cursor=pointer]:
+            - /url: /backup
+            - img [ref=e77]
+            - generic [ref=e80]: Backup Vault Cycles
+        - generic [ref=e81]:
+          - generic [ref=e82]: Security & Identity
+          - link "IAM Roles" [ref=e83] [cursor=pointer]:
+            - /url: /iam
+            - img [ref=e84]
+            - generic [ref=e89]: IAM Roles
+          - link "Cognito Pools" [ref=e90] [cursor=pointer]:
+            - /url: /cognito
+            - img [ref=e91]
+            - generic [ref=e95]: Cognito Pools
+          - link "IAM Identity Center" [ref=e96] [cursor=pointer]:
+            - /url: /identitycenter
+            - img [ref=e97]
+            - generic [ref=e99]: IAM Identity Center
+          - link "Secrets Manager" [ref=e100] [cursor=pointer]:
+            - /url: /secrets
+            - img [ref=e101]
+            - generic [ref=e103]: Secrets Manager
+          - link "SSM Parameters" [ref=e104] [cursor=pointer]:
+            - /url: /ssm
+            - img [ref=e105]
+            - generic [ref=e108]: SSM Parameters
+          - link "KMS Keys" [ref=e109] [cursor=pointer]:
+            - /url: /kms
+            - img [ref=e110]
+            - generic [ref=e119]: KMS Keys
+          - link "ACM Certs" [ref=e120] [cursor=pointer]:
+            - /url: /acm
+            - img [ref=e121]
+            - generic [ref=e124]: ACM Certs
+          - link "WAF Web ACLs" [ref=e125] [cursor=pointer]:
+            - /url: /waf
+            - img [ref=e126]
+            - generic [ref=e128]: WAF Web ACLs
+        - generic [ref=e129]:
+          - generic [ref=e130]: Networking & Content
+          - link "VPC Fabrics" [ref=e131] [cursor=pointer]:
+            - /url: /vpc
+            - img [ref=e132]
+            - generic [ref=e137]: VPC Fabrics
+          - link "Elastic Load Balancing" [ref=e138] [cursor=pointer]:
+            - /url: /elb
+            - img [ref=e139]
+            - generic [ref=e144]: Elastic Load Balancing
+          - link "DNS Zones" [ref=e145] [cursor=pointer]:
+            - /url: /route53
+            - img [ref=e146]
+            - generic [ref=e151]: DNS Zones
+          - link "CloudFront" [ref=e152] [cursor=pointer]:
+            - /url: /cloudfront
+            - img [ref=e153]
+            - generic [ref=e156]: CloudFront
+          - link "API Gateway" [ref=e157] [cursor=pointer]:
+            - /url: /apigateway
+            - img [ref=e158]
+            - generic [ref=e161]: API Gateway
+          - link "AppSync GraphQL" [ref=e162] [cursor=pointer]:
+            - /url: /appsync
+            - img [ref=e163]
+            - generic [ref=e169]: AppSync GraphQL
+          - link "Transit Gateways" [ref=e170] [cursor=pointer]:
+            - /url: /transitgateway
+            - img [ref=e171]
+            - generic [ref=e176]: Transit Gateways
+        - generic [ref=e177]:
+          - generic [ref=e178]: Databases & Analytics
+          - link "RDS Instances" [ref=e179] [cursor=pointer]:
+            - /url: /rds
+            - img [ref=e180]
+            - generic [ref=e184]: RDS Instances
+          - link "Redshift Clusters" [ref=e185] [cursor=pointer]:
+            - /url: /redshift
+            - img [ref=e186]
+            - generic [ref=e187]: Redshift Clusters
+          - link "Neptune Graph" [ref=e188] [cursor=pointer]:
+            - /url: /neptune
+            - img [ref=e189]
+            - generic [ref=e194]: Neptune Graph
+          - link "OpenSearch Domains" [ref=e195] [cursor=pointer]:
+            - /url: /opensearch
+            - img [ref=e196]
+            - generic [ref=e199]: OpenSearch Domains
+          - link "MSK Kafka Clusters" [ref=e200] [cursor=pointer]:
+            - /url: /msk
+            - img [ref=e201]
+            - generic [ref=e207]: MSK Kafka Clusters
+          - link "ElastiCache" [ref=e208] [cursor=pointer]:
+            - /url: /elasticache
+            - img [ref=e209]
+            - generic [ref=e211]: ElastiCache
+          - link "Athena Queries" [ref=e212] [cursor=pointer]:
+            - /url: /athena
+            - img [ref=e213]
+            - generic [ref=e215]: Athena Queries
+          - link "Glue Catalog" [ref=e216] [cursor=pointer]:
+            - /url: /glue
+            - img [ref=e217]
+            - generic [ref=e221]: Glue Catalog
+        - generic [ref=e222]:
+          - generic [ref=e223]: IoT & Machine Learning
+          - link "SageMaker Models" [ref=e224] [cursor=pointer]:
+            - /url: /sagemaker
+            - img [ref=e225]
+            - generic [ref=e230]: SageMaker Models
+          - link "IoT Core Registry" [ref=e231] [cursor=pointer]:
+            - /url: /iotcore
+            - img [ref=e232]
+            - generic [ref=e238]: IoT Core Registry
+        - generic [ref=e239]:
+          - generic [ref=e240]: DevOps & App Integration
+          - link "Stacks" [ref=e241] [cursor=pointer]:
+            - /url: /cloudformation
+            - img [ref=e242]
+            - generic [ref=e245]: Stacks
+          - link "CodeBuild" [ref=e246] [cursor=pointer]:
+            - /url: /codebuild
+            - img [ref=e247]
+            - generic [ref=e251]: CodeBuild
+          - link "CodePipeline" [ref=e252] [cursor=pointer]:
+            - /url: /codepipeline
+            - img [ref=e253]
+            - generic [ref=e258]: CodePipeline
+          - link "SQS Queues" [ref=e259] [cursor=pointer]:
+            - /url: /sqs
+            - img [ref=e260]
+            - generic [ref=e262]: SQS Queues
+          - link "SNS Topics" [ref=e263] [cursor=pointer]:
+            - /url: /sns
+            - img [ref=e264]
+            - generic [ref=e267]: SNS Topics
+          - link "EventBridge" [ref=e268] [cursor=pointer]:
+            - /url: /eventbridge
+            - img [ref=e269]
+            - generic [ref=e275]: EventBridge
+          - link "Step Functions" [ref=e276] [cursor=pointer]:
+            - /url: /stepfunctions
+            - img [ref=e277]
+            - generic [ref=e281]: Step Functions
+          - link "Kinesis Streams" [ref=e282] [cursor=pointer]:
+            - /url: /kinesis
+            - img [ref=e283]
+            - generic [ref=e286]: Kinesis Streams
+        - generic [ref=e287]:
+          - generic [ref=e288]: Observability
+          - link "CloudWatch Logs" [ref=e289] [cursor=pointer]:
+            - /url: /cloudwatch
+            - img [ref=e290]
+            - generic [ref=e292]: CloudWatch Logs
+          - link "CloudTrail Audit" [ref=e293] [cursor=pointer]:
+            - /url: /cloudtrail
+            - img [ref=e294]
+            - generic [ref=e297]: CloudTrail Audit
+        - generic [ref=e298]:
+          - generic [ref=e299]: Floci Management
+          - link "AWS Q Developer" [ref=e300] [cursor=pointer]:
+            - /url: /awsq
+            - img [ref=e301]
+            - generic [ref=e304]: AWS Q Developer
+          - link "Roadmap" [ref=e305] [cursor=pointer]:
+            - /url: /roadmap
+            - img [ref=e306]
+            - generic [ref=e310]: Roadmap
+          - link "CodeArtifact" [ref=e311] [cursor=pointer]:
+            - /url: /codeartifact
+            - img [ref=e312]
+            - generic [ref=e315]: CodeArtifact
+          - link "SES Sink" [ref=e316] [cursor=pointer]:
+            - /url: /ses
+            - img [ref=e317]
+            - generic [ref=e320]: SES Sink
+          - link "System Settings" [ref=e321] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e322]
+            - generic [ref=e325]: System Settings
+      - generic [ref=e326]:
+        - generic [ref=e327]:
+          - generic [ref=e328]: "Status:"
+          - generic [ref=e329]: RUNNING
+        - generic [ref=e330]:
+          - generic [ref=e331]: "Mem:"
+          - generic [ref=e332]: 51.0 MiB
+    - main [ref=e333]:
+      - generic [ref=e335]:
+        - generic [ref=e336]:
+          - generic [ref=e337]:
+            - img [ref=e339]
+            - heading "EKS Clusters" [level=2] [ref=e341]
+          - generic [ref=e342]:
+            - button [ref=e343]:
+              - img [ref=e344]
+            - button "Read Real State" [ref=e349]:
+              - img [ref=e350]
+              - text: Read Real State
+        - generic [ref=e354]:
+          - generic [ref=e355]:
+            - generic [ref=e356]:
+              - paragraph [ref=e357]: AWS_ENDPOINT
+              - paragraph [ref=e358]: http://floci:4566
+            - generic [ref=e359]:
+              - paragraph [ref=e360]: REGION
+              - paragraph [ref=e361]: us-east-1
+            - generic [ref=e362]:
+              - paragraph [ref=e363]: CLUSTERS
+              - paragraph [ref=e364]: "0"
+            - generic [ref=e365]:
+              - paragraph [ref=e366]: FARGATE_PROFILES
+              - paragraph [ref=e367]: "0"
+          - generic [ref=e368]:
+            - generic [ref=e369]:
+              - img [ref=e370]
+              - text: Real EKS clusters
+            - generic [ref=e403]:
+              - paragraph [ref=e404]: No EKS clusters found in Floci
+              - paragraph [ref=e405]: La llamada real aws eks list-clusters devolvió una lista vacía. No se muestran pods, deployments ni perfiles inventados.
+          - generic [ref=e377]:
+            - generic [ref=e378]:
+              - img [ref=e379]
+              - text: Real Kubernetes pods
+            - generic [ref=e389]: "kubectl no está conectado: KUBECONFIG is not configured in the sidecar container."
+            - generic [ref=e406]:
+              - paragraph [ref=e407]: No real pods available
+              - paragraph [ref=e408]: No hay pods leídos desde kubectl. Esto es correcto si todavía no existe kubeconfig o si Floci no ha creado un backend Kubernetes real.
+      - generic [ref=e391]:
+        - generic [ref=e392] [cursor=pointer]:
+          - generic [ref=e393]:
+            - generic [ref=e394]: Event Stream
+            - generic [ref=e396]: "AUTO_FLUSH: ON"
+          - img [ref=e398]
+        - generic [ref=e400]:
+          - generic [ref=e414]:
+            - generic [ref=e415]: "[15:16:24.72]"
+            - generic [ref=e416]: EKS.Describe real EKS inventory
+            - generic [ref=e417]: clusters=0
+            - generic [ref=e418]: "200"
+          - generic [ref=e409]:
+            - generic [ref=e410]: "[15:16:22.87]"
+            - generic [ref=e411]: EKS.Describe real EKS inventory
+            - generic [ref=e412]: clusters=0
+            - generic [ref=e413]: "200"
+          - generic [ref=e402]: _

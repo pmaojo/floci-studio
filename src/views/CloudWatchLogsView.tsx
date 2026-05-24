@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DescribeLogGroupsCommand, DescribeLogStreamsCommand, GetLogEventsCommand, CreateLogGroupCommand } from '@aws-sdk/client-cloudwatch-logs';
 import { useAws } from '../contexts/AwsContext';
-import { Terminal, Search, CirclePlus, List, Clock, Activity } from 'lucide-react';
-import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
+import { Terminal, CirclePlus, Activity } from 'lucide-react';
+import { PageHeader, Button } from '../components/ui-elements';
 import { format } from 'date-fns';
 
 const CloudWatchLogsView = () => {
@@ -17,6 +17,7 @@ const CloudWatchLogsView = () => {
 
   const fetchGroups = async () => {
     setLoading(true);
+    setError(null);
     try {
       const resp = await clients.cloudwatch.send(new DescribeLogGroupsCommand({}));
       setGroups(resp.logGroups || []);
@@ -85,6 +86,11 @@ const CloudWatchLogsView = () => {
         }
       />
 
+      {error && (
+        <div className="px-6 py-2 bg-rose-50 border-b border-rose-600 text-rose-700 text-[10px] font-mono normal-case">
+          {error}
+        </div>
+      )}
       <div className="flex flex-1 overflow-hidden">
         {/* Log Groups List */}
         <div className="w-64 border-r border-brand-text bg-brand-muted/30 flex flex-col">

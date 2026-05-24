@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from 'react';
 import { S3Client } from '@aws-sdk/client-s3';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { SNSClient } from '@aws-sdk/client-sns';
@@ -9,30 +9,23 @@ import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { EC2Client } from '@aws-sdk/client-ec2';
 import { ECSClient } from '@aws-sdk/client-ecs';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
-import { CodeartifactClient } from '@aws-sdk/client-codeartifact';
-import { SESClient } from '@aws-sdk/client-ses';
 import { KMSClient } from '@aws-sdk/client-kms';
 import { ACMClient } from '@aws-sdk/client-acm';
 import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
-import { APIGatewayClient } from '@aws-sdk/client-api-gateway';
 import { RDSClient } from '@aws-sdk/client-rds';
-import { Route53Client } from '@aws-sdk/client-route-53';
-import { SFNClient } from '@aws-sdk/client-sfn';
 import { KinesisClient } from '@aws-sdk/client-kinesis';
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
-import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { ECRClient } from '@aws-sdk/client-ecr';
 import { GlueClient } from '@aws-sdk/client-glue';
-import { SSMClient } from '@aws-sdk/client-ssm';
-import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
 import { ElastiCacheClient } from '@aws-sdk/client-elasticache';
-import { AthenaClient } from '@aws-sdk/client-athena';
 import { WAFV2Client } from '@aws-sdk/client-wafv2';
 import { CodeBuildClient } from '@aws-sdk/client-codebuild';
-import { CodePipelineClient } from '@aws-sdk/client-codepipeline';
-import { AppSyncClient } from '@aws-sdk/client-appsync';
-import { DEFAULT_CONFIG, type AwsConfig } from '../types';
+import { SchedulerClient } from '@aws-sdk/client-scheduler';
+import { SFNClient } from '@aws-sdk/client-sfn';
+import { SSMClient } from '@aws-sdk/client-ssm';
+import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
+import { DEFAULT_CONFIG, LEGACY_DEFAULT_ENDPOINT, type AwsConfig } from '../types';
 
 export interface ActivityLog {
   id: string;
@@ -57,29 +50,22 @@ interface AwsContextType {
     ec2: EC2Client;
     ecs: ECSClient;
     sts: STSClient;
-    codeartifact: CodeartifactClient;
-    ses: SESClient;
     kms: KMSClient;
     acm: ACMClient;
     cloudwatch: CloudWatchLogsClient;
     eventbridge: EventBridgeClient;
-    apigateway: APIGatewayClient;
     rds: RDSClient;
-    route53: Route53Client;
-    sfn: SFNClient;
     kinesis: KinesisClient;
     cloudformation: CloudFormationClient;
-    cognito: CognitoIdentityProviderClient;
     ecr: ECRClient;
     glue: GlueClient;
-    ssm: SSMClient;
-    cloudfront: CloudFrontClient;
     elasticache: ElastiCacheClient;
-    athena: AthenaClient;
     waf: WAFV2Client;
     codebuild: CodeBuildClient;
-    codepipeline: CodePipelineClient;
-    appsync: AppSyncClient;
+    scheduler: SchedulerClient;
+    sfn: SFNClient;
+    ssm: SSMClient;
+    cloudwatchMetrics: CloudWatchClient;
   };
   isHealthy: boolean | null;
   checkHealth: () => Promise<void>;
@@ -89,11 +75,33 @@ interface AwsContextType {
 
 const AwsContext = createContext<AwsContextType | undefined>(undefined);
 
-export const AwsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [config, setConfig] = useState<AwsConfig>(() => {
-    const saved = localStorage.getItem('floci-aws-config');
-    return saved ? JSON.parse(saved) : DEFAULT_CONFIG;
-  });
+const getInitialConfig = (): AwsConfig => {
+  const saved = localStorage.getItem('floci-aws-config');
+  if (!saved) return DEFAULT_CONFIG;
+
+  try {
+    const parsed = JSON.parse(saved) as AwsConfig;
+    const shouldUpgradeEndpoint =
+      DEFAULT_CONFIG.endpoint !== LEGACY_DEFAULT_ENDPOINT &&
+      parsed.endpoint === LEGACY_DEFAULT_ENDPOINT;
+
+    return {
+      ...DEFAULT_CONFIG,
+      ...parsed,
+      endpoint: shouldUpgradeEndpoint ? DEFAULT_CONFIG.endpoint : parsed.endpoint,
+    };
+  } catch {
+    localStorage.removeItem('floci-aws-config');
+    return DEFAULT_CONFIG;
+  }
+};
+
+const buildEndpointUrl = (endpoint: string, path: string) => {
+  return `${endpoint.replace(/\/+$/, '')}${path}`;
+};
+
+export const AwsProvider = ({ children }: { children: ReactNode }) => {
+  const [config, setConfig] = useState<AwsConfig>(getInitialConfig);
 
   const [isHealthy, setIsHealthy] = useState<boolean | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
@@ -110,7 +118,7 @@ export const AwsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       region,
       endpoint,
       credentials,
-      forcePathStyle: true, // Important for S3 in LocalStack/Floci
+      forcePathStyle: true, // Required for S3 against LocalStack/Floci.
     };
 
     return {
@@ -124,29 +132,22 @@ export const AwsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ec2: new EC2Client(commonParams),
       ecs: new ECSClient(commonParams),
       sts: new STSClient(commonParams),
-      codeartifact: new CodeartifactClient(commonParams),
-      ses: new SESClient(commonParams),
       kms: new KMSClient(commonParams),
       acm: new ACMClient(commonParams),
       cloudwatch: new CloudWatchLogsClient(commonParams),
       eventbridge: new EventBridgeClient(commonParams),
-      apigateway: new APIGatewayClient(commonParams),
       rds: new RDSClient(commonParams),
-      route53: new Route53Client(commonParams),
-      sfn: new SFNClient(commonParams),
       kinesis: new KinesisClient(commonParams),
       cloudformation: new CloudFormationClient(commonParams),
-      cognito: new CognitoIdentityProviderClient(commonParams),
       ecr: new ECRClient(commonParams),
       glue: new GlueClient(commonParams),
-      ssm: new SSMClient(commonParams),
-      cloudfront: new CloudFrontClient(commonParams),
       elasticache: new ElastiCacheClient(commonParams),
-      athena: new AthenaClient(commonParams),
       waf: new WAFV2Client(commonParams),
       codebuild: new CodeBuildClient(commonParams),
-      codepipeline: new CodePipelineClient(commonParams),
-      appsync: new AppSyncClient(commonParams),
+      scheduler: new SchedulerClient(commonParams),
+      sfn: new SFNClient(commonParams),
+      ssm: new SSMClient(commonParams),
+      cloudwatchMetrics: new CloudWatchClient(commonParams),
     };
   }, [config]);
 
@@ -157,12 +158,12 @@ export const AwsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       action,
       timestamp: new Date(),
       status,
-      details
+      details,
     };
-    setActivity(prev => [newLog, ...prev].slice(0, 500)); // Increased for true logging
+    setActivity(prev => [newLog, ...prev].slice(0, 500));
   };
 
-  // Real background activity: periodic identity check
+  // Background heartbeat — confirms STS stays reachable without blocking the UI.
   useEffect(() => {
     if (!isHealthy) return;
 
@@ -170,10 +171,10 @@ export const AwsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         await clients.sts.send(new GetCallerIdentityCommand({}));
         logActivity('STS', 'HealthCheck', 'success', 'identity/floci-daemon-bg');
-      } catch (e) {
-        // Silent fail for background health check
+      } catch {
+        // The heartbeat must never interrupt the experience if the emulator restarts.
       }
-    }, 30000); // Every 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [isHealthy, clients.sts]);
@@ -184,17 +185,17 @@ export const AwsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const checkHealth = async () => {
     try {
-      // Small hack: check if the endpoint is reachable using fetch
-      // Floci usually responds to /_localstack/health or just /
-      const response = await fetch(config.endpoint, { mode: 'no-cors' });
-      setIsHealthy(true);
-    } catch (e) {
+      // Floci keeps the LocalStack-compatible health endpoint.
+      const response = await fetch(buildEndpointUrl(config.endpoint, '/_localstack/health'));
+      setIsHealthy(response.ok);
+    } catch {
       setIsHealthy(false);
     }
   };
 
   useEffect(() => {
     checkHealth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.endpoint]);
 
   const updateConfig = (newConfig: Partial<AwsConfig>) => {

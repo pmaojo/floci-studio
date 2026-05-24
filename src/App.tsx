@@ -3,74 +3,83 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AwsProvider } from './contexts/AwsContext';
 import Sidebar from './components/Sidebar';
-import Dashboard from './views/Dashboard';
-import S3View from './views/S3View';
-import DynamoDBView from './views/DynamoDBView';
-import SQSView from './views/SQSView';
-import SNSView from './views/SNSView';
-import IAMView from './views/IAMView';
-import SecretsManagerView from './views/SecretsManagerView';
-import LambdaView from './views/LambdaView';
-import CodeArtifactView from './views/CodeArtifactView';
-import SESView from './views/SESView';
-import LiveEventsView from './views/LiveEventsView';
-import KMSView from './views/KMSView';
-import ACMView from './views/ACMView';
-import ECSView from './views/ECSView';
-import CloudWatchLogsView from './views/CloudWatchLogsView';
-import EventBridgeView from './views/EventBridgeView';
-import ApiGatewayView from './views/ApiGatewayView';
-import RDSView from './views/RDSView';
-import VPCView from './views/VPCView';
-import Route53View from './views/Route53View';
-import StepFunctionsView from './views/StepFunctionsView';
-import KinesisView from './views/KinesisView';
-import CloudFormationView from './views/CloudFormationView';
-import CognitoView from './views/CognitoView';
-import ECRView from './views/ECRView';
-import AthenaView from './views/AthenaView';
-import CloudFrontView from './views/CloudFrontView';
-import ElastiCacheView from './views/ElastiCacheView';
-import GlueView from './views/GlueView';
-import SSMView from './views/SSMView';
-import WAFView from './views/WAFView';
-import CodeBuildView from './views/CodeBuildView';
-import CodePipelineView from './views/CodePipelineView';
-import AppSyncView from './views/AppSyncView';
-import MarketplaceView from './views/MarketplaceView';
-import RoadmapView from './views/RoadmapView';
-import SettingsView from './views/SettingsView';
-import ServiceNotAvailable from './views/ServiceNotAvailable';
-import RedshiftView from './views/RedshiftView';
-import OpenSearchView from './views/OpenSearchView';
-import MskView from './views/MskView';
-import SageMakerView from './views/SageMakerView';
-import IotCoreView from './views/IotCoreView';
-import BatchView from './views/BatchView';
-import TransitGatewayView from './views/TransitGatewayView';
-import BeanstalkView from './views/BeanstalkView';
-import EfsView from './views/EfsView';
-import NeptuneView from './views/NeptuneView';
-import CloudTrailView from './views/CloudTrailView';
-import IdentityCenterView from './views/IdentityCenterView';
-import ElbView from './views/ElbView';
-import EksView from './views/EksView';
-import AppRunnerView from './views/AppRunnerView';
-import BackupView from './views/BackupView';
-import AwsQView from './views/AwsQView';
+
+// Lazy load all views to implement dynamic imports, resolve chunk warnings, and optimize bundling
+const Dashboard = lazy(() => import('./views/Dashboard'));
+const SQSView = lazy(() => import('./views/SQSView'));
+const SNSView = lazy(() => import('./views/SNSView'));
+const IAMView = lazy(() => import('./views/IAMView'));
+const SecretsManagerView = lazy(() => import('./views/SecretsManagerView'));
+const LambdaView = lazy(() => import('./views/LambdaView'));
+const LiveEventsView = lazy(() => import('./views/LiveEventsView'));
+const KMSView = lazy(() => import('./views/KMSView'));
+const ACMView = lazy(() => import('./views/ACMView'));
+const ECSView = lazy(() => import('./views/ECSView'));
+const CloudWatchLogsView = lazy(() => import('./views/CloudWatchLogsView'));
+const EventBridgeView = lazy(() => import('./views/EventBridgeView'));
+const RDSView = lazy(() => import('./views/RDSView'));
+const VPCView = lazy(() => import('./views/VPCView'));
+const KinesisView = lazy(() => import('./views/KinesisView'));
+const CloudFormationView = lazy(() => import('./views/CloudFormationView'));
+const ECRView = lazy(() => import('./views/ECRView'));
+const ElastiCacheView = lazy(() => import('./views/ElastiCacheView'));
+const GlueView = lazy(() => import('./views/GlueView'));
+const WAFView = lazy(() => import('./views/WAFView'));
+const SettingsView = lazy(() => import('./views/SettingsView'));
+const EksView = lazy(() => import('./views/EksView'));
+const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
+const CostExplorerView = lazy(() => import('./views/CostExplorerView'));
+const S3View = lazy(() => import('./views/S3View'));
+const MarketplaceView = lazy(() => import('./views/MarketplaceView'));
+const AthenaView = lazy(() => import('./views/AthenaView'));
+const DynamoDBView = lazy(() => import('./views/DynamoDBView'));
+const CodeBuildView = lazy(() => import('./views/CodeBuildView'));
+const SchedulerView = lazy(() => import('./views/SchedulerView'));
+const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
+const SSMView = lazy(() => import('./views/SSMView'));
+const CloudWatchMetricsView = lazy(() => import('./views/CloudWatchMetricsView'));
 import { useAws } from './contexts/AwsContext';
 import { format } from 'date-fns';
-import { Menu, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Menu, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from './lib/utils';
+import { REAL_DATA_ONLY, clearSimulatedLocalStorage } from './lib/realDataPolicy';
+
+const awsServiceRoute = (serviceKey: string, serviceName: string) => (
+  <AwsCliServiceView serviceKey={serviceKey} serviceName={serviceName} />
+);
+
+const RetroLoader = () => (
+  <div className="flex-1 flex flex-col items-center justify-center bg-brand-bg text-brand-text h-full uppercase p-6 select-none font-mono">
+    <div className="border border-brand-text p-6 bg-brand-muted max-w-sm w-full space-y-4 shadow-[4px_4px_0px_0px_rgba(20,20,20,1)]">
+      <div className="flex justify-between items-center border-b border-brand-text pb-2">
+        <span className="text-[9px] font-bold tracking-widest text-neutral-500">BUS_IO_TRANSCEIVER</span>
+        <span className="w-2 h-2 bg-brand-text rounded-xs animate-ping" />
+      </div>
+      <div className="space-y-1 text-[9px] font-bold text-neutral-600">
+        <p className="flex justify-between"><span>LINKING_DYN_SEGMENT</span><span className="text-brand-text">OK</span></p>
+        <p className="flex justify-between"><span>SWAPPING_THREAD_IO</span><span className="text-brand-text animate-pulse">PENDING...</span></p>
+      </div>
+      <div className="w-full bg-brand-bg h-3 border border-brand-text overflow-hidden p-0.5 shrink-0">
+        <div className="bg-brand-text h-full animate-pulse" style={{ width: '60%' }} />
+      </div>
+    </div>
+  </div>
+);
 
 const AppContent = () => {
   const { activity } = useAws();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [isConsoleExpanded, setIsConsoleExpanded] = React.useState(true);
+
+  React.useEffect(() => {
+    if (REAL_DATA_ONLY) {
+      clearSimulatedLocalStorage();
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-screen w-full bg-brand-bg text-brand-text overflow-hidden font-sans border border-brand-text">
@@ -91,6 +100,9 @@ const AppContent = () => {
         </div>
         
         <div className="flex items-center space-x-3 text-[10px] uppercase font-bold text-neutral-500">
+          {REAL_DATA_ONLY && (
+            <span className="border border-brand-text px-2 py-1 bg-white text-brand-text">REAL DATA ONLY</span>
+          )}
           <span>AWS Local Emulation Console</span>
         </div>
       </header>
@@ -100,62 +112,80 @@ const AppContent = () => {
         
         <main className="flex-1 flex flex-col overflow-hidden w-full">
           <div className="flex-1 overflow-auto bg-white/50">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/s3" element={<S3View />} />
-              <Route path="/dynamodb" element={<DynamoDBView />} />
-              <Route path="/sqs" element={<SQSView />} />
-              <Route path="/sns" element={<SNSView />} />
-              <Route path="/lambda" element={<LambdaView />} />
-              <Route path="/iam" element={<IAMView />} />
-              <Route path="/secrets" element={<SecretsManagerView />} />
-              <Route path="/codeartifact" element={<CodeArtifactView />} />
-              <Route path="/ses" element={<SESView />} />
-              <Route path="/kms" element={<KMSView />} />
-              <Route path="/acm" element={<ACMView />} />
-              <Route path="/events" element={<LiveEventsView />} />
-              <Route path="/cloudwatch" element={<CloudWatchLogsView />} />
-              <Route path="/eventbridge" element={<EventBridgeView />} />
-              <Route path="/apigateway" element={<ApiGatewayView />} />
-              <Route path="/rds" element={<RDSView />} />
-              <Route path="/vpc" element={<VPCView />} />
-              <Route path="/route53" element={<Route53View />} />
-              <Route path="/stepfunctions" element={<StepFunctionsView />} />
-              <Route path="/kinesis" element={<KinesisView />} />
-              <Route path="/cloudformation" element={<CloudFormationView />} />
-              <Route path="/cognito" element={<CognitoView />} />
-              <Route path="/ecr" element={<ECRView />} />
-              <Route path="/athena" element={<AthenaView />} />
-              <Route path="/cloudfront" element={<CloudFrontView />} />
-              <Route path="/elasticache" element={<ElastiCacheView />} />
-              <Route path="/glue" element={<GlueView />} />
-              <Route path="/ssm" element={<SSMView />} />
-              <Route path="/waf" element={<WAFView />} />
-              <Route path="/codebuild" element={<CodeBuildView />} />
-              <Route path="/codepipeline" element={<CodePipelineView />} />
-              <Route path="/appsync" element={<AppSyncView />} />
-              <Route path="/marketplace" element={<MarketplaceView />} />
-              <Route path="/roadmap" element={<RoadmapView />} />
-              <Route path="/settings" element={<SettingsView />} />
-              <Route path="/ecs" element={<ECSView />} />
-              <Route path="/redshift" element={<RedshiftView />} />
-              <Route path="/opensearch" element={<OpenSearchView />} />
-              <Route path="/msk" element={<MskView />} />
-              <Route path="/sagemaker" element={<SageMakerView />} />
-              <Route path="/iotcore" element={<IotCoreView />} />
-              <Route path="/batch" element={<BatchView />} />
-              <Route path="/transitgateway" element={<TransitGatewayView />} />
-              <Route path="/beanstalk" element={<BeanstalkView />} />
-              <Route path="/efs" element={<EfsView />} />
-              <Route path="/neptune" element={<NeptuneView />} />
-              <Route path="/cloudtrail" element={<CloudTrailView />} />
-              <Route path="/identitycenter" element={<IdentityCenterView />} />
-              <Route path="/elb" element={<ElbView />} />
-              <Route path="/eks" element={<EksView />} />
-              <Route path="/apprunner" element={<AppRunnerView />} />
-              <Route path="/backup" element={<BackupView />} />
-              <Route path="/awsq" element={<AwsQView />} />
-            </Routes>
+            <Suspense fallback={<RetroLoader />}>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/s3" element={<S3View />} />
+                <Route path="/dynamodb" element={<DynamoDBView />} />
+                <Route path="/sqs" element={<SQSView />} />
+                <Route path="/sns" element={<SNSView />} />
+                <Route path="/lambda" element={<LambdaView />} />
+                <Route path="/autoscaling" element={awsServiceRoute('autoscaling', 'Auto Scaling')} />
+                <Route path="/iam" element={<IAMView />} />
+                <Route path="/sts" element={awsServiceRoute('sts', 'STS')} />
+                <Route path="/secrets" element={<SecretsManagerView />} />
+                <Route path="/codeartifact" element={awsServiceRoute('codeartifact', 'CodeArtifact')} />
+                <Route path="/ses" element={awsServiceRoute('ses', 'SES Sink')} />
+                <Route path="/kms" element={<KMSView />} />
+                <Route path="/acm" element={<ACMView />} />
+                <Route path="/events" element={<LiveEventsView />} />
+                <Route path="/cloudwatch" element={<CloudWatchLogsView />} />
+                <Route path="/cloudwatch-metrics" element={<CloudWatchMetricsView />} />
+                <Route path="/eventbridge" element={<EventBridgeView />} />
+                <Route path="/scheduler" element={<SchedulerView />} />
+                <Route path="/apigateway" element={awsServiceRoute('apigateway', 'API Gateway')} />
+                <Route path="/rds" element={<RDSView />} />
+                <Route path="/vpc" element={<VPCView />} />
+                <Route path="/route53" element={awsServiceRoute('route53', 'Route 53')} />
+                <Route path="/stepfunctions" element={<StepFunctionsView />} />
+                <Route path="/kinesis" element={<KinesisView />} />
+                <Route path="/firehose" element={awsServiceRoute('firehose', 'Data Firehose')} />
+                <Route path="/cloudformation" element={<CloudFormationView />} />
+                <Route path="/appconfig" element={awsServiceRoute('appconfig', 'AppConfig')} />
+                <Route path="/appconfigdata" element={awsServiceRoute('appconfigdata', 'AppConfig Data')} />
+                <Route path="/cognito" element={awsServiceRoute('cognito', 'Cognito')} />
+                <Route path="/ecr" element={<ECRView />} />
+                <Route path="/athena" element={<AthenaView />} />
+                <Route path="/cloudfront" element={awsServiceRoute('cloudfront', 'CloudFront')} />
+                <Route path="/elasticache" element={<ElastiCacheView />} />
+                <Route path="/glue" element={<GlueView />} />
+                <Route path="/ssm" element={<SSMView />} />
+                <Route path="/waf" element={<WAFView />} />
+                <Route path="/codebuild" element={<CodeBuildView />} />
+                <Route path="/codepipeline" element={awsServiceRoute('codepipeline', 'CodePipeline')} />
+                <Route path="/codedeploy" element={awsServiceRoute('codedeploy', 'CodeDeploy')} />
+                <Route path="/appsync" element={awsServiceRoute('appsync', 'AppSync')} />
+                <Route path="/marketplace" element={<MarketplaceView />} />
+                <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
+                <Route path="/settings" element={<SettingsView />} />
+                <Route path="/ecs" element={<ECSView />} />
+                <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
+                <Route path="/redshift" element={awsServiceRoute('redshift', 'Redshift')} />
+                <Route path="/opensearch" element={awsServiceRoute('opensearch', 'OpenSearch')} />
+                <Route path="/msk" element={awsServiceRoute('msk', 'MSK')} />
+                <Route path="/sagemaker" element={awsServiceRoute('sagemaker', 'SageMaker')} />
+                <Route path="/bedrock-runtime" element={awsServiceRoute('bedrockruntime', 'Bedrock Runtime')} />
+                <Route path="/textract" element={awsServiceRoute('textract', 'Textract')} />
+                <Route path="/iotcore" element={awsServiceRoute('iotcore', 'IoT Core')} />
+                <Route path="/batch" element={awsServiceRoute('batch', 'AWS Batch')} />
+                <Route path="/transitgateway" element={awsServiceRoute('transitgateway', 'Transit Gateway')} />
+                <Route path="/beanstalk" element={awsServiceRoute('beanstalk', 'Elastic Beanstalk')} />
+                <Route path="/efs" element={awsServiceRoute('efs', 'EFS')} />
+                <Route path="/neptune" element={awsServiceRoute('neptune', 'Neptune')} />
+                <Route path="/cloudtrail" element={awsServiceRoute('cloudtrail', 'CloudTrail')} />
+                <Route path="/identitycenter" element={awsServiceRoute('identitycenter', 'IAM Identity Center')} />
+                <Route path="/elb" element={awsServiceRoute('elb', 'Elastic Load Balancing')} />
+                <Route path="/eks" element={<EksView />} />
+                <Route path="/apprunner" element={awsServiceRoute('apprunner', 'App Runner')} />
+                <Route path="/backup" element={awsServiceRoute('backup', 'Backup')} />
+                <Route path="/transfer" element={awsServiceRoute('transfer', 'Transfer Family')} />
+                <Route path="/pricing" element={awsServiceRoute('pricing', 'Pricing')} />
+                <Route path="/costexplorer" element={<CostExplorerView />} />
+                <Route path="/cur" element={awsServiceRoute('cur', 'Cost and Usage Reports')} />
+                <Route path="/bcmdataexports" element={awsServiceRoute('bcmdataexports', 'BCM Data Exports')} />
+                <Route path="/awsq" element={awsServiceRoute('awsq', 'AWS Q Developer')} />
+              </Routes>
+            </Suspense>
           </div>
 
           {/* Activity Console */}
@@ -215,4 +245,3 @@ export default function App() {
     </AwsProvider>
   );
 }
-

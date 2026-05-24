@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ListQueuesCommand, CreateQueueCommand, DeleteQueueCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { useAws } from '../contexts/AwsContext';
-import { MessageSquare, Search, CirclePlus, Trash2, Send, ExternalLink, X, Terminal } from 'lucide-react';
-import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
+import { MessageSquare, Search, CirclePlus, Send, X, Terminal } from 'lucide-react';
+import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 import { motion, AnimatePresence } from 'motion/react';
 
 const SQSView = () => {

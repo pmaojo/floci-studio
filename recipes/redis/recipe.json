@@ -1,0 +1,23 @@
+{
+  "id": "redis",
+  "name": "Redis Cache & Broker",
+  "description": "An in-memory data structure store used as a distributed, in-memory key-value database, cache, and message broker.",
+  "version": "7.0.0",
+  "accessUrl": "redis://localhost:{{REDIS_PORT}}",
+  "variables": [
+    {
+      "key": "REDIS_PORT",
+      "label": "Redis Host Port",
+      "type": "number",
+      "default": 6379,
+      "description": "Port on your host machine to bind the Redis service."
+    },
+    {
+      "key": "REDIS_PASSWORD",
+      "label": "Access Password",
+      "type": "password",
+      "default": "redis123",
+      "description": "Password required to connect to the Redis instance."
+    }
+  ]
+}
