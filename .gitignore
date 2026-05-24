@@ -7,3 +7,7 @@ coverage/
 .env*
 !.env.example
 .sidecar-state/
+playwright-report/
+test-results/
+__pycache__/
+*.pyc

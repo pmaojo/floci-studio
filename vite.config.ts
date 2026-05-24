@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   const flociProxyTarget = process.env.FLOCI_PROXY_TARGET ?? 'http://localhost:4566';
-  const sidecarProxyTarget = process.env.SIDECAR_PROXY_TARGET ?? 'http://localhost:4317';
+  const sidecarProxyTarget = process.env.SIDECAR_PROXY_TARGET ?? 'http://localhost:8000';
   const sidecarToken = process.env.SIDECAR_TOKEN ?? '';
 
   return {
