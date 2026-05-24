@@ -4,7 +4,7 @@ import { ListBucketsCommand } from '@aws-sdk/client-s3';
 import { ListTablesCommand } from '@aws-sdk/client-dynamodb';
 import { ListFunctionsCommand } from '@aws-sdk/client-lambda';
 import { ListQueuesCommand } from '@aws-sdk/client-sqs';
-import { ListRepositoriesCommand } from '@aws-sdk/client-codeartifact';
+import { sidecarApi } from '../lib/sidecarApi';
 
 export interface DashboardStats {
   s3: number;
@@ -42,7 +42,7 @@ export const useDashboardStats = () => {
         clients.dynamo.send(new ListTablesCommand({})),
         clients.lambda.send(new ListFunctionsCommand({})),
         clients.sqs.send(new ListQueuesCommand({})),
-        clients.codeartifact.send(new ListRepositoriesCommand({})),
+        sidecarApi.getAwsServiceOverview('codeartifact'),
       ]);
 
       setStats({
@@ -50,7 +50,7 @@ export const useDashboardStats = () => {
         dynamo: dynamo.status === 'fulfilled' ? (dynamo.value.TableNames?.length || 0) : 0,
         lambda: lambda.status === 'fulfilled' ? (lambda.value.Functions?.length || 0) : 0,
         sqs: sqs.status === 'fulfilled' ? (sqs.value.QueueUrls?.length || 0) : 0,
-        codeartifact: ca.status === 'fulfilled' ? (ca.value.repositories?.length || 0) : 0,
+        codeartifact: ca.status === 'fulfilled' ? ca.value.resources.reduce((total, resource) => total + resource.count, 0) : 0,
         loading: false,
         error: null,
       });

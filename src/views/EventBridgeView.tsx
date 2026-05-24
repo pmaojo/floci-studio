@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ListEventBusesCommand, CreateEventBusCommand, PutEventsCommand, ListRulesCommand } from '@aws-sdk/client-eventbridge';
 import { useAws } from '../contexts/AwsContext';
-import { Share2, Search, CirclePlus, Send, Activity, Settings2 } from 'lucide-react';
+import { Share2, CirclePlus, Send } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const EventBridgeView = () => {

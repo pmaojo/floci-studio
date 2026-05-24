@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ListStacksCommand, CreateStackCommand, DeleteStackCommand } from '@aws-sdk/client-cloudformation';
 import { useAws } from '../contexts/AwsContext';
-import { Box, Search, CirclePlus, Trash2, Layers, ExternalLink, Activity, FileCode } from 'lucide-react';
+import { Box, CirclePlus, Trash2 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const CloudFormationView = () => {

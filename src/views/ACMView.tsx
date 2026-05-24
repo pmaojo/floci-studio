@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ListCertificatesCommand, RequestCertificateCommand } from '@aws-sdk/client-acm';
 import { useAws } from '../contexts/AwsContext';
-import { ShieldCheck, Search, CirclePlus, Trash2, ExternalLink, BadgeCheck } from 'lucide-react';
+import { Search, CirclePlus, ExternalLink, BadgeCheck, ShieldCheck } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
-import { motion } from 'motion/react';
 
 const ACMView = () => {
   const { clients, logActivity } = useAws();
@@ -62,6 +61,11 @@ const ACMView = () => {
       />
 
       <div className="p-6 space-y-6 flex-1 overflow-auto bg-brand-bg">
+        {error && (
+          <Card className="text-rose-600 font-mono text-[10px] bg-rose-50 border-rose-600 normal-case">
+            {error}
+          </Card>
+        )}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text opacity-30" size={14} />
           <Input 
@@ -93,7 +97,7 @@ const ACMView = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                     <span className="text-[10px] font-bold opacity-40">AUTO_VALIDATED</span>
+                     <span className="text-[10px] font-bold opacity-40">{cert.Status || 'SUMMARY'}</span>
                      <ExternalLink size={14} className="opacity-20 group-hover:opacity-100" />
                   </div>
                 </div>

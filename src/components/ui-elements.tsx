@@ -1,14 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { 
-  Plus, 
-  RefreshCw, 
-  Search, 
-  MoreVertical,
-  ExternalLink,
-  ChevronLeft,
-  X
-} from 'lucide-react';
+import { RefreshCw, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export const PageHeader: React.FC<{ 
@@ -18,7 +10,7 @@ export const PageHeader: React.FC<{
   icon?: React.ReactNode;
   onRefresh?: () => void;
   isRefreshing?: boolean;
-}> = ({ title, subtitle, actions, icon, onRefresh, isRefreshing }) => {
+}> = ({ title, actions, icon, onRefresh, isRefreshing }) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 lg:px-6 py-3 lg:py-4 bg-brand-muted border-b border-brand-text gap-3">
       <div className="flex items-center gap-3 lg:gap-4 overflow-hidden">
@@ -45,16 +37,19 @@ export const PageHeader: React.FC<{
   );
 };
 
-export const Card: React.FC<{ 
+export const Card: React.FC<React.HTMLAttributes<HTMLDivElement> & { 
   children: React.ReactNode; 
   className?: string;
   noPadding?: boolean;
-}> = ({ children, className, noPadding }) => (
-  <div className={cn(
-    "bg-white border border-brand-text overflow-hidden",
-    !noPadding && "p-4",
-    className
-  )}>
+}> = ({ children, className, noPadding, ...props }) => (
+  <div 
+    className={cn(
+      "bg-white border border-brand-text overflow-hidden",
+      !noPadding && "p-4",
+      className
+    )}
+    {...props}
+  >
     {children}
   </div>
 );
@@ -103,6 +98,16 @@ export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ c
   />
 );
 
+export const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement>> = ({ className, ...props }) => (
+  <textarea
+    className={cn(
+      "w-full bg-white border border-brand-text px-3 py-2 text-xs focus:outline-hidden focus:ring-1 focus:ring-brand-text transition-all placeholder:italic",
+      className
+    )}
+    {...props}
+  />
+);
+
 export const Skeleton: React.FC<{ className?: string }> = ({ className }) => (
   <div className={cn("bg-brand-muted animate-pulse", className)} />
 );
@@ -112,14 +117,15 @@ export const Modal: React.FC<{
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-}> = ({ isOpen, onClose, title, children }) => {
+  className?: string;
+}> = ({ isOpen, onClose, title, children, className }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-brand-bg border border-brand-text shadow-2xl"
+        className={cn("w-full max-w-md bg-brand-bg border border-brand-text shadow-2xl", className)}
       >
         <div className="flex items-center justify-between p-4 border-b border-brand-text bg-brand-muted">
           <h3 className="font-serif-italic text-lg">{title}</h3>

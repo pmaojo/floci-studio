@@ -1,18 +1,27 @@
 import React from 'react';
 import { useAws } from '../contexts/AwsContext';
-import { Terminal, Activity, Clock, Server, CheckCircle2, AlertCircle, Hash, Search, Trash2 } from 'lucide-react';
-import { PageHeader, Card, Input } from '../components/ui-elements';
+import { Activity, Search } from 'lucide-react';
+import { PageHeader } from '../components/ui-elements';
 import { motion, AnimatePresence } from 'motion/react';
 import { format } from 'date-fns';
 
 const LiveEventsView = () => {
   const { activity } = useAws();
   const [filter, setFilter] = React.useState('');
+  const sessionStartedAt = React.useRef(Date.now());
+  const [now, setNow] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const filteredLogs = activity.filter(log => 
     log.service.toLowerCase().includes(filter.toLowerCase()) ||
     log.action.toLowerCase().includes(filter.toLowerCase())
   );
+  const recentErrors = activity.filter(log => log.status === 'error').length;
+  const sessionUptime = formatDuration(now - sessionStartedAt.current);
 
   return (
     <div className="flex flex-col h-full uppercase bg-black text-brand-green selection:bg-brand-green selection:text-black font-mono">
@@ -75,16 +84,26 @@ const LiveEventsView = () => {
 
       <div className="bg-zinc-900 border-t border-brand-green/20 p-4 flex justify-between items-center text-[9px] font-bold tracking-tighter">
          <div className="flex gap-4">
-            <span>UPTIME: 04:22:11</span>
-            <span>EVENTS_CAP: 100</span>
+            <span>UPTIME: {sessionUptime}</span>
+            <span>EVENTS: {activity.length}/500</span>
          </div>
          <div className="flex gap-4">
-            <span className="text-brand-green">SYSTEM_NOMINAL</span>
-            <span className="opacity-40">GRAALVM_NATIVE_IMAGE</span>
+            <span className={recentErrors === 0 ? 'text-brand-green' : 'text-rose-500'}>
+              {recentErrors === 0 ? 'SYSTEM_NOMINAL' : `ERRORS_${recentErrors}`}
+            </span>
+            <span className="opacity-40">FRONTEND_EVENT_BUFFER</span>
          </div>
       </div>
     </div>
   );
+};
+
+const formatDuration = (milliseconds: number) => {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+  const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+  const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
 };
 
 export default LiveEventsView;

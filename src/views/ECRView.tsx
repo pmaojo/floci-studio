@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DescribeRepositoriesCommand, CreateRepositoryCommand, DeleteRepositoryCommand } from '@aws-sdk/client-ecr';
 import { useAws } from '../contexts/AwsContext';
-import { Box, Search, CirclePlus, Trash2, Package, HardDrive, Shield } from 'lucide-react';
+import { CirclePlus, Trash2, Package, HardDrive, Shield } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const ECRView = () => {

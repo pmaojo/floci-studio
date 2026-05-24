@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ListSecretsCommand, CreateSecretCommand, DeleteSecretCommand } from '@aws-sdk/client-secrets-manager';
 import { useAws } from '../contexts/AwsContext';
-import { Shield, Search, CirclePlus, Key, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Shield, Search, CirclePlus, Key, Eye } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 import { format } from 'date-fns';
 
