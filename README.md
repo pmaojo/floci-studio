@@ -1,23 +1,23 @@
 # Floci.io — The Ultimate Local AWS Cockpit & Marketplace 🚀
 
-Bienvenido al cockpit definitivo de **Floci.io**. 
+Welcome to the ultimate cockpit of **Floci.io**.
 
 ---
 
-## 🎨 Arquitectura del Ecosistema
+## 🎨 Ecosystem Architecture
 
-El ecosistema de Floci.io se compone de varias piezas arquitectónicas perfectamente coordinadas para brindar una experiencia ágil y potente:
+The Floci.io ecosystem is composed of several seamlessly coordinated architectural pieces to provide an agile and powerful experience:
 
 ```mermaid
 graph TD
-    %% Componentes
-    LLM[IA / Claude / Cursor] <-->|JSON-RPC Stdio| MCP[Servidor MCP Python - uv]
-    SPA[SPA Vite - React] <-->|API Calls| Backend[Backend FastAPI - Python]
+    %% Components
+    LLM[AI / Claude / Cursor] <-->|JSON-RPC Stdio| MCP[Python MCP Server - uv]
+    SPA[Vite SPA - React] <-->|API Calls| Backend[FastAPI Backend - Python]
     MCP <-->|In-Memory ASGI| Backend
     Backend <-->|Local SDK / FS| LocalStack[AWS Localstack / Floci Engine]
     Backend <-->|Docker Socket| DockerMarket[Docker Compose - Marketplace]
 
-    %% Estilos
+    %% Styles
     style LLM fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
     style MCP fill:#efebe9,stroke:#8d6e63,stroke-width:2px
     style SPA fill:#ede7f6,stroke:#673ab7,stroke-width:2px
@@ -26,51 +26,67 @@ graph TD
     style DockerMarket fill:#eceff1,stroke:#607d8b,stroke-width:2px
 ```
 
-* **Vite SPA (React + TypeScript):** Interfaz táctil reactiva con carga dinámica (Lazy Loading) de ~30 vistas de servicios de AWS, optimizada para ofrecer un renderizado ultra-rápido y una estética retro-premium.
-* **Backend API (FastAPI + Python):** Pasarela de backend en el puerto `8000` que interactúa con el Docker Socket, orquesta las recetas del Marketplace y enruta llamadas de compatibilidad persistiendo el estado en disco JSON.
-* **Servidor MCP Nativo (Python + `uv`):** Servidor del Model Context Protocol (v1.27.1+) que se comunica de forma nativa en memoria vía `httpx.ASGITransport` con el backend y permite a modelos de lenguaje (LLMs) auditar el estado del emulador AWS y aprovisionar arquitecturas locales.
-* **Engine (AWS Localstack / Floci):** Emulador local de AWS expuesto en el puerto `4566`.
+* **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of ~30 AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
+* **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
+* **Native MCP Server (Python + `uv`):** Model Context Protocol server (v1.27.1+) that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state and provision local architectures via natural language.
+* **Engine (AWS Localstack / Floci):** Local AWS emulator exposed on port `4566`.
 
 ---
 
-## 🛍️ local Marketplace: Infraestructura Modular
+## 🛍️ Local Marketplace: Modular Infrastructure
 
-Floci.io incluye un catálogo de recetas locales parametrizadas en la carpeta `/recipes` (con soporte para **Redis, RabbitMQ, PostgreSQL y Keycloak**). Cada receta automatiza el aprovisionamiento de software local interconectado mediante Docker Compose, permitiendo a la IA:
-1. **Listar** las recetas disponibles con sus variables de entorno configurables.
-2. **Desplegar** e instalar las infraestructuras locales al vuelo.
-3. **Monitorear** el progreso del levantamiento de Docker en tiempo real leyendo sus trazas de logs.
-4. **Desmantelar** y limpiar el entorno cuando finalicen las tareas.
+Floci.io includes a catalog of parameterized local recipes in the `/recipes` folder. Each recipe automates the provisioning of local interconnected software using Docker Compose, allowing AI to:
+1. **List** available recipes with their configurable environment variables.
+2. **Deploy** and install local infrastructures on the fly.
+3. **Monitor** Docker startup progress in real-time by reading log traces.
+4. **Teardown** and clean up the environment when tasks are completed.
+
+### Available Recipes
+
+- **AWS IoT Core (MQTT)**
+- **Keycloak + PostgreSQL**
+- **Mailpit (SMTP)**
+- **Meilisearch**
+- **MinIO (S3 Compatible Storage)**
+- **Nginx Proxy Manager**
+- **Observability (Grafana & Prometheus)**
+- **PocketBase**
+- **PostgreSQL Database**
+- **RabbitMQ Broker**
+- **Redis Cache & Broker**
+- **Redpanda (Kafka Compatible)**
+- **AWS Transfer Family (SFTP)**
 
 ---
 
-## 🛠️ Integración del Servidor MCP de Floci
+## 🛠️ Floci MCP Server Integration
 
-El servidor MCP te permite interactuar en lenguaje natural con tu entorno local de AWS y tu Marketplace de software local.
+The MCP server allows you to interact with your local AWS environment and local software Marketplace using natural language.
 
-### Opción A: Ejecución Nativa con `uv` (Recomendado)
-`uv` autogestiona el entorno virtual y la versión de Python de forma transparente sin configuraciones globales complejas en Windows:
+### Option A: Native Execution with `uv` (Recommended)
+`uv` automatically manages the virtual environment and Python version transparently without complex global configurations on Windows:
 
 ```bash
-# Sincronizar entorno virtual y dependencias
+# Sync virtual environment and dependencies
 uv sync --project mcp
 
-# Arrancar el servidor MCP
+# Start the MCP server
 uv run --project mcp python mcp/floci_mcp.py
 ```
 
-### Opción B: Ejecución Dockerizada 🐳
-Si prefieres aislar completamente el servidor o no tienes Python/uv en tu host, puedes ejecutar el servidor MCP directamente como un contenedor Docker interactivo:
+### Option B: Dockerized Execution 🐳
+If you prefer to completely isolate the server or don't have Python/uv on your host, you can run the MCP server directly as an interactive Docker container:
 
 ```bash
-# Construir la imagen del servidor MCP
+# Build the MCP server image
 docker build -t floci-mcp mcp/
 
-# Arrancar el servidor MCP enlazado a la entrada y salida estandar (stdio)
+# Start the MCP server bound to standard input and output (stdio)
 docker run -i --rm -e AWS_ENDPOINT_URL=http://host.docker.internal:4566 -e SIDECAR_TOKEN=open floci-mcp
 ```
 
-### Configuración en Claude Desktop / Cursor
-Añade este bloque en tu archivo `claude_desktop_config.json` para cargarlo automáticamente:
+### Configuration in Claude Desktop / Cursor
+Add this block to your `claude_desktop_config.json` file to load it automatically:
 
 ```json
 {
@@ -95,29 +111,29 @@ Añade este bloque en tu archivo `claude_desktop_config.json` para cargarlo auto
 
 ---
 
-## 🚀 De Floci a Amazon AWS Real: ¿Cómo pasar a Producción?
+## 🚀 From Floci to Real Amazon AWS: How to Go to Production?
 
-Una vez que tu aplicación y su infraestructura asociada estén probadas, validadas y funcionando en tu cockpit local de Floci.io, existen tres caminos recomendados para realizar el despliegue automático hacia AWS Real en producción utilizando "copilots" de automatización:
+Once your application and its associated infrastructure are tested, validated, and working in your local Floci.io cockpit, there are three recommended paths to automate deployment to Real AWS in production using automation "copilots":
 
-### 1. AWS Copilot CLI (El Copiloto Oficial de AWS)
-[AWS Copilot](https://aws.github.io/copilot-cli/) es la herramienta perfecta para transpilar recetas contenerizadas en Docker a entornos reales de producción:
-* **Cómo funciona:** AWS Copilot analiza tu Dockerfile y tus dependencias y aprovisiona de manera autónoma toda la infraestructura necesaria en **Amazon ECS (Elastic Container Service)** bajo AWS Fargate (serverless).
-* **Flujo de paso a producción:**
+### 1. AWS Copilot CLI (The Official AWS Copilot)
+[AWS Copilot](https://aws.github.io/copilot-cli/) is the perfect tool to transpile containerized Docker recipes to real production environments:
+* **How it works:** AWS Copilot analyzes your Dockerfile and dependencies and autonomously provisions all necessary infrastructure on **Amazon ECS (Elastic Container Service)** under AWS Fargate (serverless).
+* **Path to production flow:**
   ```bash
-  # Inicializar la aplicacion contenerizada en AWS
-  copilot init --app mi-app-floci --name api-service --type "Load Balanced Web Service" --dockerfile ./Dockerfile
+  # Initialize the containerized application in AWS
+  copilot init --app my-floci-app --name api-service --type "Load Balanced Web Service" --dockerfile ./Dockerfile
   
-  # Desplegar el entorno a produccion
+  # Deploy the environment to production
   copilot deploy --env prod
   ```
-* **Ventajas:** Aprovisiona el balanceador de carga (ALB), VPC de red privada, roles de seguridad de IAM y enrutamiento SSL de forma automatizada y sin necesidad de escribir plantillas manuales de CloudFormation.
+* **Advantages:** Automatically provisions the Load Balancer (ALB), private network VPC, IAM security roles, and SSL routing without the need to write manual CloudFormation templates.
 
-### 2. Infraestructura como Código (IaC) Portable (Terraform / Pulumi / AWS CDK)
-Si tu cockpit de Floci está interactuando con recursos como bases de datos RDS, buckets S3 o colas SQS, el uso de IaC garantiza una portabilidad inmediata:
-* **Cómo funciona:** Durante el desarrollo local, configuras tu proveedor de Terraform o AWS CDK para que redirija los endpoints de llamadas a la dirección local de Floci (`http://localhost:4566`).
-* **Flujo de paso a producción:** Simplemente retiras las líneas de reescritura de endpoints de tu código de configuración para que el SDK de Terraform o CDK interactúe directamente con las APIs globales reales de Amazon Web Services:
+### 2. Portable Infrastructure as Code (IaC) (Terraform / Pulumi / AWS CDK)
+If your Floci cockpit is interacting with resources like RDS databases, S3 buckets, or SQS queues, using IaC guarantees immediate portability:
+* **How it works:** During local development, you configure your Terraform or AWS CDK provider to redirect API endpoint calls to the local Floci address (`http://localhost:4566`).
+* **Path to production flow:** Simply remove the endpoint rewrite lines from your configuration code so the Terraform SDK or CDK interacts directly with the real global APIs of Amazon Web Services:
   ```hcl
-  # Desarrollo Local (apuntando a Floci)
+  # Local Development (pointing to Floci)
   provider "aws" {
     region                      = "us-east-1"
     s3_use_path_style           = true
@@ -130,25 +146,25 @@ Si tu cockpit de Floci está interactuando con recursos como bases de datos RDS,
     }
   }
 
-  # Produccion Real (Eliminar bloque endpoints para usar AWS real)
+  # Real Production (Remove endpoints block to use real AWS)
   provider "aws" {
     region = "us-east-1"
   }
   ```
 
 ### 3. AWS SAM (Serverless Application Model)
-Si tu aplicación utiliza arquitecturas orientadas a eventos con funciones **AWS Lambda** y **API Gateway**:
-* **Cómo funciona:** SAM permite probar funciones en local interconectadas a Floci y desplegarlas a producción real en un solo paso.
-* **Flujo de paso a producción:**
+If your application uses event-driven architectures with **AWS Lambda** functions and **API Gateway**:
+* **How it works:** SAM allows you to test interconnected functions locally in Floci and deploy them to real production in a single step.
+* **Path to production flow:**
   ```bash
-  # Validar plantilla serverless local
+  # Validate local serverless template
   sam validate
   
-  # Despliegue interactivo y guiado hacia AWS real
+  # Interactive and guided deployment to real AWS
   sam deploy --guided
   ```
 
 ---
 
 > [!TIP]
-> **Excelencia de Desarrollo:** Floci.io te asegura que el 100% de tu código e infraestructura correrán exactamente igual en AWS real que en tu máquina de desarrollo. ¡Prueba en local a coste cero y despliega a producción con total confianza!
+> **Development Excellence:** Floci.io ensures that 100% of your code and infrastructure will run exactly the same in real AWS as on your development machine. Test locally at zero cost and deploy to production with total confidence!
