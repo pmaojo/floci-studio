@@ -1,0 +1,16 @@
+{
+  "id": "pocketbase",
+  "name": "PocketBase",
+  "description": "Open Source backend in 1 file with embedded SQLite database, real-time subscriptions, and a beautiful Admin dashboard.",
+  "version": "1.0.0",
+  "accessUrl": "http://localhost:{{POCKETBASE_PORT}}/_/",
+  "variables": [
+    {
+      "key": "POCKETBASE_PORT",
+      "label": "API and Admin Panel Port",
+      "type": "number",
+      "default": 8090,
+      "description": "Port on your host machine to bind both the PocketBase API and the visual Admin Dashboard."
+    }
+  ]
+}
