@@ -12,23 +12,23 @@ El ecosistema de Floci.io se compone de varias piezas arquitectónicas perfectam
 graph TD
     %% Componentes
     LLM[IA / Claude / Cursor] <-->|JSON-RPC Stdio| MCP[Servidor MCP Python - uv]
-    SPA[SPA Vite - React] <-->|API Calls| Sidecar[Sidecar Express - TS]
-    MCP <-->|API Calls| Sidecar
-    Sidecar <-->|Local SDK / FS| LocalStack[AWS Localstack / Floci Engine]
-    Sidecar <-->|Docker Socket| DockerMarket[Docker Compose - Marketplace]
+    SPA[SPA Vite - React] <-->|API Calls| Backend[Backend FastAPI - Python]
+    MCP <-->|In-Memory ASGI| Backend
+    Backend <-->|Local SDK / FS| LocalStack[AWS Localstack / Floci Engine]
+    Backend <-->|Docker Socket| DockerMarket[Docker Compose - Marketplace]
 
     %% Estilos
     style LLM fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
     style MCP fill:#efebe9,stroke:#8d6e63,stroke-width:2px
     style SPA fill:#ede7f6,stroke:#673ab7,stroke-width:2px
-    style Sidecar fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Backend fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
     style LocalStack fill:#fff3e0,stroke:#ff9800,stroke-width:2px
     style DockerMarket fill:#eceff1,stroke:#607d8b,stroke-width:2px
 ```
 
 * **Vite SPA (React + TypeScript):** Interfaz táctil reactiva con carga dinámica (Lazy Loading) de ~30 vistas de servicios de AWS, optimizada para ofrecer un renderizado ultra-rápido y una estética retro-premium.
-* **Sidecar API (Express + TypeScript):** Pasarela de backend en el puerto `4317` que interactúa con el Docker Socket, orquesta las recetas del Marketplace y enruta llamadas de compatibilidad persistiendo el estado en disco JSON.
-* **Servidor MCP Nativo (Python + `uv`):** Servidor del Model Context Protocol (v1.27.1+) que permite a modelos de lenguaje (LLMs) auditar el estado del emulador AWS y aprovisionar arquitecturas locales.
+* **Backend API (FastAPI + Python):** Pasarela de backend en el puerto `8000` que interactúa con el Docker Socket, orquesta las recetas del Marketplace y enruta llamadas de compatibilidad persistiendo el estado en disco JSON.
+* **Servidor MCP Nativo (Python + `uv`):** Servidor del Model Context Protocol (v1.27.1+) que se comunica de forma nativa en memoria vía `httpx.ASGITransport` con el backend y permite a modelos de lenguaje (LLMs) auditar el estado del emulador AWS y aprovisionar arquitecturas locales.
 * **Engine (AWS Localstack / Floci):** Emulador local de AWS expuesto en el puerto `4566`.
 
 ---
@@ -66,7 +66,7 @@ Si prefieres aislar completamente el servidor o no tienes Python/uv en tu host, 
 docker build -t floci-mcp mcp/
 
 # Arrancar el servidor MCP enlazado a la entrada y salida estandar (stdio)
-docker run -i --rm -e SIDECAR_URL=http://host.docker.internal:4317 -e AWS_ENDPOINT_URL=http://host.docker.internal:4566 -e SIDECAR_TOKEN=open floci-mcp
+docker run -i --rm -e AWS_ENDPOINT_URL=http://host.docker.internal:4566 -e SIDECAR_TOKEN=open floci-mcp
 ```
 
 ### Configuración en Claude Desktop / Cursor
@@ -85,7 +85,6 @@ Añade este bloque en tu archivo `claude_desktop_config.json` para cargarlo auto
         "c:/Users/Pelayo/Proyectos/floci-gui/floci-gui-main/mcp/floci_mcp.py"
       ],
       "env": {
-        "SIDECAR_URL": "http://127.0.0.1:4317",
         "SIDECAR_TOKEN": "open",
         "AWS_ENDPOINT_URL": "http://127.0.0.1:4566"
       }
