@@ -47,9 +47,9 @@ export default function ArchitectureView() {
     }
 
     mermaidRef.current.innerHTML = '';
-    mermaid.render('mermaid-svg', graphDefinition).then((res) => {
+    mermaid.render('mermaid-svg', graphDefinition).then((res: any) => {
         if(mermaidRef.current) mermaidRef.current.innerHTML = res.svg;
-    }).catch(e => console.error("Mermaid error", e));
+    }).catch((e: any) => console.error("Mermaid error", e));
 
   }, [data]);
 
