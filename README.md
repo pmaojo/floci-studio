@@ -1,12 +1,12 @@
-# Floci.io — The Ultimate Local AWS Cockpit & Marketplace 🚀
+# Floci Studio — The Ultimate Local AWS Cockpit & Marketplace 🚀
 
-Welcome to the ultimate cockpit of **Floci.io**.
+Welcome to the ultimate cockpit of **Floci Studio**.
 
 ---
 
 ## 🎨 Ecosystem Architecture
 
-The Floci.io ecosystem is composed of several seamlessly coordinated architectural pieces to provide an agile and powerful experience:
+The Floci Studio ecosystem is composed of several seamlessly coordinated architectural pieces to provide an agile and powerful experience:
 
 ```mermaid
 graph TD
@@ -14,7 +14,7 @@ graph TD
     LLM[AI / Claude / Cursor] <-->|JSON-RPC Stdio| MCP[Python MCP Server - uv]
     SPA[Vite SPA - React] <-->|API Calls| Backend[FastAPI Backend - Python]
     MCP <-->|In-Memory ASGI| Backend
-    Backend <-->|Local SDK / FS| LocalStack[AWS Localstack / Floci Engine]
+    Backend <-->|Local SDK / FS| LocalStack[AWS Localstack / Floci Studio Engine]
     Backend <-->|Docker Socket| DockerMarket[Docker Compose - Marketplace]
 
     %% Styles
@@ -29,13 +29,13 @@ graph TD
 * **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of ~30 AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
 * **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
 * **Native MCP Server (Python + `uv`):** Model Context Protocol server (v1.27.1+) that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state and provision local architectures via natural language.
-* **Engine (AWS Localstack / Floci):** Local AWS emulator exposed on port `4566`.
+* **Engine (AWS Localstack / Floci Studio):** Local AWS emulator exposed on port `4566`.
 
 ---
 
 ## 🛍️ Local Marketplace: Modular Infrastructure
 
-Floci.io includes a catalog of parameterized local recipes in the `/recipes` folder. Each recipe automates the provisioning of local interconnected software using Docker Compose, allowing AI to:
+Floci Studio includes a catalog of parameterized local recipes in the `/recipes` folder. Each recipe automates the provisioning of local interconnected software using Docker Compose, allowing AI to:
 1. **List** available recipes with their configurable environment variables.
 2. **Deploy** and install local infrastructures on the fly.
 3. **Monitor** Docker startup progress in real-time by reading log traces.
@@ -59,7 +59,7 @@ Floci.io includes a catalog of parameterized local recipes in the `/recipes` fol
 
 ---
 
-## 🛠️ Floci MCP Server Integration
+## 🛠️ Floci Studio MCP Server Integration
 
 The MCP server allows you to interact with your local AWS environment and local software Marketplace using natural language.
 
@@ -111,9 +111,9 @@ Add this block to your `claude_desktop_config.json` file to load it automaticall
 
 ---
 
-## 🚀 From Floci to Real Amazon AWS: How to Go to Production?
+## 🚀 From Floci Studio to Real Amazon AWS: How to Go to Production?
 
-Once your application and its associated infrastructure are tested, validated, and working in your local Floci.io cockpit, there are three recommended paths to automate deployment to Real AWS in production using automation "copilots":
+Once your application and its associated infrastructure are tested, validated, and working in your local Floci Studio cockpit, there are three recommended paths to automate deployment to Real AWS in production using automation "copilots":
 
 ### 1. AWS Copilot CLI (The Official AWS Copilot)
 [AWS Copilot](https://aws.github.io/copilot-cli/) is the perfect tool to transpile containerized Docker recipes to real production environments:
@@ -129,11 +129,11 @@ Once your application and its associated infrastructure are tested, validated, a
 * **Advantages:** Automatically provisions the Load Balancer (ALB), private network VPC, IAM security roles, and SSL routing without the need to write manual CloudFormation templates.
 
 ### 2. Portable Infrastructure as Code (IaC) (Terraform / Pulumi / AWS CDK)
-If your Floci cockpit is interacting with resources like RDS databases, S3 buckets, or SQS queues, using IaC guarantees immediate portability:
-* **How it works:** During local development, you configure your Terraform or AWS CDK provider to redirect API endpoint calls to the local Floci address (`http://localhost:4566`).
+If your Floci Studio cockpit is interacting with resources like RDS databases, S3 buckets, or SQS queues, using IaC guarantees immediate portability:
+* **How it works:** During local development, you configure your Terraform or AWS CDK provider to redirect API endpoint calls to the local Floci Studio address (`http://localhost:4566`).
 * **Path to production flow:** Simply remove the endpoint rewrite lines from your configuration code so the Terraform SDK or CDK interacts directly with the real global APIs of Amazon Web Services:
   ```hcl
-  # Local Development (pointing to Floci)
+  # Local Development (pointing to Floci Studio)
   provider "aws" {
     region                      = "us-east-1"
     s3_use_path_style           = true
@@ -154,7 +154,7 @@ If your Floci cockpit is interacting with resources like RDS databases, S3 bucke
 
 ### 3. AWS SAM (Serverless Application Model)
 If your application uses event-driven architectures with **AWS Lambda** functions and **API Gateway**:
-* **How it works:** SAM allows you to test interconnected functions locally in Floci and deploy them to real production in a single step.
+* **How it works:** SAM allows you to test interconnected functions locally in Floci Studio and deploy them to real production in a single step.
 * **Path to production flow:**
   ```bash
   # Validate local serverless template
@@ -167,4 +167,4 @@ If your application uses event-driven architectures with **AWS Lambda** function
 ---
 
 > [!TIP]
-> **Development Excellence:** Floci.io ensures that 100% of your code and infrastructure will run exactly the same in real AWS as on your development machine. Test locally at zero cost and deploy to production with total confidence!
+> **Development Excellence:** Floci Studio ensures that 100% of your code and infrastructure will run exactly the same in real AWS as on your development machine. Test locally at zero cost and deploy to production with total confidence!
