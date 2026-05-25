@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "sidecar:dev": "tsx sidecar/src/server.ts",
+    "sidecar:dev": "uv run --project mcp uvicorn floci_backend.server:app --port 8000 --app-dir mcp",
     "dev:full": "docker compose up --build",
     "dev:full:down": "docker compose down",
     "dev:full:reset": "docker compose down -v",
