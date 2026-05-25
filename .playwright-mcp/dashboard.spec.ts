@@ -22,7 +22,7 @@ test.describe('Dashboard E2E Tests', () => {
     }
 
     // Verify presence of event console / activity stream
-    await expect(page.locator('text=Event Stream')).toBeVisible();
+    await expect(page.locator('text=Event Stream').first()).toBeVisible();
 
     // Verify Capability Matrix Tab exists and is clickable
     const matrixTab = page.locator('button:has-text("AWS Capability Matrix")');
@@ -31,13 +31,13 @@ test.describe('Dashboard E2E Tests', () => {
 
     // Verify Capability Matrix content loads
     await expect(page.locator('text=Total Connected Capabilities')).toBeVisible();
-    await expect(page.locator('text=S3 Buckets')).toBeVisible();
-    await expect(page.locator('text=Lambda')).toBeVisible();
+    await expect(page.locator('text=S3 Buckets').first()).toBeVisible();
+    await expect(page.locator('text=Lambda').first()).toBeVisible();
 
     // Switch back to System Overview
     const systemTab = page.locator('button:has-text("System Overview")');
     await expect(systemTab).toBeVisible();
     await systemTab.click();
-    await expect(page.locator('text=System Overview')).toBeVisible();
+    await expect(page.locator('text=System Overview').first()).toBeVisible();
   });
 });
