@@ -17,7 +17,7 @@ import {
   Fingerprint,
   BadgeCheck,
   Share2,
-  Globe,
+  Globe, Key,
   Network,
   Globe2,
   GitBranch,
@@ -125,7 +125,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { to: '/elb', icon: Network, label: 'Elastic Load Balancing' },
         { to: '/route53', icon: Globe2, label: 'DNS Zones' },
         { to: '/cloudfront', icon: GlobalIcon, label: 'CloudFront' },
-        { to: '/apigateway', icon: Globe, label: 'API Gateway' },
+        { to: '/apigateway', icon: Globe, Key, label: 'API Gateway' },
         { to: '/appsync', icon: Share2, label: 'AppSync GraphQL' },
         { to: '/transitgateway', icon: Network, label: 'Transit Gateways' },
       ]
