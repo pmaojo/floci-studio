@@ -30,6 +30,12 @@ const ElastiCacheView = lazy(() => import('./views/ElastiCacheView'));
 const GlueView = lazy(() => import('./views/GlueView'));
 const WAFView = lazy(() => import('./views/WAFView'));
 const SettingsView = lazy(() => import('./views/SettingsView'));
+
+const ArchitectureView = lazy(() => import('./views/studio/ArchitectureView'));
+const LambdaLogsView = lazy(() => import('./views/studio/LambdaLogsView'));
+const JwtMocksView = lazy(() => import('./views/studio/JwtMocksView'));
+const ApiClientView = lazy(() => import('./views/studio/ApiClientView'));
+
 const EksView = lazy(() => import('./views/EksView'));
 const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
 const CostExplorerView = lazy(() => import('./views/CostExplorerView'));
@@ -158,6 +164,12 @@ const AppContent = () => {
                 <Route path="/marketplace" element={<MarketplaceView />} />
                 <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
                 <Route path="/settings" element={<SettingsView />} />
+
+              <Route path="/studio/architecture" element={<ArchitectureView />} />
+              <Route path="/studio/logs" element={<LambdaLogsView />} />
+              <Route path="/studio/jwt" element={<JwtMocksView />} />
+              <Route path="/studio/api-client" element={<ApiClientView />} />
+
                 <Route path="/ecs" element={<ECSView />} />
                 <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
                 <Route path="/redshift" element={awsServiceRoute('redshift', 'Redshift')} />
