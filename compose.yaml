@@ -30,7 +30,7 @@ services:
       VITE_SIDECAR_URL: ${VITE_SIDECAR_URL:-/sidecar}
       VITE_REAL_DATA_ONLY: ${VITE_REAL_DATA_ONLY:-true}
       FLOCI_PROXY_TARGET: ${FLOCI_PROXY_TARGET:-http://floci:4566}
-      SIDECAR_PROXY_TARGET: ${SIDECAR_PROXY_TARGET:-http://sidecar:4317}
+      SIDECAR_PROXY_TARGET: ${SIDECAR_PROXY_TARGET:-http://sidecar:8000}
       SIDECAR_TOKEN: ${SIDECAR_TOKEN:-}
     volumes:
       - .:/app
@@ -51,10 +51,10 @@ services:
       # Bind the sidecar publish port to the host loopback only — the GUI talks
       # to it through the Docker network. Expose externally by overriding
       # SIDECAR_BIND_HOST to 0.0.0.0 (and setting SIDECAR_TOKEN first).
-      - "${SIDECAR_BIND_HOST:-127.0.0.1}:${SIDECAR_PORT:-4317}:4317"
+      - "${SIDECAR_BIND_HOST:-127.0.0.1}:${SIDECAR_PORT:-8000}:8000"
     environment:
       SIDECAR_HOST: 0.0.0.0
-      SIDECAR_PORT: 4317
+      SIDECAR_PORT: 8000
       SIDECAR_TOKEN: ${SIDECAR_TOKEN:-}
       SIDECAR_ALLOWED_ORIGINS: ${SIDECAR_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-http://floci:4566}
