@@ -1,14 +1,32 @@
-FROM node:22-alpine
+FROM ghcr.io/astral-sh/uv:python3.12-alpine AS builder
 
-RUN apk add --no-cache aws-cli kubectl
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci
+# Copiar configuración de dependencias e instalar en limpio
+COPY mcp/pyproject.toml mcp/README.md ./mcp/
+RUN uv sync --project mcp --no-install-project --no-dev
 
-COPY . .
+# Copiar el código del backend y del servidor MCP
+COPY mcp/floci_backend/ ./mcp/floci_backend/
+COPY mcp/floci_mcp.py ./mcp/
+RUN uv sync --project mcp --no-dev
 
-EXPOSE 4317
+# Capa de ejecución ligera
+FROM python:3.12-alpine
 
-CMD ["npm", "run", "sidecar:dev"]
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+ENV PATH="/app/mcp/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    AWS_ENDPOINT_URL="http://floci:4566" \
+    AWS_DEFAULT_REGION="us-east-1"
+
+EXPOSE 8000
+
+# Arrancar el servidor Uvicorn en el puerto 8000
+CMD ["uvicorn", "mcp.floci_backend.server:app", "--host", "0.0.0.0", "--port", "8000"]
