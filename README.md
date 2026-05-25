@@ -1,6 +1,6 @@
 # Floci.io — The Ultimate Local AWS Cockpit & Marketplace 🚀
 
-Bienvenido al cockpit definitivo de **Floci.io**. Este proyecto es un emulador visual e interactivo de servicios de AWS en local, diseñado para ofrecer una alternativa honesta, rápida y 100% real al desarrollo en la nube tradicional. Olvídate de los mocks simulados: Floci trabaja con datos reales, garantizando fidelidad absoluta frente al comportamiento real de AWS.
+Bienvenido al cockpit definitivo de **Floci.io**. 
 
 ---
 
