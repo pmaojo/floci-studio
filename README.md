@@ -80,9 +80,9 @@ Añade este bloque en tu archivo `claude_desktop_config.json` para cargarlo auto
       "args": [
         "run",
         "--project",
-        "c:/Users/Pelayo/Proyectos/floci-gui/floci-gui-main/mcp",
+        "./mcp",
         "python",
-        "c:/Users/Pelayo/Proyectos/floci-gui/floci-gui-main/mcp/floci_mcp.py"
+        "./mcp/floci_mcp.py"
       ],
       "env": {
         "SIDECAR_TOKEN": "open",
