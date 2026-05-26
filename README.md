@@ -166,5 +166,10 @@ If your application uses event-driven architectures with **AWS Lambda** function
 
 ---
 
+included GUI
+
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/03ad8acc-e932-47c1-b955-bf84868b4d3e" />
+
+
 > [!TIP]
 > **Development Excellence:** Floci.io ensures that 100% of your code and infrastructure will run exactly the same in real AWS as on your development machine. Test locally at zero cost and deploy to production with total confidence!
