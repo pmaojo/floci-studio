@@ -1,0 +1,23 @@
+{
+  "id": "observability",
+  "name": "Observability Stack (Prometheus + Grafana)",
+  "description": "A pre-configured observability stack containing Prometheus metrics collection and a clean Grafana dashboard.",
+  "version": "1.0.0",
+  "accessUrl": "http://localhost:{{GRAFANA_PORT}}",
+  "variables": [
+    {
+      "key": "GRAFANA_PORT",
+      "label": "Grafana Dashboard Port",
+      "type": "number",
+      "default": 3000,
+      "description": "Port on your host machine to access the Grafana visual dashboard."
+    },
+    {
+      "key": "PROMETHEUS_PORT",
+      "label": "Prometheus API Port",
+      "type": "number",
+      "default": 9090,
+      "description": "Port on your host machine to access the Prometheus raw metrics console."
+    }
+  ]
+}
