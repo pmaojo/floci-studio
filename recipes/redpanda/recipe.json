@@ -6,7 +6,7 @@
   "accessUrl": "http://localhost:{{REDPANDA_CONSOLE_PORT}}",
   "variables": [
     {
-      "key": "REDPANDA_API_PORT",
+      "key": "REDPANDA_PORT",
       "label": "Kafka API Port",
       "type": "number",
       "default": 9092,
