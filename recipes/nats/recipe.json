@@ -1,0 +1,23 @@
+{
+  "id": "nats",
+  "name": "NATS JetStream",
+  "description": "Broker de mensajería ultraligero con JetStream activado. Alternativa local a SNS (pub/sub) y SQS (colas persistentes). Incluye panel de monitoreo HTTP.",
+  "version": "2.10.0",
+  "accessUrl": "http://localhost:{{NATS_MONITORING_PORT}}",
+  "variables": [
+    {
+      "key": "NATS_PORT",
+      "label": "NATS Client Port",
+      "type": "number",
+      "default": 4222,
+      "description": "Puerto para conexiones de aplicaciones cliente (SDK nats.js, nats.py, etc.)."
+    },
+    {
+      "key": "NATS_MONITORING_PORT",
+      "label": "Monitoring HTTP Port",
+      "type": "number",
+      "default": 8222,
+      "description": "Puerto del panel de monitoreo HTTP con métricas, subjects y conexiones activas."
+    }
+  ]
+}

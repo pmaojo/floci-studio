@@ -48,6 +48,7 @@ const SchedulerView = lazy(() => import('./views/SchedulerView'));
 const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
 const SSMView = lazy(() => import('./views/SSMView'));
 const CloudWatchMetricsView = lazy(() => import('./views/CloudWatchMetricsView'));
+const SESView = lazy(() => import('./views/SESView'));
 import { useAws } from './contexts/AwsContext';
 import { format } from 'date-fns';
 import { Menu, ChevronUp, ChevronDown } from 'lucide-react';
@@ -131,7 +132,7 @@ const AppContent = () => {
                 <Route path="/sts" element={awsServiceRoute('sts', 'STS')} />
                 <Route path="/secrets" element={<SecretsManagerView />} />
                 <Route path="/codeartifact" element={awsServiceRoute('codeartifact', 'CodeArtifact')} />
-                <Route path="/ses" element={awsServiceRoute('ses', 'SES Sink')} />
+                <Route path="/ses" element={<SESView />} />
                 <Route path="/kms" element={<KMSView />} />
                 <Route path="/acm" element={<ACMView />} />
                 <Route path="/events" element={<LiveEventsView />} />
