@@ -1,11 +1,11 @@
 ---
 title: Connect Claude / Cursor
-description: Add the floci.io MCP server to Claude Desktop or Cursor in 2 minutes.
+description: Add the Floci Studio MCP server to Claude Desktop or Cursor in 2 minutes.
 ---
 
 ## Prerequisites
 
-- floci.io stack running (`docker compose up` or native)
+- Floci Studio stack running (`docker compose up` or native)
 - [uv](https://docs.astral.sh/uv/) installed (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
 
 ## Claude Desktop

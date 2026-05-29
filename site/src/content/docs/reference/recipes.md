@@ -1,6 +1,6 @@
 ---
 title: Marketplace Recipes
-description: All 18 floci.io marketplace recipes with configurable variables, ports, and access URLs.
+description: All 18 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
 ---
 
 Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools.

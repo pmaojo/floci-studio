@@ -1,9 +1,9 @@
 ---
 title: SES — Email
-description: Verify email identities, send emails, and track send quota in floci.io.
+description: Verify email identities, send emails, and track send quota in Floci Studio.
 ---
 
-SES in floci.io provides a native interface for managing email identities, sending test emails, and monitoring your send quota — useful for testing email flows without hitting real mail servers.
+SES in Floci Studio provides a native interface for managing email identities, sending test emails, and monitoring your send quota — useful for testing email flows without hitting real mail servers.
 
 ## Verified identities
 

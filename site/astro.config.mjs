@@ -3,10 +3,10 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-	site: 'https://floci.io',
+	site: 'https://floci-studio.dev',
 	integrations: [
 		starlight({
-			title: 'floci.io',
+			title: 'Floci Studio',
 			description: 'The local AWS cockpit for AI-native development',
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/pmaojo/floci-studio' },

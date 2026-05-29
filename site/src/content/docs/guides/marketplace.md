@@ -3,7 +3,7 @@ title: Marketplace Recipes
 description: Deploy supporting services like Postgres, Redis, Temporal, and NATS with one click.
 ---
 
-The floci.io Marketplace lets you spin up any supporting service your stack needs — databases, message brokers, workflow engines, auth servers — without leaving the cockpit.
+The Floci Studio Marketplace lets you spin up any supporting service your stack needs — databases, message brokers, workflow engines, auth servers — without leaving the cockpit.
 
 ## What's a recipe?
 
