@@ -1,0 +1,639 @@
+---
+// floci.io landing page — custom Astro page (not a Starlight doc)
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The local AWS cockpit for AI-native development. 34 native service views, 84 MCP tools, 18 marketplace recipes." />
+  <title>floci.io — Local AWS Cockpit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f0;
+      --text: #111111;
+      --muted: #e8e8e3;
+      --border: #111111;
+      --green: #22c55e;
+      --green-dim: #16a34a;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      border: 1px solid var(--border);
+    }
+
+    /* ── NAV ── */
+    nav {
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: var(--muted);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .nav-logo-box {
+      width: 32px;
+      height: 32px;
+      background: var(--text);
+      color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      border-radius: 2px;
+    }
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; }
+    .nav-cta {
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      background: var(--text);
+      color: var(--bg) !important;
+      opacity: 1 !important;
+      border-radius: 2px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 2rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 2rem;
+      background: var(--muted);
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 span { color: var(--green-dim); }
+    .hero p {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      opacity: 0.65;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      font-weight: 400;
+      text-transform: none;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 12px 24px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+      border-radius: 2px;
+    }
+    .btn-primary { background: var(--text); color: var(--bg); }
+    .btn-primary:hover { background: #333; }
+    .btn-ghost { background: transparent; color: var(--text); }
+    .btn-ghost:hover { background: var(--muted); }
+
+    /* Terminal preview */
+    .terminal-preview {
+      margin: 4rem auto 0;
+      max-width: 700px;
+      border: 1px solid var(--border);
+      background: #111;
+      color: var(--green);
+      font-size: 0.72rem;
+      line-height: 1.8;
+    }
+    .terminal-header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .terminal-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #444;
+    }
+    .terminal-title {
+      color: #666;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-left: auto;
+    }
+    .terminal-body { padding: 1rem 1.2rem; }
+    .terminal-body .dim { color: #555; }
+    .terminal-body .ok { color: var(--green); }
+    .terminal-body .cmd { color: #fff; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      opacity: 0.15;
+      margin: 0;
+    }
+
+    /* ── SECTION ── */
+    section { padding: 4rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      opacity: 0.4;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .section-sub {
+      font-size: 0.85rem;
+      opacity: 0.55;
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      text-transform: none;
+    }
+
+    /* ── FEATURES ── */
+    .features-bg { background: var(--muted); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0;
+    }
+    .feature-card {
+      padding: 2.5rem;
+      border-right: 1px solid var(--border);
+    }
+    .feature-card:last-child { border-right: none; }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+    }
+    .feature-card h3 {
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+    .feature-card p {
+      font-size: 0.78rem;
+      opacity: 0.6;
+      line-height: 1.7;
+      text-transform: none;
+    }
+    .feature-stat {
+      margin-top: 1.5rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.4;
+    }
+    .feature-stat strong { font-size: 1.6rem; opacity: 1; display: block; color: var(--text); }
+
+    /* ── SERVICES GRID ── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+    .service-chip {
+      background: var(--bg);
+      padding: 10px 14px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .service-chip .dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── MARKETPLACE ── */
+    .marketplace-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+    .market-chip {
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--bg);
+      transition: all 0.15s;
+    }
+    .market-chip:hover { background: var(--text); color: var(--bg); }
+
+    /* ── MCP SECTION ── */
+    .mcp-bg { background: #111; color: #f5f5f0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .mcp-bg .section-sub { color: #999; }
+    .mcp-bg .section-label { color: var(--green); opacity: 1; }
+    .mcp-code {
+      border: 1px solid #333;
+      background: #0a0a0a;
+      padding: 1.5rem;
+      font-size: 0.72rem;
+      line-height: 1.8;
+      color: var(--green);
+      max-width: 600px;
+      margin-top: 2rem;
+    }
+    .mcp-code .gray { color: #555; }
+    .mcp-code .white { color: #eee; }
+    .mcp-code .yellow { color: #fbbf24; }
+    .mcp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    @media (max-width: 700px) { .mcp-grid { grid-template-columns: 1fr; } }
+    .mcp-tools-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .tool-badge {
+      border: 1px solid #333;
+      padding: 4px 10px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #999;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center;
+      padding: 5rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .cta-section h2 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .cta-section p {
+      opacity: 0.55;
+      font-size: 0.85rem;
+      margin-bottom: 2.5rem;
+      text-transform: none;
+      line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--muted);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 3rem 1.5rem 2.5rem; }
+      .feature-card { border-right: none; border-bottom: 1px solid var(--border); }
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo">
+      <div class="nav-logo-box">F</div>
+      <span class="nav-brand">Floci.io</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/getting-started/">Docs</a></li>
+      <li><a href="/mcp/overview/">MCP</a></li>
+      <li><a href="/reference/recipes/">Marketplace</a></li>
+      <li><a href="https://github.com/pmaojo/floci-studio" class="nav-cta">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Now with 84 MCP Tools — AI-Native from Day One</div>
+    <h1>
+      The local AWS cockpit<br />
+      for <span>AI-native</span><br />
+      development.
+    </h1>
+    <p>
+      floci.io gives you a full AWS emulator with a beautiful GUI, a Model Context Protocol server your AI agent
+      can drive, and a one-click marketplace for every service your stack depends on.
+      Zero cloud costs. Zero rate limits. Zero context switches.
+    </p>
+    <div class="hero-actions">
+      <a href="/getting-started/" class="btn btn-primary">
+        ▶ Get Started
+      </a>
+      <a href="https://github.com/pmaojo/floci-studio" class="btn btn-ghost">
+        View on GitHub →
+      </a>
+    </div>
+
+    <!-- Terminal preview -->
+    <div class="terminal-preview">
+      <div class="terminal-header">
+        <div class="terminal-dot"></div>
+        <div class="terminal-dot"></div>
+        <div class="terminal-dot"></div>
+        <span class="terminal-title">floci — event_stream</span>
+      </div>
+      <div class="terminal-body">
+        <div class="dim">[00:00.01] BOOT_SEQUENCE_INIT</div>
+        <div class="ok">[00:00.12] SQS.CreateQueue → order-events.fifo <span style="color:#555">200</span></div>
+        <div class="ok">[00:00.18] Lambda.CreateFunction → process-order <span style="color:#555">200</span></div>
+        <div class="ok">[00:00.23] SNS.Subscribe: sqs → order-events <span style="color:#555">200</span></div>
+        <div class="ok">[00:00.31] SQS.SendMessage → body: order#4419 <span style="color:#555">200</span></div>
+        <div style="color:#fbbf24">[00:00.45] Lambda.Invoke → process-order <span style="color:#555">200</span></div>
+        <div class="dim">[00:00.47] S3.PutObject → invoices/4419.pdf <span style="color:#555">200</span></div>
+        <div class="ok">[00:00.51] SES.SendEmail → customer@acme.com <span style="color:#555">200</span></div>
+        <div class="dim animate-blink">_</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- FEATURES -->
+  <section class="features-bg" style="padding: 0;">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⬛</div>
+        <h3>AWS Cockpit</h3>
+        <p>
+          34 native service views with full CRUD operations. Not a generic JSON explorer —
+          each service has a purpose-built UI: SQS drill-down with ReceiveMessage, SNS FIFO topics,
+          Lambda code editor, S3 object browser, DynamoDB query builder.
+        </p>
+        <div class="feature-stat">
+          <strong>34</strong>
+          Native service views
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#111; color: #22c55e; border-color:#111;">◈</div>
+        <h3>MCP-Native</h3>
+        <p>
+          The first local AWS emulator built with AI agents in mind. Connect Claude, Cursor,
+          or any MCP-compatible client and let your agent create queues, invoke lambdas, read messages,
+          seed DynamoDB tables, and run end-to-end flows — all via natural language.
+        </p>
+        <div class="feature-stat">
+          <strong>84</strong>
+          MCP tools across 14 modules
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">▤</div>
+        <h3>Marketplace</h3>
+        <p>
+          One-click recipes for every service your stack depends on: Temporal workflows,
+          NATS JetStream, n8n automation, Keycloak auth, Jaeger tracing, Minio storage,
+          Redpanda streams. All configured and wired together via Docker Compose.
+        </p>
+        <div class="feature-stat">
+          <strong>18</strong>
+          Ready-to-deploy recipes
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- SERVICE COVERAGE -->
+  <section>
+    <div class="section-inner">
+      <p class="section-label">Coverage</p>
+      <h2 class="section-title">30+ AWS Services. All local.</h2>
+      <p class="section-sub">
+        Every service runs against the local floci engine on port 4566 — the same API surface as real AWS,
+        so your code works without modification when you deploy.
+      </p>
+      <div class="services-grid">
+        {[
+          'SQS', 'SNS', 'SES', 'S3', 'DynamoDB', 'Lambda', 'EventBridge',
+          'Step Functions', 'IAM', 'Secrets Manager', 'KMS', 'ACM',
+          'CloudWatch Logs', 'CloudWatch Metrics', 'RDS', 'ElastiCache',
+          'Kinesis', 'Glue', 'Athena', 'ECR', 'ECS', 'EKS',
+          'CloudFormation', 'CodeBuild', 'Scheduler', 'SSM', 'VPC',
+          'WAF', 'API Gateway', 'SFN',
+        ].map(svc => (
+          <div class="service-chip">
+            <span class="dot"></span>
+            {svc}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- MARKETPLACE -->
+  <section style="background: var(--muted); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="section-inner">
+      <p class="section-label">Marketplace</p>
+      <h2 class="section-title">Your full local stack, one click away.</h2>
+      <p class="section-sub">
+        Deploy any supporting service directly from the floci UI. Each recipe is a parameterized
+        Docker Compose template — configure ports, credentials, and persistence, then hit Deploy.
+      </p>
+      <div class="marketplace-chips">
+        {[
+          'PostgreSQL', 'Redis', 'MongoDB', 'RabbitMQ', 'Redpanda (Kafka)',
+          'NATS JetStream', 'Temporal', 'n8n', 'Keycloak', 'Jaeger',
+          'Minio', 'Mailpit (SMTP)', 'Meilisearch', 'Grafana + Prometheus',
+          'Nginx Proxy Manager', 'PocketBase', 'IoT Core (MQTT)', 'AWS Transfer (SFTP)',
+        ].map(name => (
+          <div class="market-chip">{name}</div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- MCP SECTION -->
+  <section class="mcp-bg">
+    <div class="section-inner">
+      <div class="mcp-grid">
+        <div>
+          <p class="section-label">MCP Server</p>
+          <h2 class="section-title" style="color: #f5f5f0;">Let your AI agent drive the whole stack.</h2>
+          <p class="section-sub">
+            Connect Claude Desktop, Cursor, or any MCP client with a single config block.
+            Your agent gets 84 tools: create queues, publish events, invoke lambdas, seed databases,
+            generate architecture diagrams, export Terraform — all from a conversation.
+          </p>
+          <div class="mcp-tools-list">
+            {['SQS', 'SNS', 'SES', 'S3', 'Lambda', 'DynamoDB', 'EventBridge', 'Step Functions',
+              'Secrets', 'KMS', 'Athena', 'Marketplace', 'DevTools', 'Meta'].map(mod => (
+              <div class="tool-badge">{mod}</div>
+            ))}
+          </div>
+        </div>
+        <div class="mcp-code">
+          <div class="gray">// claude_desktop_config.json</div>
+          <div class="white">{`{`}</div>
+          <div class="white">&nbsp;&nbsp;<span class="yellow">"mcpServers"</span>: {`{`}</div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"floci"</span>: {`{`}</div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"command"</span>: <span style="color:#86efac">"uv"</span>,</div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"args"</span>: [</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"run"</span>, <span style="color:#86efac">"--project"</span>,</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"./mcp"</span>, <span style="color:#86efac">"python"</span>,</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"./mcp/floci_mcp.py"</span></div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],</div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"env"</span>: {`{`}</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"SIDECAR_TOKEN"</span>: <span style="color:#86efac">"open"</span>,</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"AWS_ENDPOINT_URL"</span>:</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"http://127.0.0.1:4566"</span></div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{`}`}</div>
+          <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;{`}`}</div>
+          <div class="white">&nbsp;&nbsp;{`}`}</div>
+          <div class="white">{`}`}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Start building locally<br />in 2 minutes.</h2>
+    <p>
+      Clone the repo, run <code style="background:var(--muted); padding: 2px 6px; border: 1px solid var(--border);">docker compose up</code>,
+      open <code style="background:var(--muted); padding: 2px 6px; border: 1px solid var(--border);">localhost:3000</code>.
+      That's it.
+    </p>
+    <div class="hero-actions">
+      <a href="/getting-started/" class="btn btn-primary">
+        ▶ Read the Docs
+      </a>
+      <a href="https://github.com/pmaojo/floci-studio" class="btn btn-ghost">
+        View on GitHub →
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>Floci.io — Local AWS Cockpit</span>
+    <span>MIT License</span>
+  </footer>
+
+</body>
+</html>
