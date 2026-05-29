@@ -9,8 +9,8 @@
       "key": "GRAFANA_PORT",
       "label": "Grafana Dashboard Port",
       "type": "number",
-      "default": 3000,
-      "description": "Port on your host machine to access the Grafana visual dashboard."
+      "default": 3001,
+      "description": "Port on your host machine to access the Grafana visual dashboard (avoid 3000, used by the Floci dev server)."
     },
     {
       "key": "PROMETHEUS_PORT",
