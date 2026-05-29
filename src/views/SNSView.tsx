@@ -7,6 +7,7 @@ import {
   ListSubscriptionsByTopicCommand,
   SubscribeCommand,
   UnsubscribeCommand,
+  GetTopicAttributesCommand,
 } from '@aws-sdk/client-sns';
 import { useAws } from '../contexts/AwsContext';
 import {
@@ -67,11 +68,16 @@ const SNSView = () => {
   // Create topic modal
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [newTopicName, setNewTopicName] = useState('');
+  const [isFifo, setIsFifo] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   // Topic detail / Subscriptions drill-down
   const [selectedTopicArn, setSelectedTopicArn] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'publish' | 'subscriptions'>('subscriptions');
+  const [activeTab, setActiveTab] = useState<'publish' | 'subscriptions' | 'attributes'>('subscriptions');
+
+  // Attributes
+  const [topicAttributes, setTopicAttributes] = useState<Record<string, string>>({});
+  const [loadingAttrs, setLoadingAttrs] = useState(false);
 
   // Subscriptions
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
@@ -115,6 +121,19 @@ const SNSView = () => {
     }
   };
 
+  const fetchTopicAttributes = async (topicArn: string) => {
+    setLoadingAttrs(true);
+    try {
+      const res = await clients.sns.send(new GetTopicAttributesCommand({ TopicArn: topicArn }));
+      setTopicAttributes(res.Attributes ?? {});
+      logActivity('SNS', `GetTopicAttributes: ${getTopicName(topicArn)}`, 'success');
+    } catch (err: any) {
+      logActivity('SNS', `GetTopicAttributes failed`, 'error', err.message);
+    } finally {
+      setLoadingAttrs(false);
+    }
+  };
+
   useEffect(() => { fetchTopics(); }, []);
 
   // ─── Topic CRUD ────────────────────────────────────────────────────────────
@@ -122,14 +141,19 @@ const SNSView = () => {
   const handleCreateTopic = async () => {
     if (!newTopicName) return;
     setIsCreating(true);
+    const name = isFifo && !newTopicName.endsWith('.fifo') ? `${newTopicName}.fifo` : newTopicName;
     try {
-      await clients.sns.send(new CreateTopicCommand({ Name: newTopicName }));
-      logActivity('SNS', `CreateTopic: ${newTopicName}`, 'success');
+      await clients.sns.send(new CreateTopicCommand({
+        Name: name,
+        Attributes: isFifo ? { FifoTopic: 'true', ContentBasedDeduplication: 'true' } : undefined,
+      }));
+      logActivity('SNS', `CreateTopic: ${name}`, 'success');
       setNewTopicName('');
+      setIsFifo(false);
       setIsCreationModalOpen(false);
       fetchTopics();
     } catch (err: any) {
-      logActivity('SNS', `CreateTopic failed: ${newTopicName}`, 'error', err.message);
+      logActivity('SNS', `CreateTopic failed: ${name}`, 'error', err.message);
       alert(err.message);
     } finally {
       setIsCreating(false);
@@ -215,6 +239,12 @@ const SNSView = () => {
     fetchSubscriptions(arn);
   };
 
+  useEffect(() => {
+    if (selectedTopicArn && activeTab === 'attributes') {
+      fetchTopicAttributes(selectedTopicArn);
+    }
+  }, [activeTab, selectedTopicArn]);
+
   const filteredTopics = topics.filter(t =>
     t.TopicArn?.toLowerCase().includes(search.toLowerCase())
   );
@@ -295,7 +325,7 @@ const SNSView = () => {
 
         {/* Tabs */}
         <div className="border-b border-brand-text flex shrink-0 bg-brand-muted">
-          {(['subscriptions', 'publish'] as const).map(tab => (
+          {(['subscriptions', 'publish', 'attributes'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -305,7 +335,8 @@ const SNSView = () => {
                   : 'opacity-50 hover:opacity-80 hover:bg-white/20'
               }`}
             >
-              {tab === 'subscriptions' ? `Subscriptions (${subscriptions.length})` : 'Publish Message'}
+              {tab === 'subscriptions' ? `Subscriptions (${subscriptions.length})` :
+               tab === 'publish' ? 'Publish Message' : 'Attributes'}
             </button>
           ))}
         </div>
@@ -415,6 +446,57 @@ const SNSView = () => {
               </div>
             </div>
           )}
+
+          {/* ── Attributes Tab ── */}
+          {activeTab === 'attributes' && (
+            <div className="max-w-2xl space-y-4">
+              {loadingAttrs ? (
+                [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-10" />)
+              ) : (
+                <div className="border border-brand-text/20 divide-y divide-brand-text/10 bg-white/50">
+                  <div className="grid grid-cols-2 gap-4 px-4 py-2 text-[8px] font-bold uppercase tracking-widest opacity-40 bg-brand-muted/30">
+                    <span>Attribute</span>
+                    <span>Value</span>
+                  </div>
+                  {Object.entries(topicAttributes).length === 0 ? (
+                    <div className="px-4 py-8 text-center text-[10px] opacity-30 italic">
+                      No attributes returned. Try refreshing.
+                    </div>
+                  ) : (
+                    (() => {
+                      const labels: Record<string, string> = {
+                        TopicArn: 'Topic ARN',
+                        DisplayName: 'Display Name',
+                        Owner: 'Owner',
+                        SubscriptionsConfirmed: 'Confirmed Subs',
+                        SubscriptionsPending: 'Pending Subs',
+                        SubscriptionsDeleted: 'Deleted Subs',
+                        DeliveryPolicy: 'Delivery Policy',
+                        EffectiveDeliveryPolicy: 'Effective Delivery Policy',
+                        Policy: 'Access Policy',
+                        FifoTopic: 'FIFO Topic',
+                        ContentBasedDeduplication: 'Content-Based Dedup.',
+                        KmsMasterKeyId: 'KMS Key ID',
+                      };
+                      return Object.entries(topicAttributes).map(([key, val]) => (
+                        <div key={key} className="grid grid-cols-2 gap-4 px-4 py-3 hover:bg-white/70 items-start">
+                          <span className="text-[10px] font-bold uppercase tracking-wide opacity-70">
+                            {labels[key] ?? key}
+                          </span>
+                          <span className="font-mono text-[10px] break-all normal-case leading-relaxed">
+                            {val === 'true' || val === 'false'
+                              ? <span className={`px-2 py-0.5 border text-[8px] font-bold uppercase ${val === 'true' ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : 'border-neutral-300 bg-neutral-50 text-neutral-500'}`}>{val}</span>
+                              : val || <span className="opacity-30 italic">—</span>
+                            }
+                          </span>
+                        </div>
+                      ));
+                    })()
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -443,12 +525,26 @@ const SNSView = () => {
             <Input
               value={newTopicName}
               onChange={e => setNewTopicName(e.target.value)}
-              placeholder="SystemAlerts"
+              placeholder={isFifo ? 'OrderEvents (will add .fifo)' : 'SystemAlerts'}
               autoFocus
             />
           </div>
+          <label className="flex items-center gap-3 cursor-pointer select-none group">
+            <div
+              onClick={() => setIsFifo(f => !f)}
+              className={`w-9 h-5 border transition-colors flex items-center px-0.5 ${isFifo ? 'bg-brand-text border-brand-text' : 'bg-transparent border-brand-text/40'}`}
+            >
+              <div className={`w-4 h-4 transition-transform ${isFifo ? 'translate-x-4 bg-brand-bg' : 'translate-x-0 bg-brand-text/30'}`} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wide">FIFO Topic</span>
+            {isFifo && (
+              <span className="text-[9px] opacity-50 normal-case font-mono">
+                Name will be suffixed with .fifo — enables ordering &amp; deduplication
+              </span>
+            )}
+          </label>
           <div className="pt-4 flex gap-3">
-            <Button variant="ghost" className="flex-1" onClick={() => setIsCreationModalOpen(false)}>Cancel</Button>
+            <Button variant="ghost" className="flex-1" onClick={() => { setIsCreationModalOpen(false); setIsFifo(false); }}>Cancel</Button>
             <Button className="flex-1" onClick={handleCreateTopic} disabled={!newTopicName || isCreating}>
               {isCreating ? 'Creating...' : 'Create Topic'}
             </Button>

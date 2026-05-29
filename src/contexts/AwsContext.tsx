@@ -25,6 +25,7 @@ import { SchedulerClient } from '@aws-sdk/client-scheduler';
 import { SFNClient } from '@aws-sdk/client-sfn';
 import { SSMClient } from '@aws-sdk/client-ssm';
 import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
+import { SESClient } from '@aws-sdk/client-ses';
 import { DEFAULT_CONFIG, LEGACY_DEFAULT_ENDPOINT, type AwsConfig } from '../types';
 
 export interface ActivityLog {
@@ -66,6 +67,7 @@ interface AwsContextType {
     sfn: SFNClient;
     ssm: SSMClient;
     cloudwatchMetrics: CloudWatchClient;
+    ses: SESClient;
   };
   isHealthy: boolean | null;
   checkHealth: () => Promise<void>;
@@ -148,6 +150,7 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
       sfn: new SFNClient(commonParams),
       ssm: new SSMClient(commonParams),
       cloudwatchMetrics: new CloudWatchClient(commonParams),
+      ses: new SESClient(commonParams),
     };
   }, [config]);
 
