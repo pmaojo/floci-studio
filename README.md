@@ -44,10 +44,12 @@ Floci.io includes a catalog of parameterized local recipes in the `/recipes` fol
 ### Available Recipes
 
 - **AWS IoT Core (MQTT)**
+- **Jaeger (Distributed Tracing)**
 - **Keycloak + PostgreSQL**
 - **Mailpit (SMTP)**
 - **Meilisearch**
 - **MinIO (S3 Compatible Storage)**
+- **MongoDB + Mongo Express**
 - **Nginx Proxy Manager**
 - **Observability (Grafana & Prometheus)**
 - **PocketBase**
