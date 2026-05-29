@@ -1,11 +1,11 @@
 ---
 title: Installation
-description: Full installation guide for floci.io — Docker, MCP server, and development setup.
+description: Full installation guide for Floci Studio — Docker, MCP server, and development setup.
 ---
 
 ## Docker (recommended)
 
-The easiest way to run floci.io is via Docker Compose. Everything runs in containers — no local Python or Node.js required.
+The easiest way to run Floci Studio is via Docker Compose. Everything runs in containers — no local Python or Node.js required.
 
 ```bash
 git clone https://github.com/pmaojo/floci-studio

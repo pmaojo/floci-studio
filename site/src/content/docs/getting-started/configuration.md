@@ -1,11 +1,11 @@
 ---
 title: Configuration
-description: Environment variables, endpoint settings, and AWS credentials for floci.io.
+description: Environment variables, endpoint settings, and AWS credentials for Floci Studio.
 ---
 
 ## AWS endpoint
 
-floci.io emulates the AWS API surface on `http://localhost:4566`. Any AWS SDK client that supports a custom endpoint will work without code changes.
+Floci Studio emulates the AWS API surface on `http://localhost:4566`. Any AWS SDK client that supports a custom endpoint will work without code changes.
 
 The studio UI reads its endpoint from the **Settings** page (`/settings`). The default is:
 

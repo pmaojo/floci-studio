@@ -3,7 +3,7 @@ title: SNS — Topics & Subscriptions
 description: Create topics, manage subscribers, publish messages, and use FIFO topics.
 ---
 
-SNS in floci.io supports standard and FIFO topics, subscription management across all protocols, and a publish panel for testing message delivery.
+SNS in Floci Studio supports standard and FIFO topics, subscription management across all protocols, and a publish panel for testing message delivery.
 
 ## Creating a topic
 

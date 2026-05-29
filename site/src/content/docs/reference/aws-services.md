@@ -1,6 +1,6 @@
 ---
 title: AWS Service Coverage
-description: Complete list of AWS services supported by floci.io, their coverage level, and GUI status.
+description: Complete list of AWS services supported by Floci Studio, their coverage level, and GUI status.
 ---
 
 All services connect to the local floci engine on `http://localhost:4566`. Coverage level indicates how much of the real AWS API surface is emulated locally.
