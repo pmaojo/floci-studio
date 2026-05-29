@@ -3,7 +3,7 @@ title: SQS — Queues & Messages
 description: Create queues, send messages, read them in the UI, and integrate with your application.
 ---
 
-SQS in floci.io has a full drill-down interface: create a queue, inspect its messages, send test payloads, and view all queue attributes — without leaving the browser.
+SQS in Floci Studio has a full drill-down interface: create a queue, inspect its messages, send test payloads, and view all queue attributes — without leaving the browser.
 
 ## Creating a queue
 

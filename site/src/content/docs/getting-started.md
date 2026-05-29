@@ -1,9 +1,9 @@
 ---
 title: Quick Start
-description: Get floci.io running locally in under 2 minutes.
+description: Get Floci Studio running locally in under 2 minutes.
 ---
 
-floci.io is a local AWS emulator cockpit. You get a full-featured GUI, an AWS-compatible API endpoint on `:4566`, and an MCP server your AI agent can drive — all running on your machine, at zero cost.
+Floci Studio is a local AWS emulator cockpit. You get a full-featured GUI, an AWS-compatible API endpoint on `:4566`, and an MCP server your AI agent can drive — all running on your machine, at zero cost.
 
 ## Prerequisites
 

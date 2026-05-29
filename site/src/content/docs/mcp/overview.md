@@ -1,9 +1,9 @@
 ---
 title: MCP Server Overview
-description: How the floci.io MCP server works and why it matters for AI-native development.
+description: How the Floci Studio MCP server works and why it matters for AI-native development.
 ---
 
-floci.io ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. It exposes 84 tools across 14 service modules, giving any MCP-compatible AI client full operational control over your local AWS environment.
+Floci Studio ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. It exposes 84 tools across 14 service modules, giving any MCP-compatible AI client full operational control over your local AWS environment.
 
 ## What you can do
 

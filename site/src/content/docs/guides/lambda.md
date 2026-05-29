@@ -1,9 +1,9 @@
 ---
 title: Lambda Functions
-description: Create, invoke, and debug Lambda functions in floci.io.
+description: Create, invoke, and debug Lambda functions in Floci Studio.
 ---
 
-floci.io's Lambda view lets you create functions from templates, invoke them with custom payloads, and stream the execution logs — all without leaving the browser.
+Floci Studio's Lambda view lets you create functions from templates, invoke them with custom payloads, and stream the execution logs — all without leaving the browser.
 
 ## Creating a function
 
