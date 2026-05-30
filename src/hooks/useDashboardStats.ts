@@ -54,8 +54,8 @@ export const useDashboardStats = () => {
         loading: false,
         error: null,
       });
-    } catch (err: any) {
-      setStats(prev => ({ ...prev, loading: false, error: err.message }));
+    } catch (err) {
+      setStats(prev => ({ ...prev, loading: false, error: err instanceof Error ? err.message : String(err) }));
     }
   };
 

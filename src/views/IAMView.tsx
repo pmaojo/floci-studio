@@ -18,6 +18,7 @@ import {
   DeletePolicyCommand,
   GetPolicyVersionCommand,
 } from '@aws-sdk/client-iam';
+import type { Role, User, Policy, AttachedPolicy } from '@aws-sdk/client-iam';
 import { useAws } from '../contexts/AwsContext';
 import {
   Users,
@@ -37,13 +38,13 @@ import { motion, AnimatePresence } from 'motion/react';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type IamTab = 'roles' | 'users' | 'policies';
-type DetailEntity = { type: 'role' | 'user' | 'policy'; name: string; data: any };
+type DetailEntity = { type: 'role' | 'user' | 'policy'; name: string; data: Record<string, unknown> };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const fmtDate = (d?: Date | string) => {
   if (!d) return '—';
-  try { return format(new Date(d as any), 'yyyy-MM-dd'); } catch { return '—'; }
+  try { return format(new Date(d as string), 'yyyy-MM-dd'); } catch { return '—'; }
 };
 
 const scopeColor = (scope?: string) => {
@@ -62,14 +63,14 @@ const IAMView = () => {
 
   // Detail drawer (shared across all entity types)
   const [detail, setDetail] = useState<DetailEntity | null>(null);
-  const [detailPolicies, setDetailPolicies] = useState<{ inline: string[]; managed: any[] }>({ inline: [], managed: [] });
+  const [detailPolicies, setDetailPolicies] = useState<{ inline: string[]; managed: AttachedPolicy[] }>({ inline: [], managed: [] });
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   // Common search
   const [search, setSearch] = useState('');
 
   // ── Roles ──
-  const [roles, setRoles]           = useState<any[]>([]);
+  const [roles, setRoles]           = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(false);
 
   // Create role modal
@@ -79,7 +80,7 @@ const IAMView = () => {
   const [creatingRole, setCreatingRole]         = useState(false);
 
   // ── Users ──
-  const [users, setUsers]           = useState<any[]>([]);
+  const [users, setUsers]           = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
   // Create user modal
@@ -89,7 +90,7 @@ const IAMView = () => {
   const [creatingUser, setCreatingUser]         = useState(false);
 
   // ── Managed Policies ──
-  const [policies, setPolicies]     = useState<any[]>([]);
+  const [policies, setPolicies]     = useState<Policy[]>([]);
   const [loadingPolicies, setLoadingPolicies] = useState(false);
 
   // Create policy modal
@@ -110,8 +111,8 @@ const IAMView = () => {
       const r = await clients.iam.send(new ListRolesCommand({}));
       setRoles(r.Roles || []);
       logActivity('IAM', 'ListRoles', 'success');
-    } catch (e: any) {
-      logActivity('IAM', 'ListRoles failed', 'error', e.message);
+    } catch (e) {
+      logActivity('IAM', 'ListRoles failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingRoles(false); }
   };
 
@@ -121,8 +122,8 @@ const IAMView = () => {
       const r = await clients.iam.send(new ListUsersCommand({}));
       setUsers(r.Users || []);
       logActivity('IAM', 'ListUsers', 'success');
-    } catch (e: any) {
-      logActivity('IAM', 'ListUsers failed', 'error', e.message);
+    } catch (e) {
+      logActivity('IAM', 'ListUsers failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingUsers(false); }
   };
 
@@ -132,8 +133,8 @@ const IAMView = () => {
       const r = await clients.iam.send(new ListPoliciesCommand({ Scope: 'Local' }));
       setPolicies(r.Policies || []);
       logActivity('IAM', 'ListPolicies (Local)', 'success');
-    } catch (e: any) {
-      logActivity('IAM', 'ListPolicies failed', 'error', e.message);
+    } catch (e) {
+      logActivity('IAM', 'ListPolicies failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingPolicies(false); }
   };
 
@@ -145,8 +146,8 @@ const IAMView = () => {
 
   // ─── Detail panel ────────────────────────────────────────────────────────────
 
-  const openRoleDetail = async (role: any) => {
-    setDetail({ type: 'role', name: role.RoleName, data: role });
+  const openRoleDetail = async (role: Role) => {
+    setDetail({ type: 'role', name: role.RoleName!, data: role as Record<string, unknown> });
     setLoadingDetail(true);
     setDetailPolicies({ inline: [], managed: [] });
     try {
@@ -159,13 +160,13 @@ const IAMView = () => {
         managed: managedRes.AttachedPolicies || [],
       });
       logActivity('IAM', `ListPolicies for role ${role.RoleName}`, 'success');
-    } catch (e: any) {
-      logActivity('IAM', `ListPolicies failed for role`, 'error', e.message);
+    } catch (e) {
+      logActivity('IAM', `ListPolicies failed for role`, 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingDetail(false); }
   };
 
-  const openUserDetail = async (user: any) => {
-    setDetail({ type: 'user', name: user.UserName, data: user });
+  const openUserDetail = async (user: User) => {
+    setDetail({ type: 'user', name: user.UserName!, data: user as Record<string, unknown> });
     setLoadingDetail(true);
     setDetailPolicies({ inline: [], managed: [] });
     try {
@@ -178,13 +179,13 @@ const IAMView = () => {
         managed: managedRes.AttachedPolicies || [],
       });
       logActivity('IAM', `ListPolicies for user ${user.UserName}`, 'success');
-    } catch (e: any) {
-      logActivity('IAM', `ListPolicies failed for user`, 'error', e.message);
+    } catch (e) {
+      logActivity('IAM', `ListPolicies failed for user`, 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingDetail(false); }
   };
 
-  const openPolicyDetail = async (policy: any) => {
-    setDetail({ type: 'policy', name: policy.PolicyName, data: policy });
+  const openPolicyDetail = async (policy: Policy) => {
+    setDetail({ type: 'policy', name: policy.PolicyName!, data: policy as Record<string, unknown> });
     setLoadingDetail(true);
     try {
       if (policy.DefaultVersionId) {
@@ -194,12 +195,12 @@ const IAMView = () => {
         }));
         setDetail({
           type: 'policy',
-          name: policy.PolicyName,
-          data: { ...policy, document: r.PolicyVersion?.Document ? decodeURIComponent(r.PolicyVersion.Document) : null },
+          name: policy.PolicyName!,
+          data: { ...(policy as Record<string, unknown>), document: r.PolicyVersion?.Document ? decodeURIComponent(r.PolicyVersion.Document) : null },
         });
       }
-    } catch (e: any) {
-      logActivity('IAM', `GetPolicyVersion failed`, 'error', e.message);
+    } catch (e) {
+      logActivity('IAM', `GetPolicyVersion failed`, 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingDetail(false); }
   };
 
@@ -224,9 +225,10 @@ const IAMView = () => {
       setIsRoleModalOpen(false);
       setRoleName('');
       fetchRoles();
-    } catch (e: any) {
-      logActivity('IAM', `CreateRole failed`, 'error', e.message);
-      alert(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      logActivity('IAM', `CreateRole failed`, 'error', message);
+      alert(message);
     } finally { setCreatingRole(false); }
   };
 
@@ -238,9 +240,10 @@ const IAMView = () => {
       logActivity('IAM', `DeleteRole: ${name}`, 'success');
       if (detail?.name === name) setDetail(null);
       fetchRoles();
-    } catch (e: any) {
-      logActivity('IAM', `DeleteRole failed`, 'error', e.message);
-      alert(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      logActivity('IAM', `DeleteRole failed`, 'error', message);
+      alert(message);
     }
   };
 
@@ -254,9 +257,10 @@ const IAMView = () => {
       setNewUserName('');
       setNewUserPath('/');
       fetchUsers();
-    } catch (e: any) {
-      logActivity('IAM', `CreateUser failed`, 'error', e.message);
-      alert(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      logActivity('IAM', `CreateUser failed`, 'error', message);
+      alert(message);
     } finally { setCreatingUser(false); }
   };
 
@@ -268,17 +272,18 @@ const IAMView = () => {
       logActivity('IAM', `DeleteUser: ${name}`, 'success');
       if (detail?.name === name) setDetail(null);
       fetchUsers();
-    } catch (e: any) {
-      logActivity('IAM', `DeleteUser failed`, 'error', e.message);
-      alert(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      logActivity('IAM', `DeleteUser failed`, 'error', message);
+      alert(message);
     }
   };
 
   const handleCreatePolicy = async () => {
     if (!newPolicyName || !policyDoc) return;
     setPolicyDocError(null);
-    try { JSON.parse(policyDoc); } catch (e: any) {
-      setPolicyDocError(`Invalid JSON: ${e.message}`);
+    try { JSON.parse(policyDoc); } catch (e) {
+      setPolicyDocError(`Invalid JSON: ${e instanceof Error ? e.message : String(e)}`);
       return;
     }
     setCreatingPolicy(true);
@@ -291,9 +296,10 @@ const IAMView = () => {
       setIsPolicyModalOpen(false);
       setNewPolicyName('');
       fetchPolicies();
-    } catch (e: any) {
-      logActivity('IAM', `CreatePolicy failed`, 'error', e.message);
-      alert(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      logActivity('IAM', `CreatePolicy failed`, 'error', message);
+      alert(message);
     } finally { setCreatingPolicy(false); }
   };
 
@@ -305,9 +311,10 @@ const IAMView = () => {
       logActivity('IAM', `DeletePolicy: ${name}`, 'success');
       if (detail?.name === name) setDetail(null);
       fetchPolicies();
-    } catch (e: any) {
-      logActivity('IAM', `DeletePolicy failed`, 'error', e.message);
-      alert(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      logActivity('IAM', `DeletePolicy failed`, 'error', message);
+      alert(message);
     }
   };
 
@@ -657,7 +664,7 @@ const IAMView = () => {
                         </Card>
                       ) : (
                         <div className="space-y-2">
-                          {detailPolicies.managed.map((p: any) => (
+                          {detailPolicies.managed.map((p) => (
                             <div key={p.PolicyArn} className="p-3 border border-brand-text/20 bg-white">
                               <p className="font-mono text-xs font-bold">{p.PolicyName}</p>
                               <p className="font-mono text-[9px] opacity-40 truncate lowercase">{p.PolicyArn}</p>

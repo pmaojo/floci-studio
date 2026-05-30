@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { 
-  DescribeParametersCommand, 
-  GetParameterCommand, 
-  PutParameterCommand, 
+import {
+  DescribeParametersCommand,
+  GetParameterCommand,
+  PutParameterCommand,
   DeleteParameterCommand,
   ParameterType
 } from '@aws-sdk/client-ssm';
+import type { Parameter } from '@aws-sdk/client-ssm';
 import { useAws } from '../contexts/AwsContext';
 import { 
   KeyRound, 
@@ -25,7 +26,7 @@ import { format } from 'date-fns';
 
 const SSMView = () => {
   const { clients, logActivity } = useAws();
-  const [parameters, setParameters] = useState<any[]>([]);
+  const [parameters, setParameters] = useState<Parameter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -60,9 +61,10 @@ const SSMView = () => {
       if (paramsList.length > 0 && !selectedParamName) {
         handleSelectParameter(paramsList[0].Name!);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch SSM Parameters');
-      logActivity('SSM', 'DescribeParameters failed', 'error', err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch SSM Parameters';
+      setError(message);
+      logActivity('SSM', 'DescribeParameters failed', 'error', message);
     } finally {
       setLoading(false);
     }
@@ -90,8 +92,8 @@ const SSMView = () => {
           setDecryptedValues(prev => ({ ...prev, [name]: decRes.Parameter?.Value || '' }));
         }
       }
-    } catch (err: any) {
-      logActivity('SSM', `GetParameter failed for ${name}`, 'error', err.message);
+    } catch (err) {
+      logActivity('SSM', `GetParameter failed for ${name}`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingValue(false);
     }
@@ -106,8 +108,8 @@ const SSMView = () => {
           WithDecryption: true
         }));
         setDecryptedValues(prev => ({ ...prev, [name]: decRes.Parameter?.Value || '' }));
-      } catch (err: any) {
-        alert(`Decryption failed: ${err.message}`);
+      } catch (err) {
+        alert(`Decryption failed: ${err instanceof Error ? err.message : String(err)}`);
         return;
       }
     }
@@ -142,9 +144,10 @@ const SSMView = () => {
         });
         handleSelectParameter(paramName);
       }
-    } catch (err: any) {
-      logActivity('SSM', `PutParameter failed for ${paramName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('SSM', `PutParameter failed for ${paramName}`, 'error', message);
+      alert(message);
     } finally {
       setSubmitting(false);
     }
@@ -155,17 +158,18 @@ const SSMView = () => {
     try {
       await clients.ssm.send(new DeleteParameterCommand({ Name: name }));
       logActivity('SSM', `DeleteParameter: ${name}`, 'success');
-      
+
       // Reset selected parameter
       if (selectedParamName === name) {
         setSelectedParamName(null);
         setSelectedParamValue(null);
       }
-      
+
       fetchParameters();
-    } catch (err: any) {
-      logActivity('SSM', `DeleteParameter failed for ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('SSM', `DeleteParameter failed for ${name}`, 'error', message);
+      alert(message);
     }
   };
 
@@ -180,7 +184,7 @@ const SSMView = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (param: any) => {
+  const openEditModal = (param: Parameter) => {
     setModalMode('edit');
     setParamName(param.Name || '');
     setParamType(param.Type || 'String');
@@ -261,7 +265,7 @@ const SSMView = () => {
               <label className="text-[10px] font-bold uppercase opacity-60">Parameter Tier</label>
               <Select 
                 value={paramTier} 
-                onChange={e => setParamTier(e.target.value as any)}
+                onChange={e => setParamTier(e.target.value as 'Standard' | 'Advanced')}
               >
                 <option value="Standard">Standard</option>
                 <option value="Advanced">Advanced</option>

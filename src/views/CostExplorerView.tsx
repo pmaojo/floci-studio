@@ -21,8 +21,8 @@ const CostExplorerView = () => {
       } else {
         throw new Error('Failed to compute forecast');
       }
-    } catch (err: any) {
-      const msg = err.message || 'Failed to read cost forecast';
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to read cost forecast';
       setError(msg);
       logActivity('CostExplorer', 'Calculate forecast failed', 'error', msg);
     } finally {

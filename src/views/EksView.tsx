@@ -35,8 +35,8 @@ const EksView = () => {
       const response = await sidecarApi.getEksOverview();
       setOverview(response);
       logActivity('EKS', 'Describe real EKS inventory', 'success', `clusters=${response.clusters.length}`);
-    } catch (err: any) {
-      const message = err.message || 'Failed to read EKS from sidecar';
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to read EKS from sidecar';
       setError(message);
       logActivity('EKS', 'Describe real EKS inventory failed', 'error', message);
     } finally {
