@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { DescribeDBInstancesCommand, CreateDBInstanceCommand, DeleteDBInstanceCommand } from '@aws-sdk/client-rds';
+import type { DBInstance } from '@aws-sdk/client-rds';
 import { useAws } from '../contexts/AwsContext';
 import { Database, CirclePlus, Trash2, Settings, HardDrive, Shield } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
 
 const RDSView = () => {
   const { clients, logActivity } = useAws();
-  const [instances, setInstances] = useState<any[]>([]);
+  const [instances, setInstances] = useState<DBInstance[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [newDbId, setNewDbId] = useState('');
@@ -20,8 +21,8 @@ const RDSView = () => {
       const response = await clients.rds.send(new DescribeDBInstancesCommand({}));
       setInstances(response.DBInstances || []);
       logActivity('RDS', 'DescribeDBInstances', 'success');
-    } catch (err: any) {
-      logActivity('RDS', 'DescribeDBInstances failed', 'error', err.message);
+    } catch (err) {
+      logActivity('RDS', 'DescribeDBInstances failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -41,9 +42,10 @@ const RDSView = () => {
       setNewDbId('');
       setIsCreationModalOpen(false);
       fetchInstances();
-    } catch (err: any) {
-      logActivity('RDS', `CreateDBInstance failed: ${newDbId}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('RDS', `CreateDBInstance failed: ${newDbId}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -52,15 +54,16 @@ const RDSView = () => {
   const handleDelete = async (id: string) => {
     if (!confirm(`Delete database ${id}? This is irreversible.`)) return;
     try {
-      await clients.rds.send(new DeleteDBInstanceCommand({ 
+      await clients.rds.send(new DeleteDBInstanceCommand({
         DBInstanceIdentifier: id,
         SkipFinalSnapshot: true
       }));
       logActivity('RDS', `DeleteDBInstance: ${id}`, 'success');
       fetchInstances();
-    } catch (err: any) {
-      logActivity('RDS', `DeleteDBInstance failed: ${id}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('RDS', `DeleteDBInstance failed: ${id}`, 'error', message);
+      alert(message);
     }
   };
 

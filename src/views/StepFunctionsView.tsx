@@ -10,8 +10,6 @@ import { useAws } from '../contexts/AwsContext';
 import {
   Play,
   Search,
-  Code,
-  Eye,
   GitBranch,
   Clock,
   Terminal,
@@ -20,7 +18,8 @@ import {
   PlayCircle,
   FileCode
 } from 'lucide-react';
-import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
+import { PageHeader, Button, Input, Skeleton } from '../components/ui-elements';
+import { SFNFlowVisualizer } from './SFNFlowVisualizer';
 
 // Preloaded mock state machines in case local emulator has none
 const PRELOADED_STATE_MACHINES = [
@@ -199,10 +198,6 @@ const StepFunctionsView = () => {
   const [executionPayload, setExecutionPayload] = useState('{\n  "input": "data"\n}');
   const [isLaunching, setIsLaunching] = useState(false);
 
-  // SVG Flowchart zoom state
-  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
   // Fetch state machines
   const fetchStateMachines = async () => {
     setLoadingMachines(true);
@@ -266,7 +261,6 @@ const StepFunctionsView = () => {
     setSelectedMachine(machine);
     fetchExecutions(machine.stateMachineArn);
     setActiveTab('visualizer');
-    setSelectedNodeId(null);
     setSelectedExecution(null);
   };
 
@@ -535,43 +529,7 @@ const StepFunctionsView = () => {
     }
   };
 
-  const getNodeColor = (type: string, isHovered: boolean, isSelected: boolean) => {
-    const activeBorder = isSelected ? 'stroke-brand-text stroke-[2px]' : isHovered ? 'stroke-neutral-800 stroke-[1.5px]' : 'stroke-brand-text/30 stroke-[1px]';
-    
-    switch (type) {
-      case 'START':
-        return { fill: 'fill-emerald-100', strokeClass: activeBorder + ' stroke-emerald-600' };
-      case 'END':
-        return { fill: 'fill-rose-100', strokeClass: activeBorder + ' stroke-rose-600' };
-      case 'Choice':
-        return { fill: 'fill-amber-50', strokeClass: activeBorder + ' stroke-amber-500' };
-      case 'Fail':
-        return { fill: 'fill-rose-50', strokeClass: activeBorder + ' stroke-rose-400' };
-      case 'Succeed':
-        return { fill: 'fill-emerald-50', strokeClass: activeBorder + ' stroke-emerald-400' };
-      case 'Parallel':
-        return { fill: 'fill-indigo-50', strokeClass: activeBorder + ' stroke-indigo-400' };
-      case 'Pass':
-        return { fill: 'fill-blue-50', strokeClass: activeBorder + ' stroke-blue-400' };
-      default:
-        return { fill: 'fill-white', strokeClass: activeBorder };
-    }
-  };
-
   const filteredMachines = machines.filter(m => m.name.toLowerCase().includes(machineSearch.toLowerCase()));
-
-  // Selected ASL properties parser
-  const getSelectedNodeAsl = () => {
-    if (!selectedNodeId || !selectedMachine) return null;
-    try {
-      const asl = JSON.parse(selectedMachine.definition);
-      return asl.States?.[selectedNodeId] || null;
-    } catch {
-      return null;
-    }
-  };
-
-  const selectedNodeDetails = getSelectedNodeAsl();
 
   return (
     <div className="flex flex-col h-full uppercase font-sans">

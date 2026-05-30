@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { DescribeCacheClustersCommand, CreateCacheClusterCommand, DeleteCacheClusterCommand } from '@aws-sdk/client-elasticache';
+import type { CacheCluster } from '@aws-sdk/client-elasticache';
 import { useAws } from '../contexts/AwsContext';
 import { Database, CirclePlus, Trash2, Settings, HardDrive, Cpu } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
 
 const ElastiCacheView = () => {
   const { clients, logActivity } = useAws();
-  const [clusters, setClusters] = useState<any[]>([]);
+  const [clusters, setClusters] = useState<CacheCluster[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [clusterId, setClusterId] = useState('');
@@ -20,8 +21,8 @@ const ElastiCacheView = () => {
       const response = await clients.elasticache.send(new DescribeCacheClustersCommand({}));
       setClusters(response.CacheClusters || []);
       logActivity('ElastiCache', 'DescribeCacheClusters', 'success');
-    } catch (err: any) {
-      logActivity('ElastiCache', 'DescribeCacheClusters failed', 'error', err.message);
+    } catch (err) {
+      logActivity('ElastiCache', 'DescribeCacheClusters failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -41,9 +42,10 @@ const ElastiCacheView = () => {
       setClusterId('');
       setIsCreationModalOpen(false);
       fetchData();
-    } catch (err: any) {
-      logActivity('ElastiCache', `CreateCacheCluster failed: ${clusterId}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('ElastiCache', `CreateCacheCluster failed: ${clusterId}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -55,9 +57,10 @@ const ElastiCacheView = () => {
       await clients.elasticache.send(new DeleteCacheClusterCommand({ CacheClusterId: id }));
       logActivity('ElastiCache', `DeleteCacheCluster: ${id}`, 'success');
       fetchData();
-    } catch (err: any) {
-      logActivity('ElastiCache', `DeleteCacheCluster failed: ${id}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('ElastiCache', `DeleteCacheCluster failed: ${id}`, 'error', message);
+      alert(message);
     }
   };
 

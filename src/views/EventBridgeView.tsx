@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { ListEventBusesCommand, CreateEventBusCommand, PutEventsCommand, ListRulesCommand } from '@aws-sdk/client-eventbridge';
+import type { EventBus, Rule } from '@aws-sdk/client-eventbridge';
 import { useAws } from '../contexts/AwsContext';
 import { Share2, CirclePlus, Send } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const EventBridgeView = () => {
   const { clients, logActivity } = useAws();
-  const [buses, setBuses] = useState<any[]>([]);
-  const [rules, setRules] = useState<any[]>([]);
+  const [buses, setBuses] = useState<EventBus[]>([]);
+  const [rules, setRules] = useState<Rule[]>([]);
   const [loading, setLoading] = useState(true);
   const [eventData, setEventData] = useState('{\n  "source": "my.app",\n  "detail-type": "order.created",\n  "detail": {\n    "id": "123",\n    "status": "pending"\n  }\n}');
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
@@ -37,9 +38,10 @@ const EventBridgeView = () => {
       setNewBusName('');
       setIsCreationModalOpen(false);
       fetchData();
-    } catch (err: any) {
-      logActivity('EventBridge', `CreateEventBus failed: ${newBusName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('EventBridge', `CreateEventBus failed: ${newBusName}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -58,9 +60,10 @@ const EventBridgeView = () => {
       }));
       logActivity('EventBridge', 'PutEvents', 'success', `source: ${parsed.source}`);
       alert('Event dispatched to Bus successfully');
-    } catch (err: any) {
-      logActivity('EventBridge', 'PutEvents failed', 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('EventBridge', 'PutEvents failed', 'error', message);
+      alert(message);
     }
   };
 

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { ListStacksCommand, CreateStackCommand, DeleteStackCommand } from '@aws-sdk/client-cloudformation';
+import type { StackSummary } from '@aws-sdk/client-cloudformation';
 import { useAws } from '../contexts/AwsContext';
 import { Box, CirclePlus, Trash2 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const CloudFormationView = () => {
   const { clients, logActivity } = useAws();
-  const [stacks, setStacks] = useState<any[]>([]);
+  const [stacks, setStacks] = useState<StackSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [newStackName, setNewStackName] = useState('');
@@ -32,8 +33,8 @@ const CloudFormationView = () => {
       }));
       setStacks(response.StackSummaries || []);
       logActivity('CloudFormation', 'ListStacks', 'success');
-    } catch (err: any) {
-      logActivity('CloudFormation', 'ListStacks failed', 'error', err.message);
+    } catch (err) {
+      logActivity('CloudFormation', 'ListStacks failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -51,9 +52,10 @@ const CloudFormationView = () => {
       setNewStackName('');
       setIsCreationModalOpen(false);
       fetchStacks();
-    } catch (err: any) {
-      logActivity('CloudFormation', `CreateStack failed: ${newStackName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('CloudFormation', `CreateStack failed: ${newStackName}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -65,9 +67,10 @@ const CloudFormationView = () => {
       await clients.cloudformation.send(new DeleteStackCommand({ StackName: name }));
       logActivity('CloudFormation', `DeleteStack: ${name}`, 'success');
       fetchStacks();
-    } catch (err: any) {
-      logActivity('CloudFormation', `DeleteStack failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('CloudFormation', `DeleteStack failed: ${name}`, 'error', message);
+      alert(message);
     }
   };
 
