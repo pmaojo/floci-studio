@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DescribeLogGroupsCommand, DescribeLogStreamsCommand, GetLogEventsCommand, CreateLogGroupCommand } from '@aws-sdk/client-cloudwatch-logs';
+import type { LogGroup, LogStream, OutputLogEvent } from '@aws-sdk/client-cloudwatch-logs';
 import { useAws } from '../contexts/AwsContext';
 import { Terminal, CirclePlus, Activity } from 'lucide-react';
 import { PageHeader, Button } from '../components/ui-elements';
@@ -7,11 +8,11 @@ import { format } from 'date-fns';
 
 const CloudWatchLogsView = () => {
   const { clients, logActivity } = useAws();
-  const [groups, setGroups] = useState<any[]>([]);
+  const [groups, setGroups] = useState<LogGroup[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [streams, setStreams] = useState<any[]>([]);
+  const [streams, setStreams] = useState<LogStream[]>([]);
   const [selectedStream, setSelectedStream] = useState<string | null>(null);
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<OutputLogEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +22,8 @@ const CloudWatchLogsView = () => {
     try {
       const resp = await clients.cloudwatch.send(new DescribeLogGroupsCommand({}));
       setGroups(resp.logGroups || []);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
