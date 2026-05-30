@@ -223,8 +223,6 @@ const SchedulerView = () => {
       } catch (e) {
         setTopics([]);
       }
-    } catch (err: any) {
-      console.error('Failed fetching resources', err);
     } finally {
       setLoadingResources(false);
     }

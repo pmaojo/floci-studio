@@ -518,8 +518,7 @@ const StepFunctionsView = () => {
       });
 
       return { nodes: compiledNodes, edges };
-    } catch (e) {
-      console.error('Failed compiling flowchart', e);
+    } catch {
       return { nodes: [], edges: [] };
     }
   };

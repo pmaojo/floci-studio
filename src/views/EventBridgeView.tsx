@@ -21,8 +21,8 @@ const EventBridgeView = () => {
       setBuses(busResp.EventBuses || []);
       const rulesResp = await clients.eventbridge.send(new ListRulesCommand({}));
       setRules(rulesResp.Rules || []);
-    } catch (err: any) {
-      console.error(err);
+    } catch {
+      // error already handled by leaving state empty
     } finally {
       setLoading(false);
     }

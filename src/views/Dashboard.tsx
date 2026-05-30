@@ -39,7 +39,6 @@ const IdentityCard = () => {
         logActivity('STS', 'GetCallerIdentity', 'success', `AccountID: ${response.Account}`);
       } catch (err: any) {
         logActivity('STS', 'GetCallerIdentity failed', 'error', err.message);
-        console.error(err);
       } finally {
         setLoading(false);
       }

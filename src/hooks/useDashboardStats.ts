@@ -55,7 +55,6 @@ export const useDashboardStats = () => {
         error: null,
       });
     } catch (err: any) {
-      console.error('Error fetching dashboard stats:', err);
       setStats(prev => ({ ...prev, loading: false, error: err.message }));
     }
   };
