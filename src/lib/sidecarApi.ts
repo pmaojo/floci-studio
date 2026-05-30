@@ -174,6 +174,21 @@ export interface CostForecastResult {
   forecasts: CostForecastItem[];
 }
 
+export interface ContainerPerformanceStat {
+  id: string;
+  name: string;
+  status: string;
+  cpu_percent: number;
+  memory_usage_bytes: number;
+  memory_limit_bytes: number;
+}
+
+export interface PerformanceStatsResult {
+  ok: boolean;
+  error?: string;
+  containers: ContainerPerformanceStat[];
+}
+
 export interface RecipeVariable {
   key: string;
   label: string;
@@ -291,6 +306,7 @@ export const sidecarApi = {
   ),
   runKmsDiagnostic: () => requestDiagnostic<KmsRoundTripResult>('/api/diagnostics/kms'),
   runCostForecast: () => requestDiagnostic<CostForecastResult>('/api/diagnostics/cost-forecast'),
+  getPerformanceStats: () => requestDiagnostic<PerformanceStatsResult>('/api/diagnostics/performance'),
   listRecipes: () => requestSidecar<{ ok: boolean; recipes: Recipe[] }>('/api/marketplace/recipes'),
   getInstallations: () => requestSidecar<{ ok: boolean; installations: Record<string, Installation> }>('/api/marketplace/installations'),
   getRecipeLogs: (recipeId: string) => requestSidecar<{ ok: boolean; logs: string[] }>(`/api/marketplace/recipes/${recipeId}/logs`),
