@@ -116,6 +116,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { to: '/ssm', icon: KeyRound, label: 'SSM Parameters' },
         { to: '/kms', icon: Fingerprint, label: 'KMS Keys' },
         { to: '/acm', icon: BadgeCheck, label: 'ACM Certs' },
+        { to: '/waf', icon: ShieldAlert, label: 'WAF Web ACLs' },
       ]
     },
     {
@@ -196,7 +197,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     {
       label: 'Unsupported in Floci',
       items: [
-        { to: '/waf', icon: ShieldAlert, label: 'WAF Web ACLs', badge: 'NOT IN FLOCI' },
         { to: '/pricing', icon: BarChart2, label: 'Pricing', badge: 'NOT IN FLOCI' },
         { to: '/cur', icon: FileText, label: 'Cost Reports', badge: 'NOT IN FLOCI' },
         { to: '/bcmdataexports', icon: Archive, label: 'BCM Data Exports', badge: 'NOT IN FLOCI' },

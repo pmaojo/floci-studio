@@ -108,7 +108,7 @@ const Dashboard = () => {
     { label: 'STS Connectivity', status: isHealthy ? 'pass' : 'fail' },
     { label: 'Lambda Runtime', status: isHealthy ? 'pass' : 'fail' },
     { label: 'S3 API Engine', status: isHealthy ? 'pass' : 'fail' },
-    { label: 'DynamoBD Storage', status: isHealthy ? 'pass' : 'fail' },
+    { label: 'DynamoDB Storage', status: isHealthy ? 'pass' : 'fail' },
     { label: 'IAM Policy Engine', status: isHealthy ? 'pass' : 'fail' },
   ];
 
