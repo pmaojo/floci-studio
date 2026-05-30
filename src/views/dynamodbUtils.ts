@@ -1,20 +1,21 @@
-export function unmarshalItem(item: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
+export function unmarshalItem(item: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(item)) {
     result[key] = unmarshalValue(value);
   }
   return result;
 }
 
-export function unmarshalValue(value: any): any {
+export function unmarshalValue(value: unknown): unknown {
   if (value === null || value === undefined) return null;
   if (typeof value !== 'object') return value;
 
-  const keys = Object.keys(value);
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj);
   if (keys.length === 0) return value;
 
   const type = keys[0];
-  const val = value[type];
+  const val = obj[type];
 
   switch (type) {
     case 'S':
@@ -28,7 +29,7 @@ export function unmarshalValue(value: any): any {
     case 'L':
       return Array.isArray(val) ? val.map(unmarshalValue) : [];
     case 'M':
-      return typeof val === 'object' ? unmarshalItem(val) : {};
+      return typeof val === 'object' && val !== null ? unmarshalItem(val as Record<string, unknown>) : {};
     case 'SS':
       return Array.isArray(val) ? val : [];
     case 'NS':
@@ -38,8 +39,8 @@ export function unmarshalValue(value: any): any {
   }
 }
 
-export function marshalItem(obj: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
+export function marshalItem(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {
       result[key] = marshalValue(value);
@@ -48,7 +49,7 @@ export function marshalItem(obj: Record<string, any>): Record<string, any> {
   return result;
 }
 
-export function marshalValue(value: any): any {
+export function marshalValue(value: unknown): unknown {
   if (value === null) return { NULL: true };
   if (typeof value === 'boolean') return { BOOL: value };
   if (typeof value === 'number') return { N: String(value) };
@@ -59,7 +60,7 @@ export function marshalValue(value: any): any {
   }
 
   if (typeof value === 'object') {
-    return { M: marshalItem(value) };
+    return { M: marshalItem(value as Record<string, unknown>) };
   }
 
   return { S: String(value) };

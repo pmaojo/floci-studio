@@ -93,14 +93,14 @@ const SchedulerView = () => {
       const listed = res.Schedules || [];
 
       if (listed.length === 0) {
-        setSchedules(PRELOADED_SCHEDULES as any);
+        setSchedules(PRELOADED_SCHEDULES as ScheduleItem[]);
         if (!selectedScheduleName && PRELOADED_SCHEDULES[0]) {
-          handleScheduleSelect(PRELOADED_SCHEDULES[0] as any);
+          handleScheduleSelect(PRELOADED_SCHEDULES[0] as ScheduleItem);
         }
       } else {
         // Detailed schedules retrieval since ListSchedules doesn't return full Target fields
         const fullSchedules = await Promise.all(
-          listed.map(async (s: any) => {
+          listed.map(async (s) => {
             try {
               const details = await clients.scheduler.send(new GetScheduleCommand({
                 Name: s.Name!,
@@ -136,11 +136,11 @@ const SchedulerView = () => {
           handleScheduleSelect(fullSchedules[0]);
         }
       }
-    } catch (err: any) {
-      logActivity('Scheduler', 'ListSchedules failed, using preloaded catalog', 'success', err.message);
-      setSchedules(PRELOADED_SCHEDULES as any);
+    } catch (err) {
+      logActivity('Scheduler', 'ListSchedules failed, using preloaded catalog', 'success', err instanceof Error ? err.message : String(err));
+      setSchedules(PRELOADED_SCHEDULES as ScheduleItem[]);
       if (!selectedScheduleName && PRELOADED_SCHEDULES[0]) {
-        handleScheduleSelect(PRELOADED_SCHEDULES[0] as any);
+        handleScheduleSelect(PRELOADED_SCHEDULES[0] as ScheduleItem);
       }
     } finally {
       setLoadingSchedules(false);
@@ -184,9 +184,9 @@ const SchedulerView = () => {
 
       setSelectedSchedule(updated);
       setSchedules(prev => prev.map(s => s.Name === selectedSchedule.Name ? updated : s));
-    } catch (err: any) {
-      logActivity('Scheduler', `ToggleState failed: ${selectedSchedule.Name}`, 'error', err.message);
-      alert(`Failed to toggle state: ${err.message}`);
+    } catch (err) {
+      logActivity('Scheduler', `ToggleState failed: ${selectedSchedule.Name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Failed to toggle state: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsUpdatingState(false);
     }
@@ -214,9 +214,9 @@ const SchedulerView = () => {
         setSelectedScheduleName(null);
         setSelectedSchedule(null);
       }
-    } catch (err: any) {
-      logActivity('Scheduler', `DeleteSchedule failed: ${selectedSchedule.Name}`, 'error', err.message);
-      alert(`Failed to delete schedule: ${err.message}`);
+    } catch (err) {
+      logActivity('Scheduler', `DeleteSchedule failed: ${selectedSchedule.Name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Failed to delete schedule: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 

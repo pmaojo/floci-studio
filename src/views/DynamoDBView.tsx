@@ -42,18 +42,18 @@ const DynamoDBView = () => {
   
   // Selected Table state
   const [selectedTableName, setSelectedTableName] = useState<string | null>(null);
-  const [tableDetails, setTableDetails] = useState<any | null>(null);
+  const [tableDetails, setTableDetails] = useState<Record<string, unknown> | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'items' | 'schema' | 'actions'>('items');
-  
+
   // Items exploration state
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Record<string, unknown>[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [itemsError, setItemsError] = useState<string | null>(null);
-  
+
   // Pagination
-  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<any | null>(null);
-  const [pageHistory, setPageHistory] = useState<any[]>([]); // stack of ExclusiveStartKeys
+  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<Record<string, unknown> | null>(null);
+  const [pageHistory, setPageHistory] = useState<Array<Record<string, unknown> | null>>([]); // stack of ExclusiveStartKeys
   const [currentPage, setCurrentPage] = useState(0);
   
   // Query / Scan operation
@@ -79,8 +79,8 @@ const DynamoDBView = () => {
     try {
       const res = await clients.dynamo.send(new ListTablesCommand({}));
       setTables(res.TableNames || []);
-    } catch (err: any) {
-      logActivity('DynamoDB', 'ListTables failed', 'error', err.message);
+    } catch (err) {
+      logActivity('DynamoDB', 'ListTables failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingTables(false);
     }
@@ -96,7 +96,7 @@ const DynamoDBView = () => {
     setItemsError(null);
     try {
       const res = await clients.dynamo.send(new DescribeTableCommand({ TableName: tableName }));
-      setTableDetails(res.Table || null);
+      setTableDetails((res.Table as Record<string, unknown>) || null);
       
       // Reset query states
       setQueryPartitionValue('');
@@ -107,9 +107,9 @@ const DynamoDBView = () => {
       
       // Fetch table items
       fetchItems(tableName, null, 'scan');
-    } catch (err: any) {
+    } catch (err) {
       setTableDetails(null);
-      logActivity('DynamoDB', `DescribeTable ${tableName} failed`, 'error', err.message);
+      logActivity('DynamoDB', `DescribeTable ${tableName} failed`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingDetails(false);
     }
@@ -122,9 +122,10 @@ const DynamoDBView = () => {
 
   // Extract Partition Key and Sort Key from schemas
   const primaryKeys = useMemo(() => {
-    if (!tableDetails?.KeySchema) return { hashKey: '', rangeKey: '' };
-    const hash = tableDetails.KeySchema.find((k: any) => k.KeyType === 'HASH');
-    const range = tableDetails.KeySchema.find((k: any) => k.KeyType === 'RANGE');
+    const keySchema = (tableDetails as { KeySchema?: { KeyType: string; AttributeName: string }[] } | null)?.KeySchema;
+    if (!keySchema) return { hashKey: '', rangeKey: '' };
+    const hash = keySchema.find((k) => k.KeyType === 'HASH');
+    const range = keySchema.find((k) => k.KeyType === 'RANGE');
     return {
       hashKey: hash?.AttributeName || '',
       rangeKey: range?.AttributeName || ''
@@ -133,8 +134,8 @@ const DynamoDBView = () => {
 
   // Fetch Items via Scan or Query
   const fetchItems = async (
-    tableName: string, 
-    startKey: any = null, 
+    tableName: string,
+    startKey: Record<string, unknown> | null = null,
     opType: 'scan' | 'query' = operationType
   ) => {
     setLoadingItems(true);
@@ -153,7 +154,7 @@ const DynamoDBView = () => {
         const expressionAttributeNames: Record<string, string> = {
           [`#${hashKey}`]: hashKey
         };
-        const expressionAttributeValues: Record<string, any> = {
+        const expressionAttributeValues: Record<string, unknown> = {
           [`:${hashKey}`]: marshalValue(queryPartitionValue)
         };
         
@@ -192,14 +193,15 @@ const DynamoDBView = () => {
       }
 
       const rawItems = response.Items || [];
-      const jsItems = rawItems.map(item => unmarshalItem(item));
+      const jsItems = rawItems.map(item => unmarshalItem(item as Record<string, unknown>));
       setItems(jsItems);
-      setLastEvaluatedKey(response.LastEvaluatedKey || null);
-    } catch (err: any) {
+      setLastEvaluatedKey((response.LastEvaluatedKey as Record<string, unknown>) || null);
+    } catch (err) {
       setItems([]);
       setLastEvaluatedKey(null);
-      setItemsError(err.message || 'Operation failed.');
-      logActivity('DynamoDB', `Fetch items failed for ${tableName}`, 'error', err.message);
+      const msg = err instanceof Error ? err.message : String(err);
+      setItemsError(msg || 'Operation failed.');
+      logActivity('DynamoDB', `Fetch items failed for ${tableName}`, 'error', msg);
     } finally {
       setLoadingItems(false);
     }
@@ -262,14 +264,14 @@ const DynamoDBView = () => {
   }, [items, clientFilter]);
 
   // Edit / Create Record logic
-  const openEditor = (item: any = null) => {
+  const openEditor = (item: Record<string, unknown> | null = null) => {
     setIsNewRecord(item === null);
     setJsonError(null);
     
     if (item === null) {
       // Setup blank item with partition and sort keys initialized
       const { hashKey, rangeKey } = primaryKeys;
-      const blank: Record<string, any> = {};
+      const blank: Record<string, unknown> = {};
       if (hashKey) blank[hashKey] = '';
       if (rangeKey) blank[rangeKey] = '';
       
@@ -339,10 +341,10 @@ const DynamoDBView = () => {
   const handleEditorTabSwitch = (mode: 'form' | 'json') => {
     if (mode === 'json' && editorMode === 'form') {
       // Build JSON from form rows
-      const obj: Record<string, any> = {};
+      const obj: Record<string, unknown> = {};
       formRows.forEach(row => {
         if (!row.name) return;
-        let parsedVal: any = row.value;
+        let parsedVal: unknown = row.value;
         if (row.type === 'N') parsedVal = Number(row.value);
         if (row.type === 'BOOL') parsedVal = row.value === 'true';
         if (row.type === 'NULL') parsedVal = null;
@@ -383,8 +385,8 @@ const DynamoDBView = () => {
         });
         setFormRows(rows);
         setJsonError(null);
-      } catch (err: any) {
-        setJsonError(`Invalid JSON: ${err.message}. Resolve errors to switch modes.`);
+      } catch (err) {
+        setJsonError(`Invalid JSON: ${err instanceof Error ? err.message : String(err)}. Resolve errors to switch modes.`);
         return;
       }
     }
@@ -397,15 +399,15 @@ const DynamoDBView = () => {
     setJsonError(null);
     
     try {
-      let finalObject: Record<string, any> = {};
-      
+      let finalObject: Record<string, unknown> = {};
+
       if (editorMode === 'json') {
-        finalObject = JSON.parse(jsonText);
+        finalObject = JSON.parse(jsonText) as Record<string, unknown>;
       } else {
         // Build from form
         formRows.forEach(row => {
           if (!row.name) return;
-          let parsedVal: any = row.value;
+          let parsedVal: unknown = row.value;
           if (row.type === 'N') parsedVal = Number(row.value);
           if (row.type === 'BOOL') parsedVal = row.value === 'true';
           if (row.type === 'NULL') parsedVal = null;
@@ -441,15 +443,16 @@ const DynamoDBView = () => {
       
       // Refresh items
       fetchItems(selectedTableName, null, operationType);
-    } catch (err: any) {
-      setJsonError(err.message || 'Failed to save record.');
-      logActivity('DynamoDB', `PutItem failed in ${selectedTableName}`, 'error', err.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setJsonError(msg || 'Failed to save record.');
+      logActivity('DynamoDB', `PutItem failed in ${selectedTableName}`, 'error', msg);
     } finally {
       setIsSavingRecord(false);
     }
   };
 
-  const handleDeleteItem = async (item: any) => {
+  const handleDeleteItem = async (item: Record<string, unknown>) => {
     if (!selectedTableName) return;
     const { hashKey, rangeKey } = primaryKeys;
     const partitionVal = item[hashKey];
@@ -462,7 +465,7 @@ const DynamoDBView = () => {
     if (!confirm(confirmMsg)) return;
 
     try {
-      const keyMap: Record<string, any> = {
+      const keyMap: Record<string, unknown> = {
         [hashKey]: marshalValue(partitionVal)
       };
       if (rangeKey) {
@@ -478,9 +481,9 @@ const DynamoDBView = () => {
       
       // Refresh items
       fetchItems(selectedTableName, null, operationType);
-    } catch (err: any) {
-      alert(`Delete item failed: ${err.message}`);
-      logActivity('DynamoDB', `DeleteItem failed in ${selectedTableName}`, 'error', err.message);
+    } catch (err) {
+      alert(`Delete item failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `DeleteItem failed in ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -505,7 +508,7 @@ const DynamoDBView = () => {
 
       // Delete items one-by-one (in emulation, fine for standard testing tables)
       for (const rawItem of itemsToDelete) {
-        const keyMap: Record<string, any> = {
+        const keyMap: Record<string, unknown> = {
           [hashKey]: rawItem[hashKey]
         };
         if (rangeKey) {
@@ -520,9 +523,9 @@ const DynamoDBView = () => {
       logActivity('DynamoDB', `Truncated table ${selectedTableName}`, 'success', `Cleared ${itemsToDelete.length} items`);
       alert(`Cleared ${itemsToDelete.length} items successfully.`);
       fetchItems(selectedTableName, null, 'scan');
-    } catch (err: any) {
-      alert(`Truncate table failed: ${err.message}`);
-      logActivity('DynamoDB', `Truncate failed for ${selectedTableName}`, 'error', err.message);
+    } catch (err) {
+      alert(`Truncate table failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `Truncate failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingItems(false);
     }
@@ -701,7 +704,7 @@ const DynamoDBView = () => {
                               <label className="text-[9px] font-bold opacity-60 font-mono lowercase">Sort Key Operator</label>
                               <Select
                                 value={querySortOperator}
-                                onChange={e => setQuerySortOperator(e.target.value as any)}
+                                onChange={e => setQuerySortOperator(e.target.value as '=' | '<' | '>' | 'begins_with')}
                               >
                                 <option value="=">=</option>
                                 <option value="<">&lt;</option>
@@ -883,8 +886,8 @@ const DynamoDBView = () => {
                       <Card className="space-y-4">
                         <h4 className="font-bold text-[10px] tracking-widest text-brand-text opacity-70 border-b border-brand-text/20 pb-2">Primary Key Definitions</h4>
                         <div className="space-y-3 font-mono text-[11px]">
-                          {tableDetails?.KeySchema?.map((key: any, idx: number) => {
-                            const attrDef = tableDetails?.AttributeDefinitions?.find((a: any) => a.AttributeName === key.AttributeName);
+                          {(tableDetails as { KeySchema?: { AttributeName: string; KeyType: string }[]; AttributeDefinitions?: { AttributeName: string; AttributeType: string }[] } | null)?.KeySchema?.map((key, idx: number) => {
+                            const attrDef = (tableDetails as { AttributeDefinitions?: { AttributeName: string; AttributeType: string }[] } | null)?.AttributeDefinitions?.find((a) => a.AttributeName === key.AttributeName);
                             return (
                               <div key={idx} className="flex justify-between items-center border border-brand-text/20 p-2.5 bg-brand-muted/20">
                                 <div>
@@ -924,7 +927,7 @@ const DynamoDBView = () => {
                       <Card className="space-y-4">
                         <h4 className="font-bold text-[10px] tracking-widest text-brand-text opacity-70 border-b border-brand-text/20 pb-2">Global Secondary Indexes (GSIs)</h4>
                         <div className="space-y-4 font-mono text-[11px]">
-                          {tableDetails.GlobalSecondaryIndexes.map((gsi: any, idx: number) => (
+                          {(tableDetails as { GlobalSecondaryIndexes?: { IndexName: string; IndexStatus: string; KeySchema?: { AttributeName: string; KeyType: string }[]; Projection?: { ProjectionType: string }; ItemCount?: number }[] }).GlobalSecondaryIndexes!.map((gsi, idx: number) => (
                             <div key={idx} className="border border-brand-text p-4 bg-brand-muted/10 space-y-3">
                               <div className="flex items-center justify-between border-b border-brand-text/20 pb-2">
                                 <span className="font-bold font-mono text-xs">{gsi.IndexName}</span>
@@ -935,7 +938,7 @@ const DynamoDBView = () => {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                   <span className="text-[9px] text-neutral-400 uppercase font-bold block">Key Schema</span>
-                                  {gsi.KeySchema?.map((k: any, i: number) => (
+                                  {gsi.KeySchema?.map((k, i: number) => (
                                     <div key={i} className="text-[10px]">{k.AttributeName} ({k.KeyType})</div>
                                   ))}
                                 </div>
@@ -1068,7 +1071,7 @@ const DynamoDBView = () => {
                         <div className="w-1/4">
                           <Select
                             value={row.type}
-                            onChange={e => handleFormRowChange(index, 'type', e.target.value as any)}
+                            onChange={e => handleFormRowChange(index, 'type', e.target.value)}
                             disabled={isKey && !isNewRecord}
                             className="font-mono text-[10px]"
                           >
