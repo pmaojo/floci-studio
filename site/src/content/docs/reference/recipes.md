@@ -1,6 +1,6 @@
 ---
 title: Marketplace Recipes
-description: All 19 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
+description: All 24 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
 ---
 
 Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools.
@@ -247,3 +247,78 @@ Prometheus at `http://localhost:9090`
 | `SFTP_PORT` | `2222` | SFTP port |
 
 **Access:** `sftp://user@localhost:2222`
+
+---
+
+## Ollama (Local LLM Runtime)
+
+Run open-source LLMs (Llama 3, Mistral, Phi, Gemma…) locally behind an OpenAI-compatible API. Pair it with Qdrant for a fully local RAG stack.
+
+| Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_PORT` | `11434` | HTTP API port |
+| `OLLAMA_KEEP_ALIVE` | `5m` | How long a model stays loaded in memory |
+
+**Access:** `http://localhost:11434` (OpenAI-compatible at `/v1`)
+
+```
+You: Deploy Ollama
+Claude: [calls deploy_marketplace_app(recipe_id="ollama")]
+```
+
+---
+
+## Qdrant (Vector Database)
+
+High-performance vector search for embeddings, semantic search and RAG. Ships with a web dashboard and REST + gRPC APIs.
+
+| Variable | Default | Description |
+|---|---|---|
+| `QDRANT_HTTP_PORT` | `6333` | REST API + dashboard port |
+| `QDRANT_GRPC_PORT` | `6334` | gRPC port |
+| `QDRANT_API_KEY` | `qdrant123` | API key (sent in the `api-key` header) |
+
+**Access:** Dashboard at `http://localhost:6333/dashboard`
+
+---
+
+## HashiCorp Vault (Dev Mode)
+
+Secrets management and encryption-as-a-service — a local stand-in for AWS Secrets Manager and SSM Parameter Store.
+
+| Variable | Default | Description |
+|---|---|---|
+| `VAULT_PORT` | `8200` | HTTP API + UI port |
+| `VAULT_DEV_ROOT_TOKEN` | `root` | Root token for the dev server |
+
+**Access:** UI at `http://localhost:8200` (sign in with the root token)
+
+> Dev mode keeps everything in memory — great for local dev, not for production.
+
+---
+
+## ClickHouse (Analytics OLAP DB)
+
+Column-oriented database for real-time analytics over billions of rows, with a built-in web Play console.
+
+| Variable | Default | Description |
+|---|---|---|
+| `CLICKHOUSE_HTTP_PORT` | `8123` | HTTP interface + Play console port |
+| `CLICKHOUSE_NATIVE_PORT` | `9000` | Native TCP protocol port |
+| `CLICKHOUSE_USER` | `default` | Database user |
+| `CLICKHOUSE_PASSWORD` | `clickhouse123` | Database password |
+| `CLICKHOUSE_DB` | `analytics` | Default database created on boot |
+
+**Access:** Play console at `http://localhost:8123/play`
+
+---
+
+## Portainer (Docker Cockpit)
+
+A web UI to manage Docker itself — containers, images, volumes, networks, logs and in-browser shells.
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORTAINER_PORT` | `9443` | HTTPS web UI port |
+
+**Access:** `https://localhost:9443` (accept the self-signed cert, then create an admin user on first boot)
