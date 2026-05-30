@@ -1,3 +1,19 @@
+export interface AwsCliProfile {
+  name: string;
+  source: 'config' | 'credentials';
+  type: 'static' | 'sso' | 'assume_role';
+  region?: string;
+  roleArn?: string;
+  ssoStartUrl?: string;
+}
+
+export interface AssumeRoleResult {
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken: string;
+  expiration: string;
+}
+
 export type LambdaCodeInput =
   | { mode: 'template' }
   | { mode: 'inline'; fileName: string; source: string }
@@ -288,6 +304,13 @@ export const sidecarApi = {
   getAthenaQueryResults: (id: string) => requestSidecar<{ ok: boolean; results: any }>(`/api/athena/query/${id}/results`),
   getAthenaHistory: () => requestSidecar<{ ok: boolean; history: any[] }>('/api/athena/history'),
   clearAthenaHistory: () => requestSidecar<{ ok: boolean }>('/api/athena/history', { method: 'DELETE' }),
+  // Auth / profile helpers
+  listAwsProfiles: () => requestSidecar<{ profiles: AwsCliProfile[] }>('/api/auth/aws-profiles'),
+  assumeRole: (roleArn: string, sessionName?: string, durationSeconds?: number, externalId?: string) =>
+    requestSidecar<AssumeRoleResult>('/api/auth/assume-role', {
+      method: 'POST',
+      body: JSON.stringify({ roleArn, sessionName, durationSeconds, externalId }),
+    }),
 };
 
 export const fileToBase64 = (file: File) => {

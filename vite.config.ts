@@ -30,6 +30,7 @@ export default defineConfig(() => {
         '/sidecar': {
           target: sidecarProxyTarget,
           changeOrigin: true,
+          ws: true,
           rewrite: (requestPath) => requestPath.replace(/^\/sidecar(?=\/|$)/, '') || '/',
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyRequest) => {

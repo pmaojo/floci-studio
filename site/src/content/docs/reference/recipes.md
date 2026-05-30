@@ -1,6 +1,6 @@
 ---
 title: Marketplace Recipes
-description: All 18 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
+description: All 19 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
 ---
 
 Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools.
@@ -14,6 +14,25 @@ Go to **Marketplace** in the sidebar → select a recipe → configure variables
 ```
 You: Deploy the Postgres recipe with password "mysecret" on port 5433
 Claude: [calls deploy_marketplace_app(recipe_id="postgres", variables={"POSTGRES_PASSWORD": "mysecret", "POSTGRES_PORT": "5433"})]
+```
+
+---
+
+## DynamoDB Admin
+
+A web-based GUI for browsing, querying, and editing DynamoDB tables. Pre-wired to point at the Floci DynamoDB endpoint (port 4566) out of the box.
+
+| Variable | Default | Description |
+|---|---|---|
+| `DYNAMODB_ADMIN_PORT` | `8001` | Host port for the web UI |
+| `DYNAMO_ENDPOINT` | `http://host.docker.internal:4566` | DynamoDB endpoint to connect to |
+| `AWS_REGION` | `us-east-1` | AWS region |
+
+**Access:** `http://localhost:8001`
+
+```
+You: Deploy DynamoDB Admin
+Claude: [calls deploy_marketplace_app(recipe_id="dynamodb-admin")]
 ```
 
 ---
