@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand } from '@aws-sdk/client-glue';
+import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand, GetTablesCommand } from '@aws-sdk/client-glue';
 import { useAws } from '../contexts/AwsContext';
 import { Layers, CirclePlus, Trash2, Database, Table, Settings } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
@@ -7,6 +7,7 @@ import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/
 const GlueView = () => {
   const { clients, logActivity } = useAws();
   const [databases, setDatabases] = useState<any[]>([]);
+  const [tableCounts, setTableCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -16,8 +17,20 @@ const GlueView = () => {
     setLoading(true);
     try {
       const response = await clients.glue.send(new GetDatabasesCommand({}));
-      setDatabases(response.DatabaseList || []);
+      const dbs = response.DatabaseList || [];
+      setDatabases(dbs);
       logActivity('Glue', 'GetDatabases', 'success');
+      const counts = await Promise.all(
+        dbs.map(async db => {
+          try {
+            const t = await clients.glue.send(new GetTablesCommand({ DatabaseName: db.Name! }));
+            return [db.Name!, (t.TableList || []).length] as [string, number];
+          } catch {
+            return [db.Name!, 0] as [string, number];
+          }
+        })
+      );
+      setTableCounts(Object.fromEntries(counts));
     } catch (err: any) {
       logActivity('Glue', 'GetDatabases failed', 'error', err.message);
     } finally {
@@ -120,7 +133,7 @@ const GlueView = () => {
                 <h4 className="font-bold text-xs truncate mb-1">{db.Name}</h4>
                 <p className="text-[9px] font-mono opacity-40 truncate">{db.Description || 'No description'}</p>
                 <div className="mt-6 flex items-center justify-between text-[8px] font-bold opacity-30">
-                  <span className="flex items-center gap-1"><Table size={10} /> 0 TABLES</span>
+                  <span className="flex items-center gap-1"><Table size={10} /> {tableCounts[db.Name!] ?? 0} TABLES</span>
                   <span className="flex items-center gap-1"><Settings size={10} /> MANAGED</span>
                 </div>
               </Card>
