@@ -91,7 +91,7 @@ export function SchedulerCreator({
           arn: f.FunctionArn || ''
         })) || [];
         setLambdas(items);
-      } catch (e) {
+      } catch {
         setLambdas([]);
       }
 
@@ -106,7 +106,7 @@ export function SchedulerCreator({
           };
         }) || [];
         setQueues(items);
-      } catch (e) {
+      } catch {
         setQueues([]);
       }
 
@@ -119,7 +119,7 @@ export function SchedulerCreator({
           return { name, arn };
         }) || [];
         setTopics(items);
-      } catch (e) {
+      } catch {
         setTopics([]);
       }
     } finally {

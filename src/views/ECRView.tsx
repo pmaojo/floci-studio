@@ -109,7 +109,7 @@ const ECRView = () => {
             </div>
           ) : (
             repos.map(repo => (
-              <Card key={repo.repositoryId} className="hover:border-brand-text transition-all bg-white group">
+              <Card key={repo.repositoryName} className="hover:border-brand-text transition-all bg-white group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-2 bg-brand-muted border border-brand-text shrink-0">
                     <Package size={20} />

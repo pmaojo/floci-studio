@@ -5,8 +5,9 @@ import {
   ScanCommand, 
   QueryCommand, 
   PutItemCommand, 
-  DeleteItemCommand 
+  DeleteItemCommand
 } from '@aws-sdk/client-dynamodb';
+import type { AttributeValue, TableDescription } from '@aws-sdk/client-dynamodb';
 import { useAws } from '../contexts/AwsContext';
 import { 
   Database, 
@@ -42,7 +43,7 @@ const DynamoDBView = () => {
   
   // Selected Table state
   const [selectedTableName, setSelectedTableName] = useState<string | null>(null);
-  const [tableDetails, setTableDetails] = useState<Record<string, unknown> | null>(null);
+  const [tableDetails, setTableDetails] = useState<TableDescription | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'items' | 'schema' | 'actions'>('items');
 
@@ -52,8 +53,8 @@ const DynamoDBView = () => {
   const [itemsError, setItemsError] = useState<string | null>(null);
 
   // Pagination
-  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<Record<string, unknown> | null>(null);
-  const [pageHistory, setPageHistory] = useState<Array<Record<string, unknown> | null>>([]); // stack of ExclusiveStartKeys
+  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<Record<string, AttributeValue> | null>(null);
+  const [pageHistory, setPageHistory] = useState<Array<Record<string, AttributeValue> | null>>([]); // stack of ExclusiveStartKeys
   const [currentPage, setCurrentPage] = useState(0);
   
   // Query / Scan operation
@@ -96,7 +97,7 @@ const DynamoDBView = () => {
     setItemsError(null);
     try {
       const res = await clients.dynamo.send(new DescribeTableCommand({ TableName: tableName }));
-      setTableDetails((res.Table as Record<string, unknown>) || null);
+      setTableDetails(res.Table || null);
       
       // Reset query states
       setQueryPartitionValue('');
@@ -122,7 +123,7 @@ const DynamoDBView = () => {
 
   // Extract Partition Key and Sort Key from schemas
   const primaryKeys = useMemo(() => {
-    const keySchema = (tableDetails as { KeySchema?: { KeyType: string; AttributeName: string }[] } | null)?.KeySchema;
+    const keySchema = tableDetails?.KeySchema;
     if (!keySchema) return { hashKey: '', rangeKey: '' };
     const hash = keySchema.find((k) => k.KeyType === 'HASH');
     const range = keySchema.find((k) => k.KeyType === 'RANGE');
@@ -135,7 +136,7 @@ const DynamoDBView = () => {
   // Fetch Items via Scan or Query
   const fetchItems = async (
     tableName: string,
-    startKey: Record<string, unknown> | null = null,
+    startKey: Record<string, AttributeValue> | null = null,
     opType: 'scan' | 'query' = operationType
   ) => {
     setLoadingItems(true);
@@ -154,7 +155,7 @@ const DynamoDBView = () => {
         const expressionAttributeNames: Record<string, string> = {
           [`#${hashKey}`]: hashKey
         };
-        const expressionAttributeValues: Record<string, unknown> = {
+        const expressionAttributeValues: Record<string, AttributeValue> = {
           [`:${hashKey}`]: marshalValue(queryPartitionValue)
         };
         
@@ -193,9 +194,9 @@ const DynamoDBView = () => {
       }
 
       const rawItems = response.Items || [];
-      const jsItems = rawItems.map(item => unmarshalItem(item as Record<string, unknown>));
+      const jsItems = rawItems.map(item => unmarshalItem(item));
       setItems(jsItems);
-      setLastEvaluatedKey((response.LastEvaluatedKey as Record<string, unknown>) || null);
+      setLastEvaluatedKey(response.LastEvaluatedKey || null);
     } catch (err) {
       setItems([]);
       setLastEvaluatedKey(null);
@@ -465,7 +466,7 @@ const DynamoDBView = () => {
     if (!confirm(confirmMsg)) return;
 
     try {
-      const keyMap: Record<string, unknown> = {
+      const keyMap: Record<string, AttributeValue> = {
         [hashKey]: marshalValue(partitionVal)
       };
       if (rangeKey) {
@@ -508,7 +509,7 @@ const DynamoDBView = () => {
 
       // Delete items one-by-one (in emulation, fine for standard testing tables)
       for (const rawItem of itemsToDelete) {
-        const keyMap: Record<string, unknown> = {
+        const keyMap: Record<string, AttributeValue> = {
           [hashKey]: rawItem[hashKey]
         };
         if (rangeKey) {
