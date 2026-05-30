@@ -15,7 +15,8 @@ import {
   Settings, 
   Key,
   Database,
-  Trash2
+  Trash2,
+  Cloud
 } from 'lucide-react';
 import { useAws } from '../contexts/AwsContext';
 
@@ -329,6 +330,17 @@ const MarketplaceView = () => {
                       <p className="text-[9px] text-neutral-500 normal-case mt-2.5 leading-relaxed font-sans font-medium">
                         {recipe.description}
                       </p>
+                      {recipe.aws && (
+                        <div
+                          className="mt-3 flex items-start gap-1.5 border border-brand-text/10 bg-brand-muted/40 px-2 py-1.5"
+                          title={`${recipe.aws.parity}\n\nDeploy: ${recipe.aws.deploy}`}
+                        >
+                          <Cloud size={11} className="text-brand-text/60 shrink-0 mt-px" />
+                          <span className="font-mono text-[8px] font-bold uppercase tracking-wide text-brand-text/70 leading-tight">
+                            Deploys to {recipe.aws.service}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -4,6 +4,11 @@
   "description": "An open-source identity and access management solution, bundled with a robust PostgreSQL database.",
   "version": "22.0.0",
   "accessUrl": "http://localhost:{{KEYCLOAK_PORT}}",
+  "aws": {
+    "service": "Amazon Cognito",
+    "parity": "Run the same OIDC / OAuth2 / SAML flows locally that Cognito serves — login, tokens and JWKS all behave identically.",
+    "deploy": "Create a Cognito user pool and swap your app's issuer/JWKS URL for the Cognito hosted UI endpoints."
+  },
   "variables": [
     {
       "key": "KEYCLOAK_PORT",

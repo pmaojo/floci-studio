@@ -19,3 +19,11 @@ Upon first login to the Admin Panel, use the following default credentials:
 - **Password**: `changeme`
 
 You will be prompted to change these details immediately after your first login.
+
+## 🚀 Path to AWS
+
+**Managed service:** AWS Application Load Balancer + ACM
+
+Terminate TLS and route hosts/paths locally exactly as an ALB + ACM certificate will in production.
+
+**Deploy:** Recreate the proxy hosts as ALB listener rules/target groups and issue the cert in ACM.

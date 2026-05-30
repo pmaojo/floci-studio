@@ -19,3 +19,11 @@ When you start the Portainer recipe, you can configure:
 3. Select the **local** environment to manage this Docker host.
 
 > 🔌 Portainer mounts the host Docker socket (`/var/run/docker.sock`) so it can manage every container — including the ones Floci deploys.
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon ECS / EKS console
+
+Manage the very containers locally that you will run as ECS tasks or EKS pods — same images, same compose topology.
+
+**Deploy:** Push images to ECR and define the services as an ECS task definition or EKS deployment.

@@ -4,6 +4,11 @@
   "description": "A web-based GUI for DynamoDB — browse tables, items and indexes, run queries and edit data. Connects to your local Floci DynamoDB endpoint out of the box.",
   "version": "4.x",
   "accessUrl": "http://localhost:{{DYNAMODB_ADMIN_PORT}}",
+  "aws": {
+    "service": "Amazon DynamoDB console",
+    "parity": "Browses the very same tables locally (via the Floci endpoint on 4566) that you will see in the DynamoDB console — zero schema drift.",
+    "deploy": "Already Floci-wired: set DYNAMO_ENDPOINT to your real regional endpoint (or drop it) to inspect production DynamoDB."
+  },
   "variables": [
     {
       "key": "DYNAMODB_ADMIN_PORT",

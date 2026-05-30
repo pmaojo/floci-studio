@@ -18,3 +18,11 @@ When you start the Jaeger recipe via Floci Studio, you can configure:
 Open the UI at `http://localhost:16686` (adjusting for your configured port).
 
 Point your OpenTelemetry exporter at `http://localhost:4318` (HTTP) or `localhost:4317` (gRPC) to start sending traces.
+
+## 🚀 Path to AWS
+
+**Managed service:** AWS X-Ray (via OpenTelemetry / ADOT)
+
+Emit OTLP spans locally to Jaeger exactly as you will to X-Ray — same instrumentation, no app changes.
+
+**Deploy:** Swap the OTLP exporter target for the AWS Distro for OpenTelemetry (ADOT) collector that ships traces to X-Ray.

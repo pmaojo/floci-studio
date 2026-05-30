@@ -17,3 +17,11 @@ PocketBase exposes both its REST API and Admin Dashboard on a single configurabl
 ### Accessing the Dashboard
 Once started, you can access the Admin Dashboard by appending `/_/` to the base URL (e.g., `http://localhost:8090/_/`).
 The first time you access it, you will be prompted to create your initial admin account.
+
+## 🚀 Path to AWS
+
+**Managed service:** Self-host on Amazon ECS/Fargate
+
+The single PocketBase binary runs the same locally and on Fargate — identical REST API, auth and admin UI.
+
+**Deploy:** Run the image as a Fargate service with an EFS volume mounted at /pb_data so the SQLite store persists.

@@ -44,6 +44,6 @@ Click **SQS** in the sidebar, then **Create Queue**. Name it `my-queue` and clic
 
 ## What's next
 
-- [Installation guide](/docs/getting-started/installation) — full prerequisites, building from source, MCP setup
-- [SQS guide](/docs/guides/sqs) — send and receive messages
-- [MCP server](/docs/mcp/overview) — connect Claude or Cursor to drive the stack
+- [Installation guide](/getting-started/installation/) — full prerequisites, building from source, MCP setup
+- [SQS guide](/guides/sqs/) — send and receive messages
+- [MCP server](/mcp/overview/) — connect Claude or Cursor to drive the stack

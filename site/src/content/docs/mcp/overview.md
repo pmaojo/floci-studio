@@ -69,5 +69,5 @@ All in a single conversation turn.
 
 ## Next steps
 
-- [Connect Claude or Cursor](/docs/mcp/setup)
-- [Full tools reference](/docs/mcp/tools-reference)
+- [Connect Claude or Cursor](/mcp/setup/)
+- [Full tools reference](/mcp/tools-reference/)

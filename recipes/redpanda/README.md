@@ -17,3 +17,11 @@ When you start the Redpanda recipe via Floci Studio, you can configure:
 
 Connect your Kafka clients to `localhost:19092` (or your configured port).
 Access the Redpanda Console at `http://localhost:8080` (or your configured port).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon MSK (managed Apache Kafka)
+
+Redpanda is Kafka-API compatible, so producers/consumers and topics behave locally exactly as on MSK.
+
+**Deploy:** Point your Kafka bootstrap servers at the MSK cluster endpoint (add the IAM/TLS auth config).

@@ -180,6 +180,6 @@ console.log(unmarshall(Item!));
 
 ## Next steps
 
-- [Tag your tables](/docs/guides/tags) to track environment and team ownership
-- [Connect Lambda to DynamoDB](/docs/guides/workflows) for a complete event-driven flow
-- [Deploy DynamoDB Admin](/docs/guides/marketplace) for a visual browser
+- [Tag your tables](/guides/tags/) to track environment and team ownership
+- [Connect Lambda to DynamoDB](/guides/workflows/) for a complete event-driven flow
+- [Deploy DynamoDB Admin](/guides/marketplace/) for a visual browser
