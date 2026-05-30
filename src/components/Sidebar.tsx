@@ -55,7 +55,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  const { isHealthy } = useAws();
+  const { isHealthy, wsConnected } = useAws();
   const [filterText, setFilterText] = React.useState('');
   const [collapsedCategories, setCollapsedCategories] = React.useState<Record<string, boolean>>({
     'Unsupported in Floci': true
@@ -358,6 +358,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             <span className="opacity-60">Status:</span>
             <span className={cn("font-bold", isHealthy ? "text-emerald-600" : "text-rose-600")}>
               {isHealthy ? 'RUNNING' : 'STOPPED'}
+            </span>
+          </div>
+          <div className="flex justify-between mb-1">
+            <span className="opacity-60">Live:</span>
+            <span className={cn("font-bold", wsConnected ? "text-emerald-600" : "text-amber-500")}>
+              {wsConnected ? 'WS ●' : 'WS ○'}
             </span>
           </div>
           <div className="flex justify-between">

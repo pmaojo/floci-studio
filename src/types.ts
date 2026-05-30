@@ -3,6 +3,12 @@ export interface AwsConfig {
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
+  sessionToken?: string;
+}
+
+export interface SavedProfile {
+  name: string;
+  config: AwsConfig;
 }
 
 export const LEGACY_DEFAULT_ENDPOINT = 'http://localhost:4566';
@@ -18,3 +24,5 @@ export const DEFAULT_CONFIG: AwsConfig = {
   accessKeyId: readViteEnv('VITE_AWS_ACCESS_KEY_ID', 'test'),
   secretAccessKey: readViteEnv('VITE_AWS_SECRET_ACCESS_KEY', 'test'),
 };
+
+export const PROFILES_STORAGE_KEY = 'floci-aws-profiles';
