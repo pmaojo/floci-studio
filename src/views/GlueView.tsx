@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand, GetTablesCommand } from '@aws-sdk/client-glue';
 import type { Database } from '@aws-sdk/client-glue';
 import { useAws } from '../contexts/AwsContext';
-import { Layers, CirclePlus, Trash2, Database, Table, Settings } from 'lucide-react';
+import { Layers, CirclePlus, Trash2, Database as DatabaseIcon, Table, Settings } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const GlueView = () => {
@@ -127,7 +127,7 @@ const GlueView = () => {
               <Card key={db.Name} className="hover:border-brand-text transition-all bg-white group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-2 bg-brand-muted border border-brand-text shrink-0">
-                    <Database size={20} />
+                    <DatabaseIcon size={20} />
                   </div>
                   <button onClick={() => handleDelete(db.Name!)} className="p-1 hover:text-rose-600 transition-colors">
                     <Trash2 size={16} />

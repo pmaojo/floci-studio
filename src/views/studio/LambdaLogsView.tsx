@@ -20,7 +20,7 @@ export default function LambdaLogsView() {
         if (data.type === 'log' || data.type === 'info') {
           setLogs(prev => [...prev, data.message || data.content].slice(-1000));
         }
-      } catch (e) {
+      } catch {
         setLogs(prev => [...prev, event.data].slice(-1000));
       }
     };

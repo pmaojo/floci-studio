@@ -104,7 +104,7 @@ const CloudWatchLogsView = () => {
             {groups.map(group => (
               <button 
                 key={group.logGroupName}
-                onClick={() => fetchStreams(group.logGroupName)}
+                onClick={() => fetchStreams(group.logGroupName!)}
                 className={`w-full text-left p-3 text-[10px] font-mono transition-colors ${selectedGroup === group.logGroupName ? 'bg-brand-text text-white' : 'hover:bg-brand-muted'}`}
               >
                 {group.logGroupName}
@@ -127,11 +127,11 @@ const CloudWatchLogsView = () => {
               streams.map(stream => (
                 <button 
                   key={stream.logStreamName}
-                  onClick={() => fetchEvents(selectedGroup, stream.logStreamName)}
+                  onClick={() => fetchEvents(selectedGroup, stream.logStreamName!)}
                   className={`w-full text-left p-3 text-[10px] font-mono transition-colors ${selectedStream === stream.logStreamName ? 'bg-brand-text text-white' : 'hover:bg-brand-muted'}`}
                 >
                   <p className="truncate">{stream.logStreamName}</p>
-                  <p className="text-[8px] opacity-50 mt-1 uppercase">Updated: {format(new Date(stream.lastEventTimestamp || stream.creationTime), 'HH:mm')}</p>
+                  <p className="text-[8px] opacity-50 mt-1 uppercase">Updated: {format(new Date(stream.lastEventTimestamp || stream.creationTime || 0), 'HH:mm')}</p>
                 </button>
               ))
             )}
@@ -159,7 +159,7 @@ const CloudWatchLogsView = () => {
              ) : (
                events.map((evt, idx) => (
                  <div key={idx} className="group flex gap-3 hover:bg-white/5 py-0.5">
-                    <span className="opacity-30 shrink-0">[{format(new Date(evt.timestamp), 'yyyy-MM-dd HH:mm:ss.SSS')}]</span>
+                    <span className="opacity-30 shrink-0">[{format(new Date(evt.timestamp || 0), 'yyyy-MM-dd HH:mm:ss.SSS')}]</span>
                     <span className="break-all">{evt.message}</span>
                  </div>
                ))

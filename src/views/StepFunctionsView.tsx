@@ -361,7 +361,7 @@ const StepFunctionsView = () => {
         input: parsedInput
       }));
 
-      logActivity('StepFunctions', `StartExecution: ${selectedMachine.name}`, 'success', `Execution name: ${execName}`);
+      logActivity('StepFunctions', `StartExecution: ${selectedMachine?.name}`, 'success', `Execution name: ${execName}`);
       setIsTriggerOpen(false);
 
       // Inject temporary running execution at top of logs locally
@@ -619,9 +619,9 @@ const StepFunctionsView = () => {
               <div className="p-4 border-b border-brand-text bg-brand-muted/40 shrink-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-sm font-bold font-mono text-brand-text">{selectedMachine.name}</h3>
+                    <h3 className="text-sm font-bold font-mono text-brand-text">{selectedMachine?.name}</h3>
                     <p className="text-[10px] text-brand-text opacity-60 mt-1 uppercase font-serif-italic normal-case lowercase truncate">
-                      {selectedMachine.stateMachineArn}
+                      {selectedMachine?.stateMachineArn}
                     </p>
                   </div>
                   <Button

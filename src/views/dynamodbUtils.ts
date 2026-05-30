@@ -1,4 +1,6 @@
-export function unmarshalItem(item: Record<string, unknown>): Record<string, unknown> {
+import type { AttributeValue } from '@aws-sdk/client-dynamodb';
+
+export function unmarshalItem(item: Record<string, AttributeValue>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(item)) {
     result[key] = unmarshalValue(value);
@@ -29,7 +31,7 @@ export function unmarshalValue(value: unknown): unknown {
     case 'L':
       return Array.isArray(val) ? val.map(unmarshalValue) : [];
     case 'M':
-      return typeof val === 'object' && val !== null ? unmarshalItem(val as Record<string, unknown>) : {};
+      return typeof val === 'object' && val !== null ? unmarshalItem(val as Record<string, AttributeValue>) : {};
     case 'SS':
       return Array.isArray(val) ? val : [];
     case 'NS':
@@ -39,8 +41,8 @@ export function unmarshalValue(value: unknown): unknown {
   }
 }
 
-export function marshalItem(obj: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
+export function marshalItem(obj: Record<string, unknown>): Record<string, AttributeValue> {
+  const result: Record<string, AttributeValue> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {
       result[key] = marshalValue(value);
@@ -49,7 +51,7 @@ export function marshalItem(obj: Record<string, unknown>): Record<string, unknow
   return result;
 }
 
-export function marshalValue(value: unknown): unknown {
+export function marshalValue(value: unknown): AttributeValue {
   if (value === null) return { NULL: true };
   if (typeof value === 'boolean') return { BOOL: value };
   if (typeof value === 'number') return { N: String(value) };
