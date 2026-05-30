@@ -121,8 +121,27 @@ const PRELOADED_STATE_MACHINES = [
   }
 ];
 
+interface StateMachineItem {
+  stateMachineArn: string;
+  name: string;
+  type: string;
+  creationDate: string;
+  definition: string;
+}
+
+interface ExecutionItem {
+  executionArn: string;
+  stateMachineArn: string;
+  name: string;
+  status: string;
+  startDate: string;
+  stopDate?: string;
+  input: string;
+  output: string;
+}
+
 // Preloaded mock executions mapping
-const PRELOADED_EXECUTIONS: Record<string, any[]> = {
+const PRELOADED_EXECUTIONS: Record<string, ExecutionItem[]> = {
   'arn:aws:states:us-east-1:000000000000:stateMachine:floci-order-processing-pipeline': [
     {
       executionArn: 'arn:aws:states:us-east-1:000000000000:execution:floci-order-processing-pipeline:exec-a9b8c7d6',
@@ -179,19 +198,19 @@ const StepFunctionsView = () => {
   const { clients, logActivity } = useAws();
 
   // State Machines state
-  const [machines, setMachines] = useState<any[]>([]);
+  const [machines, setMachines] = useState<StateMachineItem[]>([]);
   const [loadingMachines, setLoadingMachines] = useState(true);
   const [machineSearch, setMachineSearch] = useState('');
 
   // Selected Machine details
   const [selectedMachineArn, setSelectedMachineArn] = useState<string | null>(null);
-  const [selectedMachine, setSelectedMachine] = useState<any | null>(null);
+  const [selectedMachine, setSelectedMachine] = useState<StateMachineItem | null>(null);
   const [activeTab, setActiveTab] = useState<'visualizer' | 'executions'>('visualizer');
 
   // Executions logs state
-  const [executions, setExecutions] = useState<any[]>([]);
+  const [executions, setExecutions] = useState<ExecutionItem[]>([]);
   const [loadingExecutions, setLoadingExecutions] = useState(false);
-  const [selectedExecution, setSelectedExecution] = useState<any | null>(null);
+  const [selectedExecution, setSelectedExecution] = useState<ExecutionItem | null>(null);
 
   // Trigger wizard state
   const [isTriggerOpen, setIsTriggerOpen] = useState(false);
@@ -241,8 +260,8 @@ const StepFunctionsView = () => {
           handleMachineSelect(fullMachines[0]);
         }
       }
-    } catch (err: any) {
-      logActivity('StepFunctions', 'ListStateMachines failed, using preloaded catalog', 'success', err.message);
+    } catch (err) {
+      logActivity('StepFunctions', 'ListStateMachines failed, using preloaded catalog', 'success', err instanceof Error ? err.message : String(err));
       setMachines(PRELOADED_STATE_MACHINES);
       if (!selectedMachineArn && PRELOADED_STATE_MACHINES[0]) {
         handleMachineSelect(PRELOADED_STATE_MACHINES[0]);
@@ -256,7 +275,7 @@ const StepFunctionsView = () => {
     fetchStateMachines();
   }, []);
 
-  const handleMachineSelect = (machine: any) => {
+  const handleMachineSelect = (machine: StateMachineItem) => {
     setSelectedMachineArn(machine.stateMachineArn);
     setSelectedMachine(machine);
     fetchExecutions(machine.stateMachineArn);
@@ -308,7 +327,7 @@ const StepFunctionsView = () => {
         );
         setExecutions(fullExecs);
       }
-    } catch (err: any) {
+    } catch {
       setExecutions(PRELOADED_EXECUTIONS[machineArn] || []);
     } finally {
       setLoadingExecutions(false);
@@ -326,8 +345,8 @@ const StepFunctionsView = () => {
       try {
         JSON.parse(executionPayload);
         parsedInput = executionPayload;
-      } catch (e: any) {
-        alert(`Payload must be valid JSON: ${e.message}`);
+      } catch (e) {
+        alert(`Payload must be valid JSON: ${e instanceof Error ? e.message : String(e)}`);
         setIsLaunching(false);
         return;
       }
@@ -365,9 +384,9 @@ const StepFunctionsView = () => {
         fetchExecutions(selectedMachineArn);
       }, 4000);
 
-    } catch (err: any) {
-      logActivity('StepFunctions', `StartExecution failed: ${selectedMachine.name}`, 'error', err.message);
-      alert(`Launch execution failed: ${err.message}`);
+    } catch (err) {
+      logActivity('StepFunctions', `StartExecution failed: ${selectedMachine?.name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Launch execution failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsLaunching(false);
     }
@@ -410,7 +429,7 @@ const StepFunctionsView = () => {
         }
         
         if (stateObj.Choices && Array.isArray(stateObj.Choices)) {
-          stateObj.Choices.forEach((ch: any) => {
+          stateObj.Choices.forEach((ch: { Next?: string; StringEquals?: string; Default?: string }) => {
             if (ch.Next) {
               queue.push({ name: ch.Next, level: currentL + 1 });
             }
@@ -432,7 +451,7 @@ const StepFunctionsView = () => {
           edges.push({ from: name, to: st.Next });
         }
         if (st.Choices && Array.isArray(st.Choices)) {
-          st.Choices.forEach((ch: any, idx: number) => {
+          st.Choices.forEach((ch: { Next?: string; StringEquals?: string; Default?: string }, idx: number) => {
             if (ch.Next) {
               edges.push({ from: name, to: ch.Next, label: ch.StringEquals ? `== "${ch.StringEquals}"` : `Choice #${idx + 1}` });
             }
@@ -444,7 +463,7 @@ const StepFunctionsView = () => {
 
         // Parallel state branches support
         if (st.Type === 'Parallel' && st.Branches && Array.isArray(st.Branches)) {
-          st.Branches.forEach((b: any) => {
+          st.Branches.forEach((b: { StartAt?: string }) => {
             if (b.StartAt) {
               edges.push({ from: name, to: `${name}_branch_${b.StartAt}` });
               // Simple simulation path
