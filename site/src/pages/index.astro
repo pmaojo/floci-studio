@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="The local AWS cockpit for AI-native development. 34 native service views, 84 MCP tools, 18 marketplace recipes." />
+  <meta name="description" content="The local AWS cockpit for AI-native development. 34 native service views, 89 MCP tools, 19 marketplace recipes." />
   <title>Floci Studio — Local AWS Cockpit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -424,7 +424,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-badge">Now with 84 MCP Tools — AI-Native from Day One</div>
+    <div class="hero-badge">89 MCP Tools · Real-Time Dashboard · AWS Profile Support</div>
     <h1>
       The local AWS cockpit<br />
       for <span>AI-native</span><br />
@@ -493,8 +493,8 @@
           seed DynamoDB tables, and run end-to-end flows — all via natural language.
         </p>
         <div class="feature-stat">
-          <strong>84</strong>
-          MCP tools across 14 modules
+          <strong>89</strong>
+          MCP tools across 15 modules
         </div>
       </div>
       <div class="feature-card">
@@ -506,7 +506,7 @@
           Redpanda streams. All configured and wired together via Docker Compose.
         </p>
         <div class="feature-stat">
-          <strong>18</strong>
+          <strong>19</strong>
           Ready-to-deploy recipes
         </div>
       </div>
@@ -558,7 +558,8 @@
           'PostgreSQL', 'Redis', 'MongoDB', 'RabbitMQ', 'Redpanda (Kafka)',
           'NATS JetStream', 'Temporal', 'n8n', 'Keycloak', 'Jaeger',
           'Minio', 'Mailpit (SMTP)', 'Meilisearch', 'Grafana + Prometheus',
-          'Nginx Proxy Manager', 'PocketBase', 'IoT Core (MQTT)', 'AWS Transfer (SFTP)',
+          'Nginx Proxy Manager', 'PocketBase', 'DynamoDB Admin',
+          'IoT Core (MQTT)', 'AWS Transfer (SFTP)',
         ].map(name => (
           <div class="market-chip">{name}</div>
         ))}
@@ -577,12 +578,12 @@
           <h2 class="section-title" style="color: #f5f5f0;">Let your AI agent drive the whole stack.</h2>
           <p class="section-sub">
             Connect Claude Desktop, Cursor, or any MCP client with a single config block.
-            Your agent gets 84 tools: create queues, publish events, invoke lambdas, seed databases,
-            generate architecture diagrams, export Terraform — all from a conversation.
+            Your agent gets 89 tools: create queues, publish events, invoke lambdas, seed databases,
+            tag resources across services, generate architecture diagrams, export Terraform — all from a conversation.
           </p>
           <div class="mcp-tools-list">
             {['SQS', 'SNS', 'SES', 'S3', 'Lambda', 'DynamoDB', 'EventBridge', 'Step Functions',
-              'Secrets', 'KMS', 'Athena', 'Marketplace', 'DevTools', 'Meta'].map(mod => (
+              'Secrets', 'KMS', 'Athena', 'Tags', 'Marketplace', 'DevTools', 'Meta'].map(mod => (
               <div class="tool-badge">{mod}</div>
             ))}
           </div>

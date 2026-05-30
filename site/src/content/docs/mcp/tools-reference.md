@@ -1,9 +1,11 @@
 ---
 title: Tools Reference
-description: Complete reference for all 84 MCP tools organized by service module.
+description: Complete reference for all 89 MCP tools organized by service module.
 ---
 
 All tools are async and return JSON-serializable values. Boto3 `datetime`, `Decimal`, and `bytes` are automatically converted.
+
+**89 tools · 15 modules**
 
 ## Meta & Health
 
@@ -160,3 +162,14 @@ DynamoDB items use native type format: `{"pk": {"S": "user#123"}, "count": {"N":
 | `generate_jwt_token` | `claims, secret?, algorithm?` | Generates a JWT token |
 | `run_ui_tests` | `test_pattern?` | Runs Playwright UI tests |
 | `get_network_topology` | — | Returns network topology |
+
+## Tags
+
+| Tool | Parameters | Description |
+|---|---|---|
+| `get_all_tag_keys` | — | Lists all tag keys currently in use across all resources |
+| `get_tag_values` | `key` | Lists all values for a given tag key |
+| `find_resources_by_tag` | `tag_key, tag_value?, resource_types?` | Searches resources by tag across all services |
+| `tag_resources` | `resource_arns, tags` | Applies tags to one or more resources by ARN |
+| `untag_resources` | `resource_arns, tag_keys` | Removes specific tags from one or more resources |
+| `list_all_tagged_resources` | `resource_types?` | Lists all resources that have at least one tag |

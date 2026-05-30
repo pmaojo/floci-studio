@@ -3,7 +3,7 @@ title: MCP Server Overview
 description: How the Floci Studio MCP server works and why it matters for AI-native development.
 ---
 
-Floci Studio ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. It exposes 84 tools across 14 service modules, giving any MCP-compatible AI client full operational control over your local AWS environment.
+Floci Studio ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. It exposes **89 tools across 15 service modules**, giving any MCP-compatible AI client full operational control over your local AWS environment.
 
 ## What you can do
 
@@ -14,7 +14,8 @@ Once connected, your agent can:
 - **Read state** — list resources, receive messages, scan DynamoDB, get CloudWatch logs
 - **Orchestrate flows** — start Step Functions executions, put EventBridge events, run Athena queries
 - **Manage secrets** — create/read/update Secrets Manager and KMS entries
-- **Marketplace** — deploy and teardown recipes from conversation
+- **Marketplace** — deploy and teardown recipes from conversation (including DynamoDB Admin)
+- **Tag resources** — apply, remove, and search tags across all AWS resource types
 - **Generate artifacts** — export Terraform, generate architecture Mermaid diagrams, create JWT tokens
 
 ## Architecture
@@ -49,8 +50,9 @@ The MCP server is built with [FastMCP](https://github.com/jlowin/fastmcp). Each 
 | `stepfunctions` | 4 | List, start, describe executions |
 | `athena` | 3 | Run queries, list databases, query history |
 | `ses` | 4 | Verify identities, send emails, quota |
-| `marketplace` | 5 | List, deploy, teardown recipes |
+| `marketplace` | 5 | List, deploy, teardown recipes (incl. DynamoDB Admin) |
 | `devtools` | 7 | Terraform export, AWS CLI escape hatch, JWT, proxy |
+| `tags` | 6 | Tag/untag resources, search by tag, list all tag keys |
 
 ## Example agent conversation
 
