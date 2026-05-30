@@ -4,6 +4,7 @@ import {
   DescribeClustersCommand,
   CreateClusterCommand,
 } from '@aws-sdk/client-ecs';
+import type { Cluster } from '@aws-sdk/client-ecs';
 import {
   DescribeInstancesCommand,
   StartInstancesCommand,
@@ -24,8 +25,8 @@ import { cn } from '../lib/utils';
 const ECSView = () => {
   const { clients, logActivity } = useAws();
   const [activeTab, setActiveTab] = useState<'ecs' | 'ec2'>('ecs');
-  const [clusters, setClusters] = useState<any[]>([]);
-  const [instances, setInstances] = useState<any[]>([]);
+  const [clusters, setClusters] = useState<Cluster[]>([]);
+  const [instances, setInstances] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -49,8 +50,8 @@ const ECSView = () => {
         const allInstances = response.Reservations?.flatMap(r => r.Instances || []) || [];
         setInstances(allInstances);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch compute resources');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch compute resources');
     } finally {
       setLoading(false);
     }
@@ -70,9 +71,10 @@ const ECSView = () => {
         logActivity('EC2', `StopInstance: ${instanceId}`, 'success');
       }
       fetchData();
-    } catch (err: any) {
-      logActivity('EC2', `${action}Instance failed: ${instanceId}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('EC2', `${action}Instance failed: ${instanceId}`, 'error', message);
+      alert(message);
     }
   };
 
@@ -84,8 +86,8 @@ const ECSView = () => {
         await clients.ecs.send(new CreateClusterCommand({ clusterName: name }));
         logActivity('ECS', `CreateCluster: ${name}`, 'success', 'Note: Floci-managed compute');
         fetchData();
-      } catch (err: any) {
-        logActivity('ECS', `CreateCluster failed: ${name}`, 'error', err.message);
+      } catch (err) {
+        logActivity('ECS', `CreateCluster failed: ${name}`, 'error', err instanceof Error ? err.message : String(err));
       }
     } else {
       const name = prompt('Instance Name Tag (optional):');
@@ -102,8 +104,8 @@ const ECSView = () => {
         }));
         logActivity('EC2', 'RunInstances', 'success', `count: 1, type: t2.micro ${name ? `(tag:${name})` : ''}`);
         fetchData();
-      } catch (err: any) {
-        logActivity('EC2', 'RunInstances failed', 'error', err.message);
+      } catch (err) {
+        logActivity('EC2', 'RunInstances failed', 'error', err instanceof Error ? err.message : String(err));
       }
     }
   };
