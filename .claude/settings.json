@@ -10,5 +10,15 @@
         ]
       }
     ]
+  },
+  "mcpServers": {
+    "floci-mcp": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "mcp", "python", "mcp/floci_mcp.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
   }
 }
