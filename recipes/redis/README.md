@@ -16,3 +16,11 @@ When you start the Redis recipe via Floci Studio, you can configure:
 
 Connect to the Redis server using:
 `redis://:redis123@localhost:6379` (adjusting for your configured variables).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon ElastiCache for Redis (or MemoryDB)
+
+The same Redis engine and RESP protocol run locally and on ElastiCache — identical commands and data structures.
+
+**Deploy:** Provision an ElastiCache for Redis cluster and point REDIS_URL at its primary endpoint.

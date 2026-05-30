@@ -26,3 +26,11 @@ echo "SELECT version()" | \
 Open the **Play** console at **http://localhost:8123/play** to write SQL interactively.
 
 > ℹ️ The native port defaults to `9000`, which clashes with the MinIO recipe. Change it at deploy time if you run both at once.
+
+## 🚀 Path to AWS
+
+**Managed service:** Self-host on Amazon ECS/EKS (analytics alt: Amazon Redshift)
+
+The exact same ClickHouse engine runs locally and in your ECS/Fargate task — identical SQL, table engines and wire protocol.
+
+**Deploy:** Push the image to ECR and run it as an ECS service; attach an EBS/EFS volume for /var/lib/clickhouse.

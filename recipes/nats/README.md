@@ -16,3 +16,11 @@ When you start the NATS recipe, you can configure:
 Connect any NATS client to `nats://localhost:4222`, and open the monitoring panel at **http://localhost:8222**.
 
 > 💡 JetStream is enabled via the `-js` flag, so you can create persistent streams immediately.
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon SNS + SQS (or Amazon MQ)
+
+Model pub/sub and durable streams locally with JetStream exactly as you will fan out via SNS and queue via SQS.
+
+**Deploy:** Map subjects to SNS topics and durable consumers to SQS queues, or migrate to Amazon MQ for a managed broker.

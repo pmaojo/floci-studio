@@ -17,3 +17,11 @@ When you start the DynamoDB Admin recipe, you can configure:
 Open the UI at **http://localhost:8001** to browse the tables in your local Floci DynamoDB.
 
 > ℹ️ Credentials default to dummy `test`/`test` values, which is exactly what LocalStack expects.
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon DynamoDB console
+
+Browses the very same tables locally (via the Floci endpoint on 4566) that you will see in the DynamoDB console — zero schema drift.
+
+**Deploy:** Already Floci-wired: set DYNAMO_ENDPOINT to your real regional endpoint (or drop it) to inspect production DynamoDB.

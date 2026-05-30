@@ -4,6 +4,11 @@
   "description": "A powerful, open-source object-relational database system with high stability and robust SQL features.",
   "version": "15.0.0",
   "accessUrl": "postgresql://{{POSTGRES_USER}}:{{POSTGRES_PASSWORD}}@localhost:{{POSTGRES_PORT}}/{{POSTGRES_DB}}",
+  "aws": {
+    "service": "Amazon RDS for PostgreSQL (or Aurora)",
+    "parity": "The same Postgres engine version runs locally and on RDS — identical SQL, extensions and wire protocol.",
+    "deploy": "Provision an RDS/Aurora PostgreSQL instance and repoint your connection string; no app changes required."
+  },
   "variables": [
     {
       "key": "POSTGRES_PORT",
