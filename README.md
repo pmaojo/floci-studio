@@ -28,7 +28,7 @@ graph TD
 
 * **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of ~30 AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
 * **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
-* **Native MCP Server (Python + `uv`):** Model Context Protocol server (v1.27.1+) that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state and provision local architectures via natural language.
+* **Native MCP Server (Python + `uv`):** Model Context Protocol server with 89 tools that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state, provision local architectures, manage resource tags across all services, and deploy Marketplace recipes — all via natural language.
 * **Engine (AWS Localstack / Floci Studio):** Local AWS emulator exposed on port `4566`.
 
 ---
@@ -44,6 +44,7 @@ Floci Studio includes a catalog of parameterized local recipes in the `/recipes`
 ### Available Recipes
 
 - **AWS IoT Core (MQTT)**
+- **DynamoDB Admin** — web GUI for browsing and editing DynamoDB tables, pre-wired to Floci
 - **Jaeger (Distributed Tracing)**
 - **Keycloak + PostgreSQL**
 - **Mailpit (SMTP)**
