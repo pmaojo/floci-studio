@@ -16,3 +16,11 @@ When you start the Meilisearch recipe via Floci Studio, you can configure:
 - **Master Key**: The secret key to secure your Meilisearch instance (default: `masterKey`).
 
 Access the Meilisearch API at `http://localhost:7700` (or your configured port).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon OpenSearch Service (or self-host on ECS)
+
+Index and full-text search locally with the same documents and ranking you will run in production.
+
+**Deploy:** Either self-host Meilisearch on ECS behind an ALB, or migrate the index to an Amazon OpenSearch domain.

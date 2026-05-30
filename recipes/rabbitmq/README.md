@@ -17,3 +17,11 @@ When you start the RabbitMQ recipe via Floci Studio, you can configure:
 - **Admin Password**: Default admin password for the web portal (default: `guest`).
 
 Access the Management Console at `http://localhost:15672` (or your configured port).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon MQ for RabbitMQ
+
+Amazon MQ runs upstream RabbitMQ, so exchanges, queues and AMQP behavior are identical to local.
+
+**Deploy:** Create an Amazon MQ for RabbitMQ broker and swap the AMQP connection URI — your topology carries over.

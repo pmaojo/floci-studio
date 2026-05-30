@@ -16,3 +16,11 @@ You can customize the following parameters before launching MinIO:
 - **Root Credentials**: Secure your local instance with custom User and Password variables.
 
 To connect your application to this MinIO instance, simply point your AWS SDK's `endpoint_url` to `http://localhost:<S3_API_PORT>`.
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon S3
+
+MinIO speaks the S3 API, so buckets, objects and presigned URLs behave locally exactly as on real S3.
+
+**Deploy:** Drop the custom endpoint from your AWS SDK config so the S3 client talks to real Amazon S3.

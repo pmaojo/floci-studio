@@ -18,3 +18,11 @@ When you start the PostgreSQL recipe via Floci Studio, you can configure:
 
 Connect your applications using the connection string:
 `postgresql://postgres:postgres123@localhost:5432/postgres` (adjusting for your configured variables).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon RDS for PostgreSQL (or Aurora)
+
+The same Postgres engine version runs locally and on RDS — identical SQL, extensions and wire protocol.
+
+**Deploy:** Provision an RDS/Aurora PostgreSQL instance and repoint your connection string; no app changes required.

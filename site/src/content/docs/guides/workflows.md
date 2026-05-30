@@ -175,7 +175,7 @@ The generated HCL includes all tagged resources ready for a real AWS account.
 
 ## Next steps
 
-- [Tag management](/docs/guides/tags) — label your resources for export and discovery
-- [Lambda guide](/docs/guides/lambda) — environment variables, runtimes, logs
-- [DynamoDB guide](/docs/guides/dynamodb) — query patterns and the Admin UI
-- [Marketplace](/docs/guides/marketplace) — add Mailpit, Temporal, and other services to your stack
+- [Tag management](/guides/tags/) — label your resources for export and discovery
+- [Lambda guide](/guides/lambda/) — environment variables, runtimes, logs
+- [DynamoDB guide](/guides/dynamodb/) — query patterns and the Admin UI
+- [Marketplace](/guides/marketplace/) — add Mailpit, Temporal, and other services to your stack

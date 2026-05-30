@@ -1,9 +1,9 @@
 ---
 title: Marketplace Recipes
-description: All 24 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
+description: All 25 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
 ---
 
-Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools.
+Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools. Every recipe also maps to a managed AWS service for production — see [Local-to-AWS Parity](/guides/aws-parity/).
 
 ## Deploy from the UI
 
@@ -20,7 +20,7 @@ Claude: [calls deploy_marketplace_app(recipe_id="postgres", variables={"POSTGRES
 
 ## DynamoDB Admin
 
-A web-based GUI for browsing, querying, and editing DynamoDB tables. Pre-wired to point at the Floci DynamoDB endpoint (port 4566) out of the box.
+A web-based GUI for browsing, querying, and editing DynamoDB tables. Pre-wired to point at the Floci DynamoDB endpoint (port 4566) out of the box — what you browse locally is the same data you'll see in the **Amazon DynamoDB** console.
 
 | Variable | Default | Description |
 |---|---|---|
@@ -33,6 +33,25 @@ A web-based GUI for browsing, querying, and editing DynamoDB tables. Pre-wired t
 ```
 You: Deploy DynamoDB Admin
 Claude: [calls deploy_marketplace_app(recipe_id="dynamodb-admin")]
+```
+
+---
+
+## S3 Admin
+
+A web GUI to browse, upload and download S3 buckets and objects. Pre-wired to the Floci (LocalStack) S3 endpoint on port 4566 — test S3 workflows locally exactly as they'll run against **Amazon S3**.
+
+| Variable | Default | Description |
+|---|---|---|
+| `S3_ADMIN_PORT` | `8002` | Host port for the web UI |
+| `S3_ENDPOINT` | `host.docker.internal:4566` | S3 endpoint (host:port) to connect to |
+| `AWS_REGION` | `us-east-1` | AWS region |
+
+**Access:** `http://localhost:8002`
+
+```
+You: Deploy S3 Admin
+Claude: [calls deploy_marketplace_app(recipe_id="s3-admin")]
 ```
 
 ---

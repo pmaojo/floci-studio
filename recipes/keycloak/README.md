@@ -18,3 +18,11 @@ When you start the Keycloak recipe via Floci Studio, you can configure:
 - **Database Name**: Default `keycloak_db`.
 
 Access the Keycloak server at `http://localhost:8080` (or your configured port).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon Cognito
+
+Run the same OIDC / OAuth2 / SAML flows locally that Cognito serves — login, tokens and JWKS all behave identically.
+
+**Deploy:** Create a Cognito user pool and swap your app's issuer/JWKS URL for the Cognito hosted UI endpoints.

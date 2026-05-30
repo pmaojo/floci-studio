@@ -4,6 +4,11 @@
   "description": "Motor de orquestación de workflows duraderos con UI incluida. Complementa Step Functions y EventBridge para flujos complejos con reintentos, sagas y actividades de larga duración.",
   "version": "1.24.0",
   "accessUrl": "http://localhost:{{TEMPORAL_UI_PORT}}",
+  "aws": {
+    "service": "Self-host on Amazon EKS (orchestration alt: AWS Step Functions)",
+    "parity": "The same Temporal SDK workflows and activities run locally and on your cluster — identical determinism and history.",
+    "deploy": "Run the Temporal services on EKS with an RDS persistence store, or model the flow as an AWS Step Functions state machine."
+  },
   "variables": [
     {
       "key": "TEMPORAL_PORT",

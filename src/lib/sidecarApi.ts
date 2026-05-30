@@ -182,6 +182,15 @@ export interface RecipeVariable {
   description: string;
 }
 
+export interface RecipeAwsTarget {
+  /** The managed AWS service this recipe maps to in production. */
+  service: string;
+  /** How local behavior mirrors the AWS service (parity note). */
+  parity: string;
+  /** The step to switch from local to the managed AWS service. */
+  deploy: string;
+}
+
 export interface Recipe {
   id: string;
   name: string;
@@ -189,6 +198,8 @@ export interface Recipe {
   version: string;
   variables: RecipeVariable[];
   accessUrl?: string;
+  /** Local-to-AWS parity metadata: which managed service this maps to. */
+  aws?: RecipeAwsTarget;
 }
 
 export interface Installation {

@@ -4,6 +4,11 @@
   "description": "Column-oriented OLAP database for real-time analytics over billions of rows. Blazing-fast aggregations, a SQL interface and a built-in web Play console. A local powerhouse for dashboards, logs and event analytics.",
   "version": "24.10",
   "accessUrl": "http://localhost:{{CLICKHOUSE_HTTP_PORT}}/play",
+  "aws": {
+    "service": "Self-host on Amazon ECS/EKS (analytics alt: Amazon Redshift)",
+    "parity": "The exact same ClickHouse engine runs locally and in your ECS/Fargate task — identical SQL, table engines and wire protocol.",
+    "deploy": "Push the image to ECR and run it as an ECS service; attach an EBS/EFS volume for /var/lib/clickhouse."
+  },
   "variables": [
     {
       "key": "CLICKHOUSE_HTTP_PORT",
