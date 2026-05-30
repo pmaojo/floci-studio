@@ -119,7 +119,7 @@ const CostExplorerView = () => {
                 </span>
               </div>
               <p className="text-[9px] font-mono text-neutral-500 mt-3 normal-case leading-relaxed">
-                Esta proyección mensual se calcula en base al inventario de recursos emulados activos en Floci y a la tabla de precios estática <code>pricing-book.json</code>.
+                This monthly projection is calculated based on the active emulated resource inventory in Floci and the static <code>pricing-book.json</code> price table.
               </p>
             </div>
 

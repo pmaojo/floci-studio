@@ -174,7 +174,7 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
         ) : overview.resources.length === 0 ? (
           <EmptyState
             title="No real connector configured"
-            detail="Esta sección ya no usa datos simulados, pero todavía no existe un backend operativo para este servicio en el catálogo del sidecar."
+            detail="This section no longer uses simulated data, but there is no operational backend for this service in the sidecar catalog yet."
           />
         ) : (
           <div className="grid grid-cols-1 gap-4">
