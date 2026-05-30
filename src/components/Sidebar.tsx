@@ -177,6 +177,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { to: '/cloudwatch', icon: Activity, label: 'CloudWatch Logs' },
         { to: '/cloudwatch-metrics', icon: BarChart2, label: 'CloudWatch Metrics' },
         { to: '/cloudtrail', icon: FileText, label: 'CloudTrail Audit' },
+        { to: '/performance', icon: Activity, label: 'Performance Monitor' },
       ]
     },
     {

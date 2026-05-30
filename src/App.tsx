@@ -39,6 +39,7 @@ const ApiClientView = lazy(() => import('./views/studio/ApiClientView'));
 const EksView = lazy(() => import('./views/EksView'));
 const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
 const CostExplorerView = lazy(() => import('./views/CostExplorerView'));
+const PerformanceMonitorView = lazy(() => import('./views/PerformanceMonitorView'));
 const S3View = lazy(() => import('./views/S3View'));
 const MarketplaceView = lazy(() => import('./views/MarketplaceView'));
 const AthenaView = lazy(() => import('./views/AthenaView'));
@@ -194,6 +195,7 @@ const AppContent = () => {
                 <Route path="/transfer" element={awsServiceRoute('transfer', 'Transfer Family')} />
                 <Route path="/pricing" element={awsServiceRoute('pricing', 'Pricing')} />
                 <Route path="/costexplorer" element={<CostExplorerView />} />
+                <Route path="/performance" element={<PerformanceMonitorView />} />
                 <Route path="/cur" element={awsServiceRoute('cur', 'Cost and Usage Reports')} />
                 <Route path="/bcmdataexports" element={awsServiceRoute('bcmdataexports', 'BCM Data Exports')} />
                 <Route path="/awsq" element={awsServiceRoute('awsq', 'AWS Q Developer')} />
