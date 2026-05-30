@@ -36,23 +36,24 @@ const CloudWatchLogsView = () => {
     try {
       const resp = await clients.cloudwatch.send(new DescribeLogStreamsCommand({ logGroupName: groupName }));
       setStreams(resp.logStreams || []);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
   const fetchEvents = async (groupName: string, streamName: string) => {
     setSelectedStream(streamName);
     try {
-      const resp = await clients.cloudwatch.send(new GetLogEventsCommand({ 
-        logGroupName: groupName, 
-        logStreamName: streamName 
+      const resp = await clients.cloudwatch.send(new GetLogEventsCommand({
+        logGroupName: groupName,
+        logStreamName: streamName
       }));
       setEvents(resp.events || []);
       logActivity('CloudWatch', `GetLogEvents: ${streamName}`, 'success');
-    } catch (err: any) {
-      logActivity('CloudWatch', `GetLogEvents failed: ${streamName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('CloudWatch', `GetLogEvents failed: ${streamName}`, 'error', message);
+      alert(message);
     }
   };
 
@@ -63,9 +64,10 @@ const CloudWatchLogsView = () => {
       await clients.cloudwatch.send(new CreateLogGroupCommand({ logGroupName: name }));
       logActivity('CloudWatch', `CreateLogGroup: ${name}`, 'success');
       fetchGroups();
-    } catch (err: any) {
-      logActivity('CloudWatch', `CreateLogGroup failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('CloudWatch', `CreateLogGroup failed: ${name}`, 'error', message);
+      alert(message);
     }
   };
 

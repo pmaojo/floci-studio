@@ -4,6 +4,7 @@ import {
   DescribeClustersCommand,
   CreateClusterCommand,
 } from '@aws-sdk/client-ecs';
+import type { Cluster } from '@aws-sdk/client-ecs';
 import {
   DescribeInstancesCommand,
   StartInstancesCommand,
@@ -24,8 +25,8 @@ import { cn } from '../lib/utils';
 const ECSView = () => {
   const { clients, logActivity } = useAws();
   const [activeTab, setActiveTab] = useState<'ecs' | 'ec2'>('ecs');
-  const [clusters, setClusters] = useState<any[]>([]);
-  const [instances, setInstances] = useState<any[]>([]);
+  const [clusters, setClusters] = useState<Cluster[]>([]);
+  const [instances, setInstances] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -49,8 +50,8 @@ const ECSView = () => {
         const allInstances = response.Reservations?.flatMap(r => r.Instances || []) || [];
         setInstances(allInstances);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch compute resources');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch compute resources');
     } finally {
       setLoading(false);
     }
