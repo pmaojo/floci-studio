@@ -43,8 +43,13 @@ Floci Studio includes a catalog of parameterized local recipes in the `/recipes`
 
 ### Available Recipes
 
+The catalog ships **24 recipes** out of the box — including a fully local AI stack (Ollama + Qdrant):
+
 - **AWS IoT Core (MQTT)**
+- **AWS Transfer Family (SFTP)**
+- **ClickHouse (Analytics OLAP DB)** — column-oriented database for real-time analytics 🆕
 - **DynamoDB Admin** — web GUI for browsing and editing DynamoDB tables, pre-wired to Floci
+- **HashiCorp Vault (Dev Mode)** — local secrets management, à la AWS Secrets Manager 🆕
 - **Jaeger (Distributed Tracing)**
 - **Keycloak + PostgreSQL**
 - **Mailpit (SMTP)**
@@ -55,13 +60,15 @@ Floci Studio includes a catalog of parameterized local recipes in the `/recipes`
 - **NATS JetStream**
 - **Nginx Proxy Manager**
 - **Observability (Grafana & Prometheus)**
+- **Ollama (Local LLM Runtime)** — run Llama 3, Mistral & friends locally with an OpenAI-compatible API 🆕
 - **PocketBase**
+- **Portainer (Docker Cockpit)** — manage every container, image and volume from the browser 🆕
 - **PostgreSQL Database**
+- **Qdrant (Vector Database)** — embeddings & semantic search for local RAG pipelines 🆕
 - **RabbitMQ Broker**
 - **Redis Cache & Broker**
 - **Redpanda (Kafka Compatible)**
 - **Temporal Workflow Engine**
-- **AWS Transfer Family (SFTP)**
 
 ---
 
