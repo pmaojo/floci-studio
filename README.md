@@ -26,7 +26,7 @@ graph TD
     style DockerMarket fill:#eceff1,stroke:#607d8b,stroke-width:2px
 ```
 
-* **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of ~30 AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
+* **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of 50+ AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
 * **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
 * **Native MCP Server (Python + `uv`):** Model Context Protocol server with 89 tools that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state, provision local architectures, manage resource tags across all services, and deploy Marketplace recipes — all via natural language.
 * **Engine (AWS Localstack / Floci Studio):** Local AWS emulator exposed on port `4566`.
@@ -214,10 +214,55 @@ If your application uses event-driven architectures with **AWS Lambda** function
 
 ---
 
-included GUI
+## 🖥️ The GUI Cockpit
 
-<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/03ad8acc-e932-47c1-b955-bf84868b4d3e" />
+Floci Studio ships a full AWS-style console: 50+ service views, a live event
+stream, the software marketplace, and an AWS capability matrix — all rendering
+**real** data from your local emulator.
 
+![Floci Studio dashboard — live resource counts, validation matrix, and the real-time event stream](site/src/assets/gui/dashboard.png)
+
+A few of the service views (every screenshot below is captured from a real,
+passing end-to-end run — see [Testing](#-testing--the-gui-tour)):
+
+| DynamoDB items explorer | Step Functions visualizer |
+|---|---|
+| ![DynamoDB items](site/src/assets/gui/dynamodb.png) | ![Step Functions](site/src/assets/gui/stepfunctions.png) |
+| **CloudWatch Logs drill-down** | **Software Marketplace** |
+| ![CloudWatch Logs](site/src/assets/gui/cloudwatch.png) | ![Marketplace](site/src/assets/gui/marketplace.png) |
+
+> Full visual tour in the docs: **[The GUI → The Cockpit](https://floci-studio.dev/gui/overview/)**
+> and **[Service Views](https://floci-studio.dev/gui/service-views/)**.
+
+---
+
+## 🧪 Testing & the GUI Tour
+
+The repo ships a reproducible **end-to-end harness** in [`e2e/`](e2e/) that boots
+the whole stack, seeds a realistic dataset across ~18 AWS services, drives the
+real React cockpit with Playwright, and captures the documentation screenshots
+from the same run that asserts the data — so the docs can't drift from reality.
+
+```bash
+pnpm exec playwright install chromium   # once
+e2e/run.sh up      # start emulator + sidecar + GUI, seed data
+e2e/run.sh test    # run the Playwright GUI tour (captures screenshots)
+e2e/run.sh down    # tear it all down
+```
+
+Unit / API tests run with Vitest, end-to-end specs with Playwright:
+
+```bash
+pnpm test          # Vitest unit + API tests
+pnpm test:e2e      # Playwright specs (.playwright-mcp/)
+```
+
+When the real Floci engine image can't be pulled (CI, sandboxes), `e2e/run.sh`
+transparently backs `:4566` with a `moto`-based, AWS-compatible stand-in that
+speaks the same SDK/sigv4 protocol — no spec changes needed. Details in the docs:
+**[End-to-End GUI Tests](https://floci-studio.dev/gui/testing/)**.
+
+---
 
 > [!TIP]
 > **Development Excellence:** Floci Studio ensures that 100% of your code and infrastructure will run exactly the same in real AWS as on your development machine. Test locally at zero cost and deploy to production with total confidence!

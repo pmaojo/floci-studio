@@ -35,7 +35,19 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        /* Stable 1440x900 canvas so docs screenshots are reproducible. */
+        viewport: { width: 1440, height: 900 },
+        /*
+         * Sandboxes that ship a pre-baked Chromium (different build than the
+         * one `@playwright/test` pins) can point at it with
+         * PLAYWRIGHT_CHROMIUM_PATH. Unset in CI → Playwright uses its own.
+         */
+        launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+          ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+          : {},
+      },
     },
   ],
 
