@@ -17,3 +17,11 @@ When you start the Observability recipe via Floci Studio, you can configure:
 - **Grafana Admin Password**: Default `admin`.
 
 Access Grafana at `http://localhost:3000` (or your configured port) and Prometheus at `http://localhost:9090` (or your configured port).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon Managed Grafana + Amazon Managed Service for Prometheus
+
+The same Prometheus scrape config and Grafana dashboards you build locally run unchanged on the AWS-managed pair.
+
+**Deploy:** Remote-write metrics to an AMP workspace and import the dashboards into Amazon Managed Grafana.

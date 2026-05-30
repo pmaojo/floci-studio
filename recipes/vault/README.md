@@ -29,3 +29,11 @@ docker exec -e VAULT_TOKEN=root floci-vault \
 ```
 
 Open the UI at **http://localhost:8200** and sign in with the root token.
+
+## 🚀 Path to AWS
+
+**Managed service:** AWS Secrets Manager + KMS
+
+Read/write secrets locally through Vault's API exactly as you will via Secrets Manager — same get/put lifecycle.
+
+**Deploy:** Migrate the KV secrets into AWS Secrets Manager and swap the SDK; use KMS for the encryption keys.

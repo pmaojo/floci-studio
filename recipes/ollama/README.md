@@ -33,3 +33,11 @@ curl http://localhost:11434/api/generate -d '{
 ```
 
 > 💡 **Tip:** GPU acceleration is used automatically when the NVIDIA Container Toolkit is installed on the host; otherwise Ollama falls back to CPU.
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon Bedrock
+
+Develop against an OpenAI-compatible chat/embeddings API locally, then call Bedrock's managed models with the same request shape.
+
+**Deploy:** Swap the base URL/SDK for the Bedrock Runtime API (or host the model on SageMaker) — your prompt code stays the same.

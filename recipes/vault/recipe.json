@@ -4,6 +4,11 @@
   "description": "Secrets management and encryption-as-a-service in a ready-to-use dev server. Store API keys, database credentials and certificates, then read them from your apps over HTTP. A local stand-in for AWS Secrets Manager and Parameter Store.",
   "version": "1.18.0",
   "accessUrl": "http://localhost:{{VAULT_PORT}}",
+  "aws": {
+    "service": "AWS Secrets Manager + KMS",
+    "parity": "Read/write secrets locally through Vault's API exactly as you will via Secrets Manager — same get/put lifecycle.",
+    "deploy": "Migrate the KV secrets into AWS Secrets Manager and swap the SDK; use KMS for the encryption keys."
+  },
   "variables": [
     {
       "key": "VAULT_PORT",

@@ -25,3 +25,11 @@ curl -X PUT http://localhost:6333/collections/docs \
 ```
 
 Open the dashboard at **http://localhost:6333/dashboard** to inspect collections and run queries visually.
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon OpenSearch Serverless (vector) or Aurora pgvector
+
+Build and query vector collections locally exactly as you will against a managed vector store in production.
+
+**Deploy:** Recreate the collection on an OpenSearch Serverless vector index (or Aurora pgvector) and repoint the client.

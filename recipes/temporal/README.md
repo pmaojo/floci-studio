@@ -21,3 +21,11 @@ temporal --address localhost:7233 workflow list
 ```
 
 > ℹ️ This recipe uses the SQLite auto-setup image, so it boots a ready-to-use cluster with no external database.
+
+## 🚀 Path to AWS
+
+**Managed service:** Self-host on Amazon EKS (orchestration alt: AWS Step Functions)
+
+The same Temporal SDK workflows and activities run locally and on your cluster — identical determinism and history.
+
+**Deploy:** Run the Temporal services on EKS with an RDS persistence store, or model the flow as an AWS Step Functions state machine.
