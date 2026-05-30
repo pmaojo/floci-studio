@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand, GetTablesCommand } from '@aws-sdk/client-glue';
+import type { Database } from '@aws-sdk/client-glue';
 import { useAws } from '../contexts/AwsContext';
 import { Layers, CirclePlus, Trash2, Database, Table, Settings } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const GlueView = () => {
   const { clients, logActivity } = useAws();
-  const [databases, setDatabases] = useState<any[]>([]);
+  const [databases, setDatabases] = useState<Database[]>([]);
   const [tableCounts, setTableCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
@@ -31,8 +32,8 @@ const GlueView = () => {
         })
       );
       setTableCounts(Object.fromEntries(counts));
-    } catch (err: any) {
-      logActivity('Glue', 'GetDatabases failed', 'error', err.message);
+    } catch (err) {
+      logActivity('Glue', 'GetDatabases failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -49,9 +50,10 @@ const GlueView = () => {
       setNewName('');
       setIsCreationModalOpen(false);
       fetchData();
-    } catch (err: any) {
-      logActivity('Glue', `CreateDatabase failed: ${newName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Glue', `CreateDatabase failed: ${newName}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -63,9 +65,10 @@ const GlueView = () => {
       await clients.glue.send(new DeleteDatabaseCommand({ Name: name }));
       logActivity('Glue', `DeleteDatabase: ${name}`, 'success');
       fetchData();
-    } catch (err: any) {
-      logActivity('Glue', `DeleteDatabase failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Glue', `DeleteDatabase failed: ${name}`, 'error', message);
+      alert(message);
     }
   };
 
