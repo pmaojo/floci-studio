@@ -6,7 +6,7 @@ import {
   DeleteParameterCommand,
   ParameterType
 } from '@aws-sdk/client-ssm';
-import type { Parameter } from '@aws-sdk/client-ssm';
+import type { ParameterMetadata } from '@aws-sdk/client-ssm';
 import { useAws } from '../contexts/AwsContext';
 import { 
   KeyRound, 
@@ -26,7 +26,7 @@ import { format } from 'date-fns';
 
 const SSMView = () => {
   const { clients, logActivity } = useAws();
-  const [parameters, setParameters] = useState<Parameter[]>([]);
+  const [parameters, setParameters] = useState<ParameterMetadata[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -184,7 +184,7 @@ const SSMView = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (param: Parameter) => {
+  const openEditModal = (param: ParameterMetadata) => {
     setModalMode('edit');
     setParamName(param.Name || '');
     setParamType(param.Type || 'String');
@@ -194,7 +194,7 @@ const SSMView = () => {
     setParamValue(val);
     setParamDescription(param.Description || '');
     setParamKeyId(param.KeyId || '');
-    setParamTier(param.Tier || 'Standard');
+    setParamTier(param.Tier === 'Advanced' ? 'Advanced' : 'Standard');
     setIsModalOpen(true);
   };
 
@@ -205,7 +205,7 @@ const SSMView = () => {
   const filteredParams = parameters.filter(p => p.Name?.toLowerCase().includes(search.toLowerCase()));
   const activeParamDetail = parameters.find(p => p.Name === selectedParamName);
 
-  const getTypeBadgeColor = (type: string) => {
+  const getTypeBadgeColor = (type?: string) => {
     switch (type) {
       case 'SecureString':
         return 'border-amber-600 bg-amber-50 text-amber-800';
@@ -394,7 +394,7 @@ const SSMView = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => openEditModal(activeParamDetail)}>
+                  <Button variant="secondary" size="sm" onClick={() => activeParamDetail && openEditModal(activeParamDetail)}>
                     Edit Value
                   </Button>
                   <Button variant="danger" size="sm" onClick={() => handleDelete(selectedParamName)} icon={<Trash2 size={12} />}>

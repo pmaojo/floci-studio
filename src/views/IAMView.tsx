@@ -28,7 +28,7 @@ import {
   ChevronRight,
   CirclePlus,
   Trash2,
-  User,
+  User as UserIcon,
   Code,
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
@@ -38,7 +38,19 @@ import { motion, AnimatePresence } from 'motion/react';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type IamTab = 'roles' | 'users' | 'policies';
-type DetailEntity = { type: 'role' | 'user' | 'policy'; name: string; data: Record<string, unknown> };
+interface IamDetailData {
+  Arn?: string;
+  UserId?: string;
+  RoleId?: string;
+  Path?: string;
+  CreateDate?: Date | string;
+  AttachmentCount?: number;
+  AssumeRolePolicyDocument?: string;
+  DefaultVersionId?: string;
+  document?: string | null;
+  [key: string]: unknown;
+}
+type DetailEntity = { type: 'role' | 'user' | 'policy'; name: string; data: IamDetailData };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -147,7 +159,7 @@ const IAMView = () => {
   // ─── Detail panel ────────────────────────────────────────────────────────────
 
   const openRoleDetail = async (role: Role) => {
-    setDetail({ type: 'role', name: role.RoleName!, data: role as Record<string, unknown> });
+    setDetail({ type: 'role', name: role.RoleName!, data: role as unknown as IamDetailData });
     setLoadingDetail(true);
     setDetailPolicies({ inline: [], managed: [] });
     try {
@@ -166,7 +178,7 @@ const IAMView = () => {
   };
 
   const openUserDetail = async (user: User) => {
-    setDetail({ type: 'user', name: user.UserName!, data: user as Record<string, unknown> });
+    setDetail({ type: 'user', name: user.UserName!, data: user as unknown as IamDetailData });
     setLoadingDetail(true);
     setDetailPolicies({ inline: [], managed: [] });
     try {
@@ -185,7 +197,7 @@ const IAMView = () => {
   };
 
   const openPolicyDetail = async (policy: Policy) => {
-    setDetail({ type: 'policy', name: policy.PolicyName!, data: policy as Record<string, unknown> });
+    setDetail({ type: 'policy', name: policy.PolicyName!, data: policy as unknown as IamDetailData });
     setLoadingDetail(true);
     try {
       if (policy.DefaultVersionId) {
@@ -196,7 +208,7 @@ const IAMView = () => {
         setDetail({
           type: 'policy',
           name: policy.PolicyName!,
-          data: { ...(policy as Record<string, unknown>), document: r.PolicyVersion?.Document ? decodeURIComponent(r.PolicyVersion.Document) : null },
+          data: { ...(policy as unknown as IamDetailData), document: r.PolicyVersion?.Document ? decodeURIComponent(r.PolicyVersion.Document) : null },
         });
       }
     } catch (e) {
@@ -328,7 +340,7 @@ const IAMView = () => {
 
   const tabs: { key: IamTab; label: string; icon: React.ReactNode; count: number }[] = [
     { key: 'roles',    label: 'Roles',    icon: <Shield size={12} />,    count: roles.length },
-    { key: 'users',    label: 'Users',    icon: <User size={12} />,      count: users.length },
+    { key: 'users',    label: 'Users',    icon: <UserIcon size={12} />,      count: users.length },
     { key: 'policies', label: 'Policies', icon: <FileText size={12} />,  count: policies.length },
   ];
 
@@ -484,7 +496,7 @@ const IAMView = () => {
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
                             <button
-                              onClick={(e) => handleDeleteRole(role.RoleName, e)}
+                              onClick={(e) => handleDeleteRole(role.RoleName!, e)}
                               className="opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:text-rose-600 transition-all p-0.5"
                             >
                               <Trash2 size={11} />
@@ -516,12 +528,12 @@ const IAMView = () => {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 min-w-0">
-                            <User size={11} className="shrink-0 opacity-60" />
+                            <UserIcon size={11} className="shrink-0 opacity-60" />
                             <span className="truncate font-bold">{user.UserName}</span>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
                             <button
-                              onClick={(e) => handleDeleteUser(user.UserName, e)}
+                              onClick={(e) => handleDeleteUser(user.UserName!, e)}
                               className="opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:text-rose-600 transition-all p-0.5"
                             >
                               <Trash2 size={11} />
@@ -558,7 +570,7 @@ const IAMView = () => {
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
                             <button
-                              onClick={(e) => handleDeletePolicy(policy.Arn, policy.PolicyName, e)}
+                              onClick={(e) => handleDeletePolicy(policy.Arn!, policy.PolicyName!, e)}
                               className="opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:text-rose-600 transition-all p-0.5"
                             >
                               <Trash2 size={11} />
@@ -589,7 +601,7 @@ const IAMView = () => {
               >
                 <div className="w-16 h-16 border border-brand-text/20 flex items-center justify-center text-brand-text/20 mb-4">
                   {activeTab === 'roles'    ? <Shield size={30} /> :
-                   activeTab === 'users'    ? <User size={30} /> :
+                   activeTab === 'users'    ? <UserIcon size={30} /> :
                                               <FileText size={30} />}
                 </div>
                 <p className="text-xs opacity-30 uppercase italic">
@@ -685,7 +697,7 @@ const IAMView = () => {
                         <Code size={11} /> TRUST_POLICY_JSON
                       </div>
                       <pre className="p-4 font-mono text-[10px] text-brand-green overflow-auto max-h-48 whitespace-pre-wrap">
-                        {JSON.stringify(JSON.parse(decodeURIComponent(detail.data.AssumeRolePolicyDocument)), null, 2)}
+                        {JSON.stringify(JSON.parse(decodeURIComponent(detail.data.AssumeRolePolicyDocument!)), null, 2)}
                       </pre>
                     </Card>
                   </div>

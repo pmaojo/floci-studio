@@ -11,6 +11,7 @@ import {
   StopInstancesCommand,
   RunInstancesCommand,
 } from '@aws-sdk/client-ec2';
+import type { Instance } from '@aws-sdk/client-ec2';
 import { useAws } from '../contexts/AwsContext';
 import {
   Server,
@@ -26,7 +27,7 @@ const ECSView = () => {
   const { clients, logActivity } = useAws();
   const [activeTab, setActiveTab] = useState<'ecs' | 'ec2'>('ecs');
   const [clusters, setClusters] = useState<Cluster[]>([]);
-  const [instances, setInstances] = useState<Record<string, unknown>[]>([]);
+  const [instances, setInstances] = useState<Instance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -110,8 +111,8 @@ const ECSView = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (status?: string) => {
+    switch ((status || '').toLowerCase()) {
       case 'running': case 'active': return 'text-emerald-500';
       case 'stopped': case 'inactive': return 'text-rose-500';
       case 'pending': case 'provisioning': return 'text-amber-500 text-animate-pulse';
@@ -192,7 +193,7 @@ const ECSView = () => {
                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-[10px] opacity-50 font-mono lowercase">
-                        <span>tasks: {cluster.runningTasksCount}/{cluster.pendingTasksCount + cluster.runningTasksCount}</span>
+                        <span>tasks: {cluster.runningTasksCount}/{(cluster.pendingTasksCount || 0) + (cluster.runningTasksCount || 0)}</span>
                         <span>services: {cluster.activeServicesCount}</span>
                       </div>
                     </div>

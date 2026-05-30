@@ -125,7 +125,7 @@ const SchedulerView = () => {
                 Name: s.Name!,
                 GroupName: s.GroupName || 'default',
                 State: s.State as 'ENABLED' | 'DISABLED',
-                ScheduleExpression: s.ScheduleExpression!,
+                ScheduleExpression: '',
                 Target: { Arn: s.Target?.Arn || '', RoleArn: '' }
               };
             }
