@@ -18,7 +18,9 @@ import {
   Upload, 
   Copy, 
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Download,
+  FolderUp
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
@@ -42,6 +44,66 @@ const S3View = () => {
   // Upload state
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Import ZIP state
+  const importZipInputRef = useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = useState<string | null>(null);
+
+  const handleExportBucket = (bucketName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Use the backend route for exporting
+    window.location.href = `/api/s3/buckets/${bucketName}/export`;
+    logActivity('S3', `ExportBucket: ${bucketName}`, 'success');
+  };
+
+  const handleImportBucketClick = (bucketName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // We store the bucketName in dataset or pass it along, but since we map we can just select the bucket temporarily
+    if (importZipInputRef.current) {
+      importZipInputRef.current.dataset.bucketName = bucketName;
+      importZipInputRef.current.click();
+    }
+  };
+
+  const handleImportZipChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const bucketName = e.target.dataset.bucketName;
+
+    if (!file || !bucketName) return;
+
+    setIsImporting(bucketName);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`/api/s3/buckets/${bucketName}/import`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to import ZIP');
+      }
+
+      logActivity('S3', `ImportBucket: ${bucketName}`, 'success');
+      alert(`Successfully imported ${file.name} into ${bucketName}`);
+
+      // If we are currently viewing this bucket, refresh
+      if (selectedBucket === bucketName) {
+        fetchObjects(bucketName, currentPrefix);
+      }
+    } catch (err: any) {
+      logActivity('S3', `ImportBucket failed: ${bucketName}`, 'error', err.message);
+      alert(`Import failed: ${err.message}`);
+    } finally {
+      setIsImporting(null);
+      if (importZipInputRef.current) {
+        importZipInputRef.current.value = '';
+      }
+    }
+  };
 
   // Fetch all S3 Buckets
   const fetchBuckets = async () => {
@@ -310,13 +372,32 @@ const S3View = () => {
                     <div className="p-2.5 bg-brand-muted border border-brand-text shrink-0">
                       <Box size={22} className="text-brand-text" />
                     </div>
-                    {/* Delete button must be above the navigation layer */}
-                    <button
-                      onClick={(e) => handleDeleteBucket(bucket.Name!, e)}
-                      className="p-1 hover:text-rose-600 transition-colors border border-transparent hover:border-brand-text/10 pointer-events-auto"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex flex-col gap-1 items-end pointer-events-auto relative z-20">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={(e) => handleImportBucketClick(bucket.Name!, e)}
+                          title="Import ZIP"
+                          className={`p-1 transition-colors border border-transparent hover:border-brand-text/10 ${isImporting === bucket.Name ? 'text-brand-green animate-pulse' : 'hover:text-brand-text'}`}
+                          disabled={isImporting === bucket.Name}
+                        >
+                          <FolderUp size={16} />
+                        </button>
+                        <button
+                          onClick={(e) => handleExportBucket(bucket.Name!, e)}
+                          title="Export to ZIP"
+                          className="p-1 hover:text-brand-text transition-colors border border-transparent hover:border-brand-text/10"
+                        >
+                          <Download size={16} />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteBucket(bucket.Name!, e)}
+                          title="Delete Bucket"
+                          className="p-1 hover:text-rose-600 transition-colors border border-transparent hover:border-brand-text/10"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <div className="relative z-10 mt-3 pointer-events-none">
                     <h4 className="font-bold text-xs truncate normal-case tracking-wide text-brand-text">{bucket.Name}</h4>
@@ -463,6 +544,14 @@ const S3View = () => {
           </div>
         )}
       </div>
+      {/* Hidden input for Import ZIP functionality */}
+      <input
+        type="file"
+        ref={importZipInputRef}
+        onChange={handleImportZipChange}
+        accept=".zip,application/zip"
+        className="hidden"
+      />
     </div>
   );
 };
