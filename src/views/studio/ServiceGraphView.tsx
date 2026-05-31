@@ -19,7 +19,7 @@ export default function ServiceGraphView() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load graph');
       setData(json);
-    } catch (e: any) { setError(e.message); } finally { setLoading(false); }
+    } catch (e) { setError((e as Error).message); } finally { setLoading(false); }
   };
 
   useEffect(() => {

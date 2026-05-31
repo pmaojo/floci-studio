@@ -4,13 +4,14 @@ import { RefreshCw, AlertTriangle, RotateCcw, Inbox } from 'lucide-react';
 
 interface DlqSource { url: string; name: string; }
 interface Dlq { dlqArn: string; dlqUrl: string; name: string; messageCount: number; sources: DlqSource[]; }
+interface DlqMessage { MessageId?: string; Body?: string; failureReason?: { approximateReceiveCount?: string | number | null }; }
 
 export default function DlqView() {
   const [dlqs, setDlqs] = useState<Dlq[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<Dlq | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<DlqMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
 
@@ -21,7 +22,7 @@ export default function DlqView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load DLQs');
       setDlqs(data.deadLetterQueues || []);
-    } catch (e: any) { setError(e.message); } finally { setLoading(false); }
+    } catch (e) { setError((e as Error).message); } finally { setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
@@ -33,7 +34,7 @@ export default function DlqView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to inspect');
       setMessages(data.messages || []);
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError((e as Error).message); }
   };
 
   const redrive = async (dlq: Dlq, sourceUrl: string) => {
@@ -48,7 +49,7 @@ export default function DlqView() {
       setNotice(`Redriven ${data.redriven} message(s) to ${sourceUrl.split('/').pop()}`);
       await load();
       if (selected) inspect({ ...dlq });
-    } catch (e: any) { setError(e.message); } finally { setBusy(false); }
+    } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   };
 
   return (

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Card, Button, Input } from '../../components/ui-elements';
 import { Cloud, Database, Globe, Play, Square } from 'lucide-react';
 
+interface Tunnel { pid: number; port: number; url?: string | null; binary?: string; }
+
 function Notice({ ok, msg }: { ok: boolean; msg: string }) {
   if (!msg) return null;
   return <div className={`p-2 text-sm rounded ${ok ? 'text-green-400 bg-green-900/20' : 'text-red-400 bg-red-900/20'}`}>{msg}</div>;
@@ -19,7 +21,7 @@ export default function HybridView() {
   const [proxyMsg, setProxyMsg] = useState(''); const [proxyOk, setProxyOk] = useState(false);
   // tunnels
   const [port, setPort] = useState('4566');
-  const [tunnels, setTunnels] = useState<any[]>([]);
+  const [tunnels, setTunnels] = useState<Tunnel[]>([]);
   const [tunnelMsg, setTunnelMsg] = useState(''); const [tunnelOk, setTunnelOk] = useState(false);
 
   const loadTunnels = async () => {

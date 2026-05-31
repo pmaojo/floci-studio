@@ -4,8 +4,8 @@ import { RefreshCw, Play, Trash2, Plus, Clock } from 'lucide-react';
 
 interface FREvent {
   id: string; status: string; targetType: string; target: string;
-  label: string; source?: string; payload: any; capturedAt: number;
-  replayedAt?: number | null; result?: any;
+  label: string; source?: string; payload: unknown; capturedAt: number;
+  replayedAt?: number | null; result?: unknown;
 }
 
 const statusColor: Record<string, string> = {
@@ -31,14 +31,14 @@ export default function FlightRecorderView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load');
       setEvents(data.events || []);
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError((e as Error).message); }
   };
   useEffect(() => { load(); }, []);
 
   const capture = async () => {
     setError(''); setNotice('');
     try {
-      let parsed: any = payload;
+      let parsed: unknown = payload;
       try { parsed = JSON.parse(payload); } catch { /* keep as string */ }
       const res = await fetch('/sidecar/api/observability/flight-recorder', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -48,12 +48,12 @@ export default function FlightRecorderView() {
       if (!res.ok) throw new Error(data.error || 'Capture failed');
       setNotice('Event captured and held for inspection.');
       await load();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError((e as Error).message); }
   };
 
   const saveEdit = async (ev: FREvent) => {
     try {
-      let parsed: any = editing[ev.id];
+      let parsed: unknown = editing[ev.id];
       try { parsed = JSON.parse(editing[ev.id]); } catch { /* keep string */ }
       const res = await fetch(`/sidecar/api/observability/flight-recorder/${ev.id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
@@ -62,7 +62,7 @@ export default function FlightRecorderView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Update failed');
       setNotice('Payload updated.'); await load();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError((e as Error).message); }
   };
 
   const replay = async (ev: FREvent) => {
@@ -71,7 +71,7 @@ export default function FlightRecorderView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Replay failed');
       setNotice(`Replayed ${ev.label}.`); await load();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError((e as Error).message); }
   };
 
   const discard = async (ev: FREvent) => {
@@ -142,7 +142,7 @@ export default function FlightRecorderView() {
                   <Button size="sm" variant="secondary" className="mt-2" onClick={() => saveEdit(ev)}>Save Payload</Button>
                 </div>
               )}
-              {ev.result && <pre className="mt-2 text-[11px] text-blue-300 font-mono whitespace-pre-wrap break-all bg-slate-950 p-2">{JSON.stringify(ev.result, null, 2)}</pre>}
+              {ev.result != null && <pre className="mt-2 text-[11px] text-blue-300 font-mono whitespace-pre-wrap break-all bg-slate-950 p-2">{JSON.stringify(ev.result, null, 2)}</pre>}
             </div>
           ))}
         </div>

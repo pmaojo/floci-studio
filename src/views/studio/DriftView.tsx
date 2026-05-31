@@ -39,7 +39,7 @@ export default function DriftView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Drift detection failed');
       setResult(data);
-    } catch (e: any) { setError(e.message); } finally { setLoading(false); }
+    } catch (e) { setError((e as Error).message); } finally { setLoading(false); }
   };
 
   return (

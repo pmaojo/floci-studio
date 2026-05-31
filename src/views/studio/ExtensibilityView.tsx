@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { Card, Button, Input } from '../../components/ui-elements';
 import { Webhook, Filter, Puzzle, Plus, Trash2 } from 'lucide-react';
 
+interface WebhookRule { id: string; event: string; url: string; }
+interface InterceptorRule { id: string; phase: string; urlPattern: string; action: string; params: Record<string, unknown>; }
+interface PluginInfo { id: string; name?: string; version?: string; valid?: boolean; error?: string; description?: string; tools?: string[]; }
+
 export default function ExtensibilityView() {
-  const [webhooks, setWebhooks] = useState<any[]>([]);
-  const [interceptors, setInterceptors] = useState<any[]>([]);
-  const [plugins, setPlugins] = useState<any[]>([]);
+  const [webhooks, setWebhooks] = useState<WebhookRule[]>([]);
+  const [interceptors, setInterceptors] = useState<InterceptorRule[]>([]);
+  const [plugins, setPlugins] = useState<PluginInfo[]>([]);
   const [error, setError] = useState('');
 
   // webhook form
@@ -27,7 +31,7 @@ export default function ExtensibilityView() {
       setWebhooks(w.webhooks || []);
       setInterceptors(i.interceptors || []);
       setPlugins(p.plugins || []);
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError((e as Error).message); }
   };
   useEffect(() => { load(); }, []);
 
@@ -42,7 +46,7 @@ export default function ExtensibilityView() {
   const delWebhook = async (id: string) => { await fetch(`/sidecar/api/extensibility/webhooks/${id}`, { method: 'DELETE' }); await load(); };
 
   const addInterceptor = async () => {
-    let params: any = {};
+    let params: Record<string, unknown> = {};
     try { params = JSON.parse(icParams); } catch { setError('Params must be valid JSON'); return; }
     const res = await fetch('/sidecar/api/extensibility/interceptors', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
