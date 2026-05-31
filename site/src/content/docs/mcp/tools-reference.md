@@ -1,11 +1,11 @@
 ---
 title: Tools Reference
-description: Complete reference for all 89 MCP tools organized by service module.
+description: Complete reference for all 112 MCP tools organized by service module.
 ---
 
 All tools are async and return JSON-serializable values. Boto3 `datetime`, `Decimal`, and `bytes` are automatically converted.
 
-**89 tools · 15 modules**
+**112 tools · 19 modules**
 
 ## Meta & Health
 
