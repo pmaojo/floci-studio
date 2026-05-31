@@ -1,6 +1,6 @@
 ---
 title: Marketplace Recipes
-description: All 25 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
+description: All 35 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
 ---
 
 Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools. Every recipe also maps to a managed AWS service for production — see [Local-to-AWS Parity](/guides/aws-parity/).
@@ -341,3 +341,169 @@ A web UI to manage Docker itself — containers, images, volumes, networks, logs
 | `PORTAINER_PORT` | `9443` | HTTPS web UI port |
 
 **Access:** `https://localhost:9443` (accept the self-signed cert, then create an admin user on first boot)
+
+---
+
+## MySQL + Adminer
+
+The world's most popular open-source relational database, bundled with Adminer — a lightweight web UI for managing databases, tables and queries.
+
+| Variable | Default | Description |
+|---|---|---|
+| `MYSQL_PORT` | `3306` | Host port for the MySQL server |
+| `ADMINER_PORT` | `8080` | Host port for the Adminer web UI |
+| `MYSQL_ROOT_PASSWORD` | `root123` | MySQL root superuser password |
+| `MYSQL_DATABASE` | `mydb` | Default database created on startup |
+| `MYSQL_USER` | `mysql` | Non-root app user username |
+| `MYSQL_PASSWORD` | `mysql123` | Non-root app user password |
+
+**Access:** Adminer at `http://localhost:8080` — select **MySQL**, server `mysql`, then log in with your configured credentials.  
+Connection string: `mysql://mysql:mysql123@localhost:3306/mydb`
+
+---
+
+## Elasticsearch + Kibana
+
+A distributed, RESTful search and analytics engine with Kibana for building dashboards, running queries and exploring indices.
+
+| Variable | Default | Description |
+|---|---|---|
+| `ELASTICSEARCH_PORT` | `9200` | Host port for the Elasticsearch HTTP API |
+| `KIBANA_PORT` | `5601` | Host port for the Kibana web UI |
+| `ELASTIC_PASSWORD` | `elastic123` | Password for the built-in `elastic` superuser |
+
+**Access:** Kibana at `http://localhost:5601` — log in as `elastic` with your configured password.  
+REST API: `curl -u elastic:elastic123 http://localhost:9200`
+
+---
+
+## Supabase
+
+An open-source Firebase alternative on PostgreSQL. Includes a managed database, auto-generated REST API via PostgREST and the Supabase Studio dashboard.
+
+| Variable | Default | Description |
+|---|---|---|
+| `STUDIO_PORT` | `3000` | Host port for Supabase Studio |
+| `POSTGRES_PORT` | `5432` | Host port for direct PostgreSQL connections |
+| `POSTGRES_PASSWORD` | `supabase123` | PostgreSQL superuser password |
+| `JWT_SECRET` | `super-secret-jwt-token-with-at-least-32-characters-long` | Secret for signing JWTs (min 32 chars) |
+| `ANON_KEY` | *(dev JWT)* | Public anonymous key for client SDK calls |
+| `SERVICE_KEY` | *(dev JWT)* | Private service-role key — bypasses RLS, keep secret |
+
+**Access:** Studio at `http://localhost:3000`  
+Direct Postgres: `postgresql://postgres:supabase123@localhost:5432/postgres`
+
+> The default `ANON_KEY` and `SERVICE_KEY` are Supabase's documented local-dev JWTs. Replace them with keys signed by your own `JWT_SECRET` before sharing any environment.
+
+---
+
+## Apache Kafka + Kafka UI
+
+A distributed event streaming platform for data pipelines and real-time analytics, running in KRaft mode (no ZooKeeper). Bundled with Kafka UI for managing topics, consumer groups and messages.
+
+| Variable | Default | Description |
+|---|---|---|
+| `KAFKA_PORT` | `9092` | Host port for the Kafka broker |
+| `KAFKA_UI_PORT` | `8082` | Host port for the Kafka UI web console |
+
+**Access:** Kafka UI at `http://localhost:8082`  
+Bootstrap server: `localhost:9092`
+
+```
+You: Deploy Kafka
+Claude: [calls deploy_marketplace_app(recipe_id="kafka")]
+```
+
+---
+
+## Metabase
+
+An open-source BI tool for building charts, dashboards and automated reports. Connects to PostgreSQL, MySQL, MongoDB, ClickHouse and many more.
+
+| Variable | Default | Description |
+|---|---|---|
+| `METABASE_PORT` | `3000` | Host port for the Metabase web UI |
+
+**Access:** `http://localhost:3000` — follow the setup wizard to connect your first database.
+
+---
+
+## Loki + Grafana (Log Aggregation)
+
+Grafana Loki collects and indexes logs by label — lightweight and fast. Bundled with a Grafana instance pre-configured with Loki as a datasource.
+
+| Variable | Default | Description |
+|---|---|---|
+| `LOKI_PORT` | `3100` | Host port for the Loki ingestion and query API |
+| `GRAFANA_PORT` | `3001` | Host port for the Grafana web UI |
+| `GRAFANA_PASSWORD` | `admin123` | Grafana admin password (username: `admin`) |
+
+**Access:** Grafana at `http://localhost:3001` → **Explore** → select the **Loki** datasource.
+
+Push a test log entry:
+```bash
+curl -X POST http://localhost:3100/loki/api/v1/push \
+  -H 'Content-Type: application/json' \
+  -d '{"streams":[{"stream":{"app":"test"},"values":[["'$(date +%s%N)'","hello loki"]]}]}'
+```
+
+---
+
+## Apache Airflow
+
+Workflow orchestration platform for authoring, scheduling and monitoring data pipelines as Python DAGs. Runs in standalone mode — ideal for local development.
+
+| Variable | Default | Description |
+|---|---|---|
+| `AIRFLOW_PORT` | `8080` | Host port for the Airflow web UI |
+| `AIRFLOW_USERNAME` | `airflow` | Admin account username |
+| `AIRFLOW_PASSWORD` | `airflow123` | Admin account password |
+
+**Access:** `http://localhost:8080` — log in with your configured credentials.  
+Place DAG files in the `airflow-dags` Docker volume; they are picked up automatically.
+
+---
+
+## Uptime Kuma
+
+Self-hosted uptime monitoring with real-time dashboards, status pages and 90+ notification integrations (Slack, Telegram, PagerDuty, email…).
+
+| Variable | Default | Description |
+|---|---|---|
+| `UPTIME_KUMA_PORT` | `3001` | Host port for the Uptime Kuma dashboard |
+
+**Access:** `http://localhost:3001` — create an admin account on first launch.
+
+---
+
+## pgAdmin
+
+The most popular open-source PostgreSQL administration platform — schema browser, query tool with execution plans, user management and multi-server support.
+
+| Variable | Default | Description |
+|---|---|---|
+| `PGADMIN_PORT` | `5050` | Host port for the pgAdmin web UI |
+| `PGADMIN_EMAIL` | `admin@local.dev` | Login email address |
+| `PGADMIN_PASSWORD` | `pgadmin123` | Login password |
+
+**Access:** `http://localhost:5050` — log in with your configured email and password.
+
+To connect to the Floci `postgres` recipe, add a new server using host `host.docker.internal`, port `5432`.
+
+---
+
+## Weaviate (Vector Database)
+
+An open-source vector database for semantic search, RAG pipelines and AI applications. Stores data objects alongside their embeddings and queries them via REST and gRPC APIs.
+
+| Variable | Default | Description |
+|---|---|---|
+| `WEAVIATE_PORT` | `8080` | Host port for the REST API and web console |
+| `WEAVIATE_GRPC_PORT` | `50051` | Host port for the gRPC API (v4 clients) |
+
+**Access:** REST API at `http://localhost:8080/v1`
+
+```python
+import weaviate
+client = weaviate.connect_to_local(host="localhost", port=8080, grpc_port=50051)
+```

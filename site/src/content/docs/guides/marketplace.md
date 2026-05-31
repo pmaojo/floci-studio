@@ -57,6 +57,16 @@ Installed recipes appear in the **Installed** section. From there you can:
 | ClickHouse (Analytics OLAP DB) | 8123 / 9000 | `localhost:8123/play` |
 | Portainer (Docker Cockpit) | 9443 | `localhost:9443` |
 | S3 Admin (Floci-wired) | 8002 | `localhost:8002` |
+| MySQL + Adminer | 3306 / 8080 | `localhost:8080` |
+| Elasticsearch + Kibana | 9200 / 5601 | `localhost:5601` |
+| Supabase | 5432 / 3000 | `localhost:3000` |
+| Apache Kafka + Kafka UI | 9092 / 8082 | `localhost:8082` |
+| Metabase | 3000 | `localhost:3000` |
+| Loki + Grafana (Log Aggregation) | 3100 / 3001 | `localhost:3001` |
+| Apache Airflow | 8080 | `localhost:8080` |
+| Uptime Kuma | 3001 | `localhost:3001` |
+| pgAdmin | 5050 | `localhost:5050` |
+| Weaviate (Vector Database) | 8080 / 50051 | `localhost:8080` |
 
 > Every recipe maps to a managed AWS service so it deploys cleanly to production — see [Local-to-AWS Parity](/guides/aws-parity/). Recipes like **DynamoDB Admin** and **S3 Admin** are AWS-SDK tools wired straight to the Floci endpoint (`4566`), so you test against the emulator exactly as you would against real AWS.
 
