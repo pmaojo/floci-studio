@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="The local AWS cockpit for AI-native development. 34 native service views, 112 MCP tools, 25 marketplace recipes — each mapped to a managed AWS service." />
+  <meta name="description" content="The local AWS cockpit for AI-native development. 36 native service views, 119 MCP tools, 35 marketplace recipes — each mapped to a managed AWS service." />
   <title>Floci Studio — Local AWS Cockpit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -424,7 +424,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-badge">112 MCP Tools · Real-Time Dashboard · AWS Profile Support</div>
+    <div class="hero-badge">119 MCP Tools · Real-Time Dashboard · AWS Profile Support</div>
     <h1>
       The local AWS cockpit<br />
       for <span>AI-native</span><br />
@@ -475,12 +475,12 @@
         <div class="feature-icon">⬛</div>
         <h3>AWS Cockpit</h3>
         <p>
-          34 native service views with full CRUD operations. Not a generic JSON explorer —
+          36 native service views with full CRUD operations. Not a generic JSON explorer —
           each service has a purpose-built UI: SQS drill-down with ReceiveMessage, SNS FIFO topics,
           Lambda code editor, S3 object browser, DynamoDB query builder.
         </p>
         <div class="feature-stat">
-          <strong>34</strong>
+          <strong>36</strong>
           Native service views
         </div>
       </div>
@@ -493,8 +493,8 @@
           seed DynamoDB tables, and run end-to-end flows — all via natural language.
         </p>
         <div class="feature-stat">
-          <strong>89</strong>
-          MCP tools across 15 modules
+          <strong>119</strong>
+          MCP tools across 20 modules
         </div>
       </div>
       <div class="feature-card">
@@ -508,7 +508,7 @@
           straight to production — all wired together via Docker Compose.
         </p>
         <div class="feature-stat">
-          <strong>25</strong>
+          <strong>35</strong>
           Ready-to-deploy recipes
         </div>
       </div>
@@ -565,10 +565,14 @@
       </p>
       <div class="marketplace-chips">
         {[
-          'PostgreSQL', 'Redis', 'MongoDB', 'RabbitMQ', 'Redpanda (Kafka)',
-          'NATS JetStream', 'Temporal', 'n8n', 'Keycloak', 'Jaeger',
-          'Minio', 'Mailpit (SMTP)', 'Meilisearch', 'Grafana + Prometheus',
-          'Nginx Proxy Manager', 'PocketBase', 'DynamoDB Admin',
+          'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'ClickHouse',
+          'Elasticsearch + Kibana', 'Supabase', 'RabbitMQ', 'Apache Kafka',
+          'Redpanda', 'NATS JetStream', 'Temporal', 'Apache Airflow', 'n8n',
+          'Keycloak', 'HashiCorp Vault', 'Jaeger', 'Loki + Grafana',
+          'Grafana + Prometheus', 'Metabase', 'pgAdmin', 'Minio',
+          'Meilisearch', 'Qdrant', 'Weaviate', 'Ollama (LLM)',
+          'Mailpit (SMTP)', 'Nginx Proxy Manager', 'Uptime Kuma',
+          'PocketBase', 'Portainer', 'DynamoDB Admin', 'S3 Admin',
           'IoT Core (MQTT)', 'AWS Transfer (SFTP)',
         ].map(name => (
           <div class="market-chip">{name}</div>
@@ -588,7 +592,7 @@
           <h2 class="section-title" style="color: #f5f5f0;">Let your AI agent drive the whole stack.</h2>
           <p class="section-sub">
             Connect Claude Desktop, Cursor, or any MCP client with a single config block.
-            Your agent gets 112 tools: create queues, publish events, invoke lambdas, seed databases,
+            Your agent gets 119 tools: create queues, publish events, invoke lambdas, seed databases,
             tag resources across services, generate architecture diagrams, export Terraform — all from a conversation.
           </p>
           <div class="mcp-tools-list">
