@@ -3,7 +3,7 @@ title: MCP Server Overview
 description: How the Floci Studio MCP server works and why it matters for AI-native development.
 ---
 
-Floci Studio ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. It exposes **89 tools across 15 service modules**, giving any MCP-compatible AI client full operational control over your local AWS environment.
+Floci Studio ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. It exposes 100+ tools across 18 service modules (plus any community plugins), giving any MCP-compatible AI client full operational control over your local AWS environment.
 
 ## What you can do
 
@@ -52,6 +52,10 @@ The MCP server is built with [FastMCP](https://github.com/jlowin/fastmcp). Each 
 | `ses` | 4 | Verify identities, send emails, quota |
 | `marketplace` | 5 | List, deploy, teardown recipes (incl. DynamoDB Admin) |
 | `devtools` | 7 | Terraform export, AWS CLI escape hatch, JWT, proxy |
+| `observability` | 8 | DLQ redrive, flight recorder (time-travel), service graph |
+| `iac` | 2 | IaC auto-discovery and drift detection |
+| `hybrid` | 5 | Cloud seeding, live SQS proxy, reverse tunnels |
+| `extensibility` | 8 | Lifecycle webhooks, HTTP interceptors, plugin catalog |
 | `tags` | 6 | Tag/untag resources, search by tag, list all tag keys |
 
 ## Example agent conversation
