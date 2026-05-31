@@ -242,25 +242,25 @@ const requestDiagnostic = async <T>(path: string): Promise<T> => {
 export const sidecarApi = {
   health: () => requestSidecar<{ ok: boolean; endpointUrl: string; region: string }>('/health'),
   getLambdaCapabilities: () => requestSidecar<LambdaCapabilities>('/api/lambda/capabilities'),
-  listLambdaFunctions: () => requestSidecar<{ Functions?: any[] }>('/api/lambda/functions'),
-  createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<any>('/api/lambda/functions', {
+  listLambdaFunctions: () => requestSidecar<{ ok: boolean; Functions?: any[] }>('/api/lambda/functions'),
+  createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<{ ok: boolean; [key: string]: any }>('/api/lambda/functions', {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
-  updateLambdaCode: (functionName: string, payload: UpdateLambdaCodePayload) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/code`, {
+  updateLambdaCode: (functionName: string, payload: UpdateLambdaCodePayload) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/code`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   }),
-  updateLambdaConfiguration: (functionName: string, payload: UpdateLambdaConfigurationPayload) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/configuration`, {
+  updateLambdaConfiguration: (functionName: string, payload: UpdateLambdaConfigurationPayload) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/configuration`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   }),
-  invokeLambdaFunction: (functionName: string, payload: unknown) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/invoke`, {
+  invokeLambdaFunction: (functionName: string, payload: unknown) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/invoke`, {
     method: 'POST',
     body: JSON.stringify({ payload }),
   }),
-  getLambdaLogs: (functionName: string) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/logs`),
-  deleteLambdaFunction: (functionName: string) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}`, {
+  getLambdaLogs: (functionName: string) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/logs`),
+  deleteLambdaFunction: (functionName: string) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}`, {
     method: 'DELETE',
   }),
   getEksOverview: () => requestSidecar<EksOverview>('/api/eks/overview'),
