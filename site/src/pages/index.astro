@@ -521,22 +521,30 @@
   <section>
     <div class="section-inner">
       <p class="section-label">Coverage</p>
-      <h2 class="section-title">30+ AWS Services. All local.</h2>
+      <h2 class="section-title">60+ AWS Services. All local.</h2>
       <p class="section-sub">
         Every service runs against the local floci engine on port 4566 — the same API surface as real AWS,
-        so your code works without modification when you deploy.
+        so your code works without modification when you deploy. A <span style="color:var(--green-dim)">green</span> dot
+        marks a purpose-built GUI; the rest are wired through the sidecar and reachable from the UI and your AI agent.
       </p>
       <div class="services-grid">
         {[
-          'SQS', 'SNS', 'SES', 'S3', 'DynamoDB', 'Lambda', 'EventBridge',
-          'Step Functions', 'IAM', 'Secrets Manager', 'KMS', 'ACM',
-          'CloudWatch Logs', 'CloudWatch Metrics', 'RDS', 'ElastiCache',
-          'Kinesis', 'Glue', 'Athena', 'ECR', 'ECS', 'EKS',
-          'CloudFormation', 'CodeBuild', 'Scheduler', 'SSM', 'VPC',
-          'WAF', 'API Gateway', 'SFN',
-        ].map(svc => (
+          // First 29: native, purpose-built GUI views
+          'SQS', 'SNS', 'SES', 'S3', 'DynamoDB', 'Lambda', 'Step Functions',
+          'EventBridge', 'Scheduler', 'Kinesis', 'IAM', 'Secrets Manager',
+          'KMS', 'ACM', 'SSM', 'WAF', 'VPC', 'RDS', 'ElastiCache', 'Athena',
+          'Glue', 'ECR', 'ECS', 'EKS', 'CloudFormation', 'CodeBuild',
+          'CloudWatch Logs', 'CloudWatch Metrics', 'Cost Explorer',
+          // Remainder: sidecar-routed, reachable from UI + AI agent
+          'EC2', 'STS', 'API Gateway', 'AppSync', 'Route 53', 'CloudFront',
+          'ELB', 'Transit Gateway', 'Cognito', 'IAM Identity Center',
+          'Redshift', 'OpenSearch', 'Neptune', 'MSK', 'Auto Scaling',
+          'App Runner', 'Elastic Beanstalk', 'AWS Batch', 'EFS', 'Backup',
+          'Transfer', 'CloudTrail', 'AppConfig', 'Firehose', 'CodePipeline',
+          'CodeDeploy', 'CodeArtifact', 'SageMaker', 'Bedrock', 'IoT Core',
+        ].map((svc, i) => (
           <div class="service-chip">
-            <span class="dot"></span>
+            <span class="dot" style={i < 29 ? '' : 'background:#b8b8b2'}></span>
             {svc}
           </div>
         ))}
