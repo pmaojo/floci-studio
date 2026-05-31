@@ -33,6 +33,15 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Enterprise',
+					items: [
+						{ label: 'Observability & Debugging', slug: 'enterprise/observability' },
+						{ label: 'IaC Drift Detection', slug: 'enterprise/iac-drift' },
+						{ label: 'Hybrid Development', slug: 'enterprise/hybrid' },
+						{ label: 'Extensibility & Plugins', slug: 'enterprise/extensibility' },
+					],
+				},
+				{
 					label: 'MCP Server',
 					items: [
 						{ label: 'Overview', slug: 'mcp/overview' },
