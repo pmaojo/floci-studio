@@ -99,8 +99,8 @@ Claude: [calls deploy_marketplace_app(recipe_id="s3-admin")]
 |---|---|---|
 | `RABBITMQ_PORT` | `5672` | AMQP port |
 | `RABBITMQ_MANAGEMENT_PORT` | `15672` | Management UI port |
-| `RABBITMQ_USER` | `admin` | Username |
-| `RABBITMQ_PASSWORD` | `rabbit123` | Password |
+| `RABBITMQ_DEFAULT_USER` | `guest` | Username |
+| `RABBITMQ_DEFAULT_PASS` | `guest` | Password |
 
 **Access:** Management UI at `http://localhost:15672`
 

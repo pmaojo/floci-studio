@@ -43,33 +43,43 @@ Floci Studio includes a catalog of parameterized local recipes in the `/recipes`
 
 ### Available Recipes
 
-The catalog ships **25 recipes** out of the box — including a fully local AI stack (Ollama + Qdrant) and two AWS-SDK tools wired straight to the Floci emulator (DynamoDB Admin + S3 Admin):
+The catalog ships **35 recipes** out of the box — including a fully local AI stack (Ollama + Qdrant + Weaviate), two AWS-SDK tools wired straight to the Floci emulator (DynamoDB Admin + S3 Admin), and a full BI/data-engineering suite:
 
+- **Apache Airflow** — DAG orchestration, à la Amazon MWAA 🆕
+- **Apache Kafka + Kafka UI** — distributed event streaming with KRaft (no ZooKeeper) 🆕
 - **AWS IoT Core (MQTT)**
 - **AWS Transfer Family (SFTP)**
-- **ClickHouse (Analytics OLAP DB)** — column-oriented database for real-time analytics 🆕
+- **ClickHouse (Analytics OLAP DB)** — column-oriented database for real-time analytics
 - **DynamoDB Admin** — web GUI for browsing and editing DynamoDB tables, pre-wired to Floci
-- **HashiCorp Vault (Dev Mode)** — local secrets management, à la AWS Secrets Manager 🆕
+- **Elasticsearch + Kibana** — full-text search and log analytics, à la Amazon OpenSearch 🆕
+- **HashiCorp Vault (Dev Mode)** — local secrets management, à la AWS Secrets Manager
 - **Jaeger (Distributed Tracing)**
 - **Keycloak + PostgreSQL**
+- **Loki + Grafana (Log Aggregation)** — lightweight log indexing, à la CloudWatch Logs 🆕
 - **Mailpit (SMTP)**
 - **Meilisearch**
+- **Metabase** — open-source BI and dashboards, à la Amazon QuickSight 🆕
 - **MinIO (S3 Compatible Storage)**
 - **MongoDB + Mongo Express**
+- **MySQL + Adminer** — the world's most popular relational database 🆕
 - **n8n Workflow Automation**
 - **NATS JetStream**
 - **Nginx Proxy Manager**
 - **Observability (Grafana & Prometheus)**
-- **Ollama (Local LLM Runtime)** — run Llama 3, Mistral & friends locally with an OpenAI-compatible API 🆕
+- **Ollama (Local LLM Runtime)** — run Llama 3, Mistral & friends locally with an OpenAI-compatible API
+- **pgAdmin** — full-featured PostgreSQL administration UI 🆕
 - **PocketBase**
-- **Portainer (Docker Cockpit)** — manage every container, image and volume from the browser 🆕
+- **Portainer (Docker Cockpit)** — manage every container, image and volume from the browser
 - **PostgreSQL Database**
-- **Qdrant (Vector Database)** — embeddings & semantic search for local RAG pipelines 🆕
+- **Qdrant (Vector Database)** — embeddings & semantic search for local RAG pipelines
 - **RabbitMQ Broker**
 - **Redis Cache & Broker**
 - **Redpanda (Kafka Compatible)**
-- **S3 Admin** — web GUI to browse S3 buckets, pre-wired to Floci S3 on `4566` 🆕
+- **S3 Admin** — web GUI to browse S3 buckets, pre-wired to Floci S3 on `4566`
+- **Supabase** — open-source Firebase alternative (Postgres + auth + REST API + Studio) 🆕
 - **Temporal Workflow Engine**
+- **Uptime Kuma** — self-hosted uptime monitoring and status pages 🆕
+- **Weaviate (Vector Database)** — vector search for AI/RAG applications 🆕
 
 ### 🔁 Local ↔ AWS Parity
 
@@ -102,6 +112,16 @@ Every recipe maps to a **managed AWS service**, so what you test locally behaves
 | Transfer Family | AWS Transfer Family | Provision a Transfer Family SFTP server |
 | DynamoDB Admin | Amazon DynamoDB | Repoint `DYNAMO_ENDPOINT` at the region |
 | S3 Admin | Amazon S3 | Repoint `S3_ENDPOINT` at the region |
+| MySQL | Amazon RDS for MySQL | Repoint the connection string |
+| Elasticsearch | Amazon OpenSearch Service | Migrate the index / self-host on ECS |
+| Supabase | Amazon RDS + Cognito | Repoint DB + swap OIDC issuer |
+| Apache Kafka | Amazon MSK (Kafka) | Point bootstrap servers at MSK |
+| Metabase | Amazon QuickSight | Self-host on ECS or use QuickSight |
+| Loki + Grafana | Amazon CloudWatch Logs | Ship logs via the CW agent / OTEL |
+| Apache Airflow | Amazon MWAA | Upload DAGs to S3, provision MWAA env |
+| Uptime Kuma | Amazon Route 53 Health Checks | Define R53 health checks + alarms |
+| pgAdmin | Amazon RDS console | Use the native RDS console / Data API |
+| Weaviate | Amazon OpenSearch (k-NN) | Recreate collections, repoint client |
 
 > **DynamoDB Admin** and **S3 Admin** go a step further — they're AWS-SDK clients wired straight to the Floci endpoint on `4566`, so you inspect the emulator's state locally exactly as you would the real AWS console.
 
