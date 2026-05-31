@@ -179,6 +179,17 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       ]
     },
     {
+      label: 'Studio Enterprise',
+      items: [
+        { to: '/studio/service-graph', icon: Share2, label: 'Service Graph (X-Ray)' },
+        { to: '/studio/dlq', icon: ShieldAlert, label: 'Dead Letter Queues' },
+        { to: '/studio/flight-recorder', icon: Activity, label: 'Flight Recorder' },
+        { to: '/studio/drift', icon: GitFork, label: 'IaC Drift' },
+        { to: '/studio/hybrid', icon: Cloud, label: 'Hybrid Dev' },
+        { to: '/studio/extensibility', icon: Layers, label: 'Extensibility' },
+      ]
+    },
+    {
       label: 'Billing & Cost',
       items: [
         { to: '/costexplorer', icon: DatabaseIcon, label: 'Cost Explorer' },

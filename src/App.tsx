@@ -35,6 +35,12 @@ const ArchitectureView = lazy(() => import('./views/studio/ArchitectureView'));
 const LambdaLogsView = lazy(() => import('./views/studio/LambdaLogsView'));
 const JwtMocksView = lazy(() => import('./views/studio/JwtMocksView'));
 const ApiClientView = lazy(() => import('./views/studio/ApiClientView'));
+const DlqView = lazy(() => import('./views/studio/DlqView'));
+const FlightRecorderView = lazy(() => import('./views/studio/FlightRecorderView'));
+const ServiceGraphView = lazy(() => import('./views/studio/ServiceGraphView'));
+const DriftView = lazy(() => import('./views/studio/DriftView'));
+const HybridView = lazy(() => import('./views/studio/HybridView'));
+const ExtensibilityView = lazy(() => import('./views/studio/ExtensibilityView'));
 
 const EksView = lazy(() => import('./views/EksView'));
 const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
@@ -170,6 +176,12 @@ const AppContent = () => {
               <Route path="/studio/logs" element={<LambdaLogsView />} />
               <Route path="/studio/jwt" element={<JwtMocksView />} />
               <Route path="/studio/api-client" element={<ApiClientView />} />
+              <Route path="/studio/service-graph" element={<ServiceGraphView />} />
+              <Route path="/studio/dlq" element={<DlqView />} />
+              <Route path="/studio/flight-recorder" element={<FlightRecorderView />} />
+              <Route path="/studio/drift" element={<DriftView />} />
+              <Route path="/studio/hybrid" element={<HybridView />} />
+              <Route path="/studio/extensibility" element={<ExtensibilityView />} />
 
                 <Route path="/ecs" element={<ECSView />} />
                 <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
