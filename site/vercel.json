@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm build",
-  "outputDirectory": "dist",
-  "installCommand": "pnpm install",
-  "framework": null
+	"buildCommand": "pnpm build",
+	"outputDirectory": "dist",
+	"installCommand": "npx --yes pnpm@10.33.0 install",
+	"framework": null
 }

@@ -16,3 +16,11 @@ When you start Mailpit via Floci, you can configure:
 - **Web Interface Port**: The port to access the Mailpit web dashboard (default: `8025`).
 
 Simply configure your app's SMTP settings to `localhost` and the configured SMTP port, and you're good to go!
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon SES
+
+Send over plain SMTP locally (captured by Mailpit) exactly as you will to the SES SMTP endpoint — same MIME, headers and auth.
+
+**Deploy:** Verify a domain/identity in SES and point your SMTP host/port/credentials at the SES SMTP relay.

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { ListCertificatesCommand, RequestCertificateCommand } from '@aws-sdk/client-acm';
+import type { CertificateSummary } from '@aws-sdk/client-acm';
 import { useAws } from '../contexts/AwsContext';
 import { Search, CirclePlus, ExternalLink, BadgeCheck, ShieldCheck } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
 
 const ACMView = () => {
   const { clients, logActivity } = useAws();
-  const [certs, setCerts] = useState<any[]>([]);
+  const [certs, setCerts] = useState<CertificateSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -17,8 +18,8 @@ const ACMView = () => {
     try {
       const response = await clients.acm.send(new ListCertificatesCommand({}));
       setCerts(response.CertificateSummaryList || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch ACM certificates');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch ACM certificates');
     } finally {
       setLoading(false);
     }
@@ -38,9 +39,10 @@ const ACMView = () => {
       }));
       logActivity('ACM', `RequestCert: ${domain}`, 'success');
       fetchCerts();
-    } catch (err: any) {
-      logActivity('ACM', `RequestCert failed: ${domain}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('ACM', `RequestCert failed: ${domain}`, 'error', message);
+      alert(message);
     }
   };
 

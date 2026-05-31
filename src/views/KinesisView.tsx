@@ -53,7 +53,7 @@ const KinesisView = () => {
   const [partitionKey, setPartitionKey] = useState('');
   const [recordPayload, setRecordPayload] = useState('');
   const [publishing, setPublishing] = useState(false);
-  const [publishedMeta, setPublishedMeta] = useState<any | null>(null);
+  const [publishedMeta, setPublishedMeta] = useState<{ shardId: string | undefined; sequenceNumber: string | undefined; partitionKey: string } | null>(null);
 
   // Streaming Shard terminal state
   const [selectedShardId, setSelectedShardId] = useState<string>('');
@@ -62,7 +62,7 @@ const KinesisView = () => {
   const [streamRecords, setStreamRecords] = useState<ShardRecordLog[]>([]);
   const [pollingInterval, setPollingInterval] = useState('2000'); // ms
   
-  const pollingRef = useRef<any>(null);
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const iteratorRef = useRef<string | null>(null);
   const terminalBottomRef = useRef<HTMLDivElement>(null);
 
@@ -72,8 +72,8 @@ const KinesisView = () => {
       const response = await clients.kinesis.send(new ListStreamsCommand({}));
       setStreams(response.StreamNames || []);
       logActivity('Kinesis', 'ListStreams', 'success');
-    } catch (err: any) {
-      logActivity('Kinesis', 'ListStreams failed', 'error', err.message);
+    } catch (err) {
+      logActivity('Kinesis', 'ListStreams failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -91,9 +91,10 @@ const KinesisView = () => {
       setNewStreamName('');
       setIsCreationModalOpen(false);
       fetchStreams();
-    } catch (err: any) {
-      logActivity('Kinesis', `CreateStream failed: ${newStreamName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Kinesis', `CreateStream failed: ${newStreamName}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -109,9 +110,10 @@ const KinesisView = () => {
         setSelectedStreamName(null);
       }
       fetchStreams();
-    } catch (err: any) {
-      logActivity('Kinesis', `DeleteStream failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Kinesis', `DeleteStream failed: ${name}`, 'error', message);
+      alert(message);
     }
   };
 
@@ -130,8 +132,8 @@ const KinesisView = () => {
       if (shardList.length > 0) {
         setSelectedShardId(shardList[0].ShardId || '');
       }
-    } catch (err: any) {
-      logActivity('Kinesis', `DescribeStream failed for ${name}`, 'error', err.message);
+    } catch (err) {
+      logActivity('Kinesis', `DescribeStream failed for ${name}`, 'error', err instanceof Error ? err.message : String(err));
       // Mock fallback if emulator blocks describing
       const mockShards = [{ ShardId: 'shardId-000000000000', HashKeyRange: undefined, SequenceNumberRange: undefined }] as Shard[];
       setShards(mockShards);
@@ -168,9 +170,10 @@ const KinesisView = () => {
       // Auto pre-populate partition key for next records
       setPartitionKey('');
       setRecordPayload('');
-    } catch (err: any) {
-      logActivity('Kinesis', `PutRecord failed: ${selectedStreamName}`, 'error', err.message);
-      alert(`Publish record failed: ${err.message}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Kinesis', `PutRecord failed: ${selectedStreamName}`, 'error', message);
+      alert(`Publish record failed: ${message}`);
     } finally {
       setPublishing(false);
     }
@@ -187,7 +190,7 @@ const KinesisView = () => {
       const iterRes = await clients.kinesis.send(new GetShardIteratorCommand({
         StreamName: selectedStreamName,
         ShardId: selectedShardId,
-        ShardIteratorType: iteratorType as any
+        ShardIteratorType: iteratorType as 'LATEST' | 'TRIM_HORIZON' | 'AT_SEQUENCE_NUMBER' | 'AFTER_SEQUENCE_NUMBER' | 'AT_TIMESTAMP'
       }));
       
       iteratorRef.current = iterRes.ShardIterator || null;
@@ -227,13 +230,13 @@ const KinesisView = () => {
 
             setStreamRecords(prev => [...prev, ...mappedLogs].slice(-100)); // Limit to last 100 entries
           }
-        } catch (err: any) {
+        } catch (err) {
           // Log errors to terminal
           setStreamRecords(prev => [...prev, {
             timestamp: new Date().toLocaleTimeString(),
             sequenceNumber: 'ERROR',
             partitionKey: 'SYSTEM',
-            data: `Polling error: ${err.message}`,
+            data: `Polling error: ${err instanceof Error ? err.message : String(err)}`,
             shardId: selectedShardId
           }]);
         }
@@ -246,9 +249,9 @@ const KinesisView = () => {
 
       pollingRef.current = setTimeout(poll, 100);
       logActivity('Kinesis', `Stream polling started: ${selectedStreamName} (${selectedShardId})`, 'success');
-    } catch (err: any) {
+    } catch (err) {
       setIsStreaming(false);
-      alert(`Could not start stream: ${err.message}`);
+      alert(`Could not start stream: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 

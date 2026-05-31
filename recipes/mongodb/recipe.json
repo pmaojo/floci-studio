@@ -4,6 +4,11 @@
   "description": "A scalable, document-oriented NoSQL database paired with Mongo Express, a lightweight web-based administration interface.",
   "version": "7.0.0",
   "accessUrl": "http://localhost:{{MONGO_EXPRESS_PORT}}",
+  "aws": {
+    "service": "Amazon DocumentDB (MongoDB-compatible)",
+    "parity": "The MongoDB wire protocol you use locally is the same DocumentDB speaks — same drivers, queries and indexes.",
+    "deploy": "Provision a DocumentDB cluster and repoint your connection string (add the RDS CA bundle for TLS)."
+  },
   "variables": [
     {
       "key": "MONGO_PORT",

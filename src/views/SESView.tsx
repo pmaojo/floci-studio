@@ -89,8 +89,8 @@ const SESView = () => {
         }
         setVerificationAttrs(attrs);
       }
-    } catch (err: any) {
-      logActivity('SES', 'FetchAll failed', 'error', err.message);
+    } catch (err) {
+      logActivity('SES', 'FetchAll failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -109,9 +109,10 @@ const SESView = () => {
       setNewEmail('');
       setIsVerifyModalOpen(false);
       fetchAll();
-    } catch (err: any) {
-      logActivity('SES', `VerifyEmailIdentity failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('SES', `VerifyEmailIdentity failed`, 'error', message);
+      alert(message);
     } finally {
       setVerifying(false);
     }
@@ -136,9 +137,10 @@ const SESView = () => {
       setToAddr('');
       setEmailSubject('');
       setEmailBody('');
-    } catch (err: any) {
-      logActivity('SES', `SendEmail failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('SES', `SendEmail failed`, 'error', message);
+      alert(message);
     } finally {
       setSending(false);
     }
@@ -328,9 +330,10 @@ const SESView = () => {
                             await clients.ses.send(new (await import('@aws-sdk/client-ses')).DeleteIdentityCommand({ Identity: id }));
                             logActivity('SES', `DeleteIdentity: ${id}`, 'success');
                             fetchAll();
-                          } catch (err: any) {
-                            logActivity('SES', `DeleteIdentity failed`, 'error', err.message);
-                            alert(err.message);
+                          } catch (err) {
+                            const message = err instanceof Error ? err.message : String(err);
+                            logActivity('SES', `DeleteIdentity failed`, 'error', message);
+                            alert(message);
                           }
                         }}
                         className="p-1 hover:text-rose-400"

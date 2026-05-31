@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand } from '@aws-sdk/client-glue';
+import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand, GetTablesCommand } from '@aws-sdk/client-glue';
+import type { Database } from '@aws-sdk/client-glue';
 import { useAws } from '../contexts/AwsContext';
-import { Layers, CirclePlus, Trash2, Database, Table, Settings } from 'lucide-react';
+import { Layers, CirclePlus, Trash2, Database as DatabaseIcon, Table, Settings } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const GlueView = () => {
   const { clients, logActivity } = useAws();
-  const [databases, setDatabases] = useState<any[]>([]);
+  const [databases, setDatabases] = useState<Database[]>([]);
+  const [tableCounts, setTableCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -16,10 +18,22 @@ const GlueView = () => {
     setLoading(true);
     try {
       const response = await clients.glue.send(new GetDatabasesCommand({}));
-      setDatabases(response.DatabaseList || []);
+      const dbs = response.DatabaseList || [];
+      setDatabases(dbs);
       logActivity('Glue', 'GetDatabases', 'success');
-    } catch (err: any) {
-      logActivity('Glue', 'GetDatabases failed', 'error', err.message);
+      const counts = await Promise.all(
+        dbs.map(async db => {
+          try {
+            const t = await clients.glue.send(new GetTablesCommand({ DatabaseName: db.Name! }));
+            return [db.Name!, (t.TableList || []).length] as [string, number];
+          } catch {
+            return [db.Name!, 0] as [string, number];
+          }
+        })
+      );
+      setTableCounts(Object.fromEntries(counts));
+    } catch (err) {
+      logActivity('Glue', 'GetDatabases failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -36,9 +50,10 @@ const GlueView = () => {
       setNewName('');
       setIsCreationModalOpen(false);
       fetchData();
-    } catch (err: any) {
-      logActivity('Glue', `CreateDatabase failed: ${newName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Glue', `CreateDatabase failed: ${newName}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -50,9 +65,10 @@ const GlueView = () => {
       await clients.glue.send(new DeleteDatabaseCommand({ Name: name }));
       logActivity('Glue', `DeleteDatabase: ${name}`, 'success');
       fetchData();
-    } catch (err: any) {
-      logActivity('Glue', `DeleteDatabase failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('Glue', `DeleteDatabase failed: ${name}`, 'error', message);
+      alert(message);
     }
   };
 
@@ -111,7 +127,7 @@ const GlueView = () => {
               <Card key={db.Name} className="hover:border-brand-text transition-all bg-white group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-2 bg-brand-muted border border-brand-text shrink-0">
-                    <Database size={20} />
+                    <DatabaseIcon size={20} />
                   </div>
                   <button onClick={() => handleDelete(db.Name!)} className="p-1 hover:text-rose-600 transition-colors">
                     <Trash2 size={16} />
@@ -120,7 +136,7 @@ const GlueView = () => {
                 <h4 className="font-bold text-xs truncate mb-1">{db.Name}</h4>
                 <p className="text-[9px] font-mono opacity-40 truncate">{db.Description || 'No description'}</p>
                 <div className="mt-6 flex items-center justify-between text-[8px] font-bold opacity-30">
-                  <span className="flex items-center gap-1"><Table size={10} /> 0 TABLES</span>
+                  <span className="flex items-center gap-1"><Table size={10} /> {tableCounts[db.Name!] ?? 0} TABLES</span>
                   <span className="flex items-center gap-1"><Settings size={10} /> MANAGED</span>
                 </div>
               </Card>
