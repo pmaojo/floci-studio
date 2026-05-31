@@ -160,3 +160,46 @@ DynamoDB items use native type format: `{"pk": {"S": "user#123"}, "count": {"N":
 | `generate_jwt_token` | `claims, secret?, algorithm?` | Generates a JWT token |
 | `run_ui_tests` | `test_pattern?` | Runs Playwright UI tests |
 | `get_network_topology` | — | Returns network topology |
+
+## Observability (Enterprise)
+
+| Tool | Parameters | Description |
+|---|---|---|
+| `list_dead_letter_queues` | — | Lists active DLQs with failed-message counts and source queues |
+| `inspect_dlq_messages` | `dlq_url, max_messages?` | Inspects failed messages without consuming them |
+| `redrive_dlq` | `dlq_url, source_url, max_messages?` | Redrives messages back to the source queue |
+| `get_service_graph` | — | X-Ray-style graph of real resource relationships (nodes + edges) |
+| `capture_event_for_replay` | `target_type, target, payload, source?, label?` | Holds an in-flight event for inspection |
+| `list_captured_events` | — | Lists held/replayed/discarded events |
+| `edit_captured_event` | `event_id, payload` | Edits a held event's payload in place |
+| `replay_captured_event` | `event_id` | Resumes an event's journey to its real target |
+
+## IaC Drift (Enterprise)
+
+| Tool | Parameters | Description |
+|---|---|---|
+| `discover_iac_resources` | `path?` | Auto-discovers Terraform/Serverless/CDK resources |
+| `detect_iac_drift` | `path?` | Reports missing / unmanaged / managed resources vs the emulator |
+
+## Hybrid Development (Enterprise)
+
+| Tool | Parameters | Description |
+|---|---|---|
+| `seed_from_cloud_dynamodb` | `source_table, target_table?, limit?, anonymize_fields?, …creds?` | Seeds anonymized data from a real DynamoDB table |
+| `proxy_cloud_sqs_to_local` | `source_queue_url, target_type, target, …creds?` | Drains a real SQS queue to a local target |
+| `start_reverse_tunnel` | `port?` | Opens a public tunnel via cloudflared/ngrok |
+| `list_reverse_tunnels` | — | Lists active reverse tunnels |
+| `stop_reverse_tunnel` | `pid` | Stops a reverse tunnel |
+
+## Extensibility (Enterprise)
+
+| Tool | Parameters | Description |
+|---|---|---|
+| `list_lifecycle_webhooks` | — | Lists registered lifecycle webhooks |
+| `register_lifecycle_webhook` | `event, url, description?` | Registers a webhook for lifecycle events |
+| `delete_lifecycle_webhook` | `webhook_id` | Removes a webhook |
+| `emit_lifecycle_event` | `event, payload?` | Fires a lifecycle event to matching webhooks |
+| `list_http_interceptors` | — | Lists declarative proxy interceptors |
+| `register_http_interceptor` | `url_pattern, phase?, action?, params?` | Adds an interceptor rule |
+| `delete_http_interceptor` | `interceptor_id` | Removes an interceptor |
+| `list_floci_plugins` | — | Lists discovered community plugins |
