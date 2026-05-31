@@ -41,6 +41,7 @@ const ServiceGraphView = lazy(() => import('./views/studio/ServiceGraphView'));
 const DriftView = lazy(() => import('./views/studio/DriftView'));
 const HybridView = lazy(() => import('./views/studio/HybridView'));
 const ExtensibilityView = lazy(() => import('./views/studio/ExtensibilityView'));
+const PipelineView = lazy(() => import('./views/studio/PipelineView'));
 
 const EksView = lazy(() => import('./views/EksView'));
 const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
@@ -183,6 +184,7 @@ const AppContent = () => {
               <Route path="/studio/drift" element={<DriftView />} />
               <Route path="/studio/hybrid" element={<HybridView />} />
               <Route path="/studio/extensibility" element={<ExtensibilityView />} />
+              <Route path="/studio/pipeline" element={<PipelineView />} />
 
                 <Route path="/ecs" element={<ECSView />} />
                 <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
