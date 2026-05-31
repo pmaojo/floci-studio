@@ -51,6 +51,14 @@ Installed recipes appear in the **Installed** section. From there you can:
 | PocketBase | 8090 | `localhost:8090/_/` |
 | IoT Core (MQTT) | 1883 | — |
 | AWS Transfer Family (SFTP) | 2222 | — |
+| Ollama (Local LLM Runtime) | 11434 | — (OpenAI-compatible API) |
+| Qdrant (Vector Database) | 6333 / 6334 | `localhost:6333/dashboard` |
+| HashiCorp Vault (Dev Mode) | 8200 | `localhost:8200` |
+| ClickHouse (Analytics OLAP DB) | 8123 / 9000 | `localhost:8123/play` |
+| Portainer (Docker Cockpit) | 9443 | `localhost:9443` |
+| S3 Admin (Floci-wired) | 8002 | `localhost:8002` |
+
+> Every recipe maps to a managed AWS service so it deploys cleanly to production — see [Local-to-AWS Parity](/guides/aws-parity/). Recipes like **DynamoDB Admin** and **S3 Admin** are AWS-SDK tools wired straight to the Floci endpoint (`4566`), so you test against the emulator exactly as you would against real AWS.
 
 ## Writing a custom recipe
 

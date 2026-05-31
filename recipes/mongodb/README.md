@@ -18,3 +18,11 @@ Open the admin UI at `http://localhost:8081` (adjusting for your configured port
 
 Connect your applications using the connection string:
 `mongodb://root:mongo123@localhost:27017/` (adjusting for your configured variables).
+
+## 🚀 Path to AWS
+
+**Managed service:** Amazon DocumentDB (MongoDB-compatible)
+
+The MongoDB wire protocol you use locally is the same DocumentDB speaks — same drivers, queries and indexes.
+
+**Deploy:** Provision a DocumentDB cluster and repoint your connection string (add the RDS CA bundle for TLS).

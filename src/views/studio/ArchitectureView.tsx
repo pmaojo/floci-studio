@@ -2,33 +2,43 @@ import { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 import { Card } from '../../components/ui-elements';
 
+interface ArchNode {
+  id: string;
+  label: string;
+  type: string;
+}
+
+interface ArchData {
+  nodes: ArchNode[];
+  edges: { from: string; to: string }[];
+}
+
 export default function ArchitectureView() {
-  const [data, setData] = useState<{nodes: any[], edges: any[]} | null>(null);
+  const [data, setData] = useState<ArchData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [svgContent, setSvgContent] = useState<string>('');
   const mermaidRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: { primaryColor: '#f97316', lineColor: '#3b82f6' } });
 
-    // Fetch data from sidecar proxy
     fetch('/sidecar/api/studio/architecture')
       .then(res => res.json())
-      .then(json => {
+      .then((json: ArchData) => {
         setData(json);
         setLoading(false);
       })
-      .catch(e => {
-        console.error(e);
+      .catch(() => {
         setLoading(false);
       });
   }, []);
 
   useEffect(() => {
-    if (!data || !mermaidRef.current) return;
+    if (!data) return;
 
     let graphDefinition = 'graph TD;\n';
 
-    const byType = data.nodes.reduce((acc: any, node: any) => {
+    const byType = data.nodes.reduce<Record<string, ArchNode[]>>((acc, node) => {
       acc[node.type] = acc[node.type] || [];
       acc[node.type].push(node);
       return acc;
@@ -46,11 +56,13 @@ export default function ArchitectureView() {
       graphDefinition += '  Empty["No resources found"]\n';
     }
 
-    mermaidRef.current.innerHTML = '';
-    mermaid.render('mermaid-svg', graphDefinition).then((res: any) => {
-        if(mermaidRef.current) mermaidRef.current.innerHTML = res.svg;
-    }).catch((e: any) => console.error("Mermaid error", e));
-
+    mermaid.render('mermaid-svg', graphDefinition)
+      .then((res: { svg: string }) => {
+        setSvgContent(res.svg);
+      })
+      .catch(() => {
+        setSvgContent('');
+      });
   }, [data]);
 
   return (
@@ -69,7 +81,11 @@ export default function ArchitectureView() {
              <div className="flex justify-center p-10"><div className="text-brand-text">Loading...</div></div>
           ) : (
             <div className="w-full bg-slate-900 rounded p-4 flex justify-center overflow-x-auto min-h-[400px]">
-              <div ref={mermaidRef} className="mermaid" />
+              <div
+                ref={mermaidRef}
+                className="mermaid"
+                dangerouslySetInnerHTML={{ __html: svgContent }}
+              />
             </div>
           )}
         </div>

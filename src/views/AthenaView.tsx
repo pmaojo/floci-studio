@@ -484,7 +484,7 @@ const AthenaView = () => {
                     onScroll={handleScroll}
                     onKeyDown={handleKeyDown}
                     className="flex-1 bg-transparent text-neutral-200 outline-none resize-none px-4 py-3 leading-[18px] caret-white overflow-y-auto whitespace-pre font-mono font-medium"
-                    placeholder="-- Escriba su consulta SQL aquí"
+                    placeholder="-- Write your SQL query here"
                     spellCheck={false}
                   />
                 </div>

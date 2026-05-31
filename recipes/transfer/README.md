@@ -17,3 +17,11 @@ When you start the AWS Transfer Family recipe via Floci Studio, you can configur
 
 Connect using an SFTP client:
 `sftp -P 2222 floci@localhost` (adjusting for your configured variables).
+
+## 🚀 Path to AWS
+
+**Managed service:** AWS Transfer Family (SFTP)
+
+Move files over SFTP locally exactly as clients will against a Transfer Family server — same protocol and auth.
+
+**Deploy:** Provision an AWS Transfer Family SFTP server backed by an S3 bucket and migrate the users.

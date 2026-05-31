@@ -1,3 +1,19 @@
+export interface AwsCliProfile {
+  name: string;
+  source: 'config' | 'credentials';
+  type: 'static' | 'sso' | 'assume_role';
+  region?: string;
+  roleArn?: string;
+  ssoStartUrl?: string;
+}
+
+export interface AssumeRoleResult {
+  accessKeyId: string;
+  secretAccessKey: string;
+  sessionToken: string;
+  expiration: string;
+}
+
 export type LambdaCodeInput =
   | { mode: 'template' }
   | { mode: 'inline'; fileName: string; source: string }
@@ -158,12 +174,36 @@ export interface CostForecastResult {
   forecasts: CostForecastItem[];
 }
 
+export interface ContainerPerformanceStat {
+  id: string;
+  name: string;
+  status: string;
+  cpu_percent: number;
+  memory_usage_bytes: number;
+  memory_limit_bytes: number;
+}
+
+export interface PerformanceStatsResult {
+  ok: boolean;
+  error?: string;
+  containers: ContainerPerformanceStat[];
+}
+
 export interface RecipeVariable {
   key: string;
   label: string;
   type: 'text' | 'number' | 'password';
   default: string | number;
   description: string;
+}
+
+export interface RecipeAwsTarget {
+  /** The managed AWS service this recipe maps to in production. */
+  service: string;
+  /** How local behavior mirrors the AWS service (parity note). */
+  parity: string;
+  /** The step to switch from local to the managed AWS service. */
+  deploy: string;
 }
 
 export interface Recipe {
@@ -173,6 +213,8 @@ export interface Recipe {
   version: string;
   variables: RecipeVariable[];
   accessUrl?: string;
+  /** Local-to-AWS parity metadata: which managed service this maps to. */
+  aws?: RecipeAwsTarget;
 }
 
 export interface Installation {
@@ -215,25 +257,25 @@ const requestDiagnostic = async <T>(path: string): Promise<T> => {
 export const sidecarApi = {
   health: () => requestSidecar<{ ok: boolean; endpointUrl: string; region: string }>('/health'),
   getLambdaCapabilities: () => requestSidecar<LambdaCapabilities>('/api/lambda/capabilities'),
-  listLambdaFunctions: () => requestSidecar<{ Functions?: any[] }>('/api/lambda/functions'),
-  createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<any>('/api/lambda/functions', {
+  listLambdaFunctions: () => requestSidecar<{ ok: boolean; Functions?: any[] }>('/api/lambda/functions'),
+  createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<{ ok: boolean; [key: string]: any }>('/api/lambda/functions', {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
-  updateLambdaCode: (functionName: string, payload: UpdateLambdaCodePayload) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/code`, {
+  updateLambdaCode: (functionName: string, payload: UpdateLambdaCodePayload) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/code`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   }),
-  updateLambdaConfiguration: (functionName: string, payload: UpdateLambdaConfigurationPayload) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/configuration`, {
+  updateLambdaConfiguration: (functionName: string, payload: UpdateLambdaConfigurationPayload) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/configuration`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   }),
-  invokeLambdaFunction: (functionName: string, payload: unknown) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/invoke`, {
+  invokeLambdaFunction: (functionName: string, payload: unknown) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/invoke`, {
     method: 'POST',
     body: JSON.stringify({ payload }),
   }),
-  getLambdaLogs: (functionName: string) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}/logs`),
-  deleteLambdaFunction: (functionName: string) => requestSidecar<any>(`/api/lambda/functions/${encodeURIComponent(functionName)}`, {
+  getLambdaLogs: (functionName: string) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/logs`),
+  deleteLambdaFunction: (functionName: string) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}`, {
     method: 'DELETE',
   }),
   getEksOverview: () => requestSidecar<EksOverview>('/api/eks/overview'),
@@ -264,6 +306,7 @@ export const sidecarApi = {
   ),
   runKmsDiagnostic: () => requestDiagnostic<KmsRoundTripResult>('/api/diagnostics/kms'),
   runCostForecast: () => requestDiagnostic<CostForecastResult>('/api/diagnostics/cost-forecast'),
+  getPerformanceStats: () => requestDiagnostic<PerformanceStatsResult>('/api/diagnostics/performance'),
   listRecipes: () => requestSidecar<{ ok: boolean; recipes: Recipe[] }>('/api/marketplace/recipes'),
   getInstallations: () => requestSidecar<{ ok: boolean; installations: Record<string, Installation> }>('/api/marketplace/installations'),
   getRecipeLogs: (recipeId: string) => requestSidecar<{ ok: boolean; logs: string[] }>(`/api/marketplace/recipes/${recipeId}/logs`),
@@ -288,6 +331,13 @@ export const sidecarApi = {
   getAthenaQueryResults: (id: string) => requestSidecar<{ ok: boolean; results: any }>(`/api/athena/query/${id}/results`),
   getAthenaHistory: () => requestSidecar<{ ok: boolean; history: any[] }>('/api/athena/history'),
   clearAthenaHistory: () => requestSidecar<{ ok: boolean }>('/api/athena/history', { method: 'DELETE' }),
+  // Auth / profile helpers
+  listAwsProfiles: () => requestSidecar<{ profiles: AwsCliProfile[] }>('/api/auth/aws-profiles'),
+  assumeRole: (roleArn: string, sessionName?: string, durationSeconds?: number, externalId?: string) =>
+    requestSidecar<AssumeRoleResult>('/api/auth/assume-role', {
+      method: 'POST',
+      body: JSON.stringify({ roleArn, sessionName, durationSeconds, externalId }),
+    }),
 };
 
 export const fileToBase64 = (file: File) => {

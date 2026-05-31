@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { useAws } from '../contexts/AwsContext';
 import { GetCallerIdentityCommand } from '@aws-sdk/client-sts';
+import type { GetCallerIdentityCommandOutput } from '@aws-sdk/client-sts';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { sidecarApi, type AwsServiceSummary } from '../lib/sidecarApi';
 import CapabilityMatrix from '../components/CapabilityMatrix';
@@ -24,7 +25,7 @@ import { Card, Skeleton } from '../components/ui-elements';
 
 const IdentityCard = () => {
   const { clients, isHealthy, logActivity } = useAws();
-  const [identity, setIdentity] = useState<any>(null);
+  const [identity, setIdentity] = useState<GetCallerIdentityCommandOutput | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,9 +38,8 @@ const IdentityCard = () => {
         const response = await clients.sts.send(new GetCallerIdentityCommand({}));
         setIdentity(response);
         logActivity('STS', 'GetCallerIdentity', 'success', `AccountID: ${response.Account}`);
-      } catch (err: any) {
-        logActivity('STS', 'GetCallerIdentity failed', 'error', err.message);
-        console.error(err);
+      } catch (err) {
+        logActivity('STS', 'GetCallerIdentity failed', 'error', err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
@@ -108,7 +108,7 @@ const Dashboard = () => {
     { label: 'STS Connectivity', status: isHealthy ? 'pass' : 'fail' },
     { label: 'Lambda Runtime', status: isHealthy ? 'pass' : 'fail' },
     { label: 'S3 API Engine', status: isHealthy ? 'pass' : 'fail' },
-    { label: 'DynamoBD Storage', status: isHealthy ? 'pass' : 'fail' },
+    { label: 'DynamoDB Storage', status: isHealthy ? 'pass' : 'fail' },
     { label: 'IAM Policy Engine', status: isHealthy ? 'pass' : 'fail' },
   ];
 

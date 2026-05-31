@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { DescribeRepositoriesCommand, CreateRepositoryCommand, DeleteRepositoryCommand } from '@aws-sdk/client-ecr';
+import type { Repository } from '@aws-sdk/client-ecr';
 import { useAws } from '../contexts/AwsContext';
 import { CirclePlus, Trash2, Package, HardDrive, Shield } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
 const ECRView = () => {
   const { clients, logActivity } = useAws();
-  const [repos, setRepos] = useState<any[]>([]);
+  const [repos, setRepos] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -18,8 +19,8 @@ const ECRView = () => {
       const response = await clients.ecr.send(new DescribeRepositoriesCommand({}));
       setRepos(response.repositories || []);
       logActivity('ECR', 'DescribeRepositories', 'success');
-    } catch (err: any) {
-      logActivity('ECR', 'DescribeRepositories failed', 'error', err.message);
+    } catch (err) {
+      logActivity('ECR', 'DescribeRepositories failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -34,9 +35,10 @@ const ECRView = () => {
       setNewName('');
       setIsCreationModalOpen(false);
       fetchData();
-    } catch (err: any) {
-      logActivity('ECR', `CreateRepository failed: ${newName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('ECR', `CreateRepository failed: ${newName}`, 'error', message);
+      alert(message);
     } finally {
       setIsCreating(false);
     }
@@ -48,9 +50,10 @@ const ECRView = () => {
       await clients.ecr.send(new DeleteRepositoryCommand({ repositoryName: name, force: true }));
       logActivity('ECR', `DeleteRepository: ${name}`, 'success');
       fetchData();
-    } catch (err: any) {
-      logActivity('ECR', `DeleteRepository failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logActivity('ECR', `DeleteRepository failed: ${name}`, 'error', message);
+      alert(message);
     }
   };
 
@@ -106,7 +109,7 @@ const ECRView = () => {
             </div>
           ) : (
             repos.map(repo => (
-              <Card key={repo.repositoryId} className="hover:border-brand-text transition-all bg-white group">
+              <Card key={repo.repositoryName} className="hover:border-brand-text transition-all bg-white group">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-2 bg-brand-muted border border-brand-text shrink-0">
                     <Package size={20} />

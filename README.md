@@ -28,7 +28,7 @@ graph TD
 
 * **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of ~30 AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
 * **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
-* **Native MCP Server (Python + `uv`):** Model Context Protocol server (v1.27.1+) that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state and provision local architectures via natural language.
+* **Native MCP Server (Python + `uv`):** Model Context Protocol server with 89 tools that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state, provision local architectures, manage resource tags across all services, and deploy Marketplace recipes — all via natural language.
 * **Engine (AWS Localstack / Floci Studio):** Local AWS emulator exposed on port `4566`.
 
 ---
@@ -43,7 +43,13 @@ Floci Studio includes a catalog of parameterized local recipes in the `/recipes`
 
 ### Available Recipes
 
+The catalog ships **25 recipes** out of the box — including a fully local AI stack (Ollama + Qdrant) and two AWS-SDK tools wired straight to the Floci emulator (DynamoDB Admin + S3 Admin):
+
 - **AWS IoT Core (MQTT)**
+- **AWS Transfer Family (SFTP)**
+- **ClickHouse (Analytics OLAP DB)** — column-oriented database for real-time analytics 🆕
+- **DynamoDB Admin** — web GUI for browsing and editing DynamoDB tables, pre-wired to Floci
+- **HashiCorp Vault (Dev Mode)** — local secrets management, à la AWS Secrets Manager 🆕
 - **Jaeger (Distributed Tracing)**
 - **Keycloak + PostgreSQL**
 - **Mailpit (SMTP)**
@@ -54,13 +60,50 @@ Floci Studio includes a catalog of parameterized local recipes in the `/recipes`
 - **NATS JetStream**
 - **Nginx Proxy Manager**
 - **Observability (Grafana & Prometheus)**
+- **Ollama (Local LLM Runtime)** — run Llama 3, Mistral & friends locally with an OpenAI-compatible API 🆕
 - **PocketBase**
+- **Portainer (Docker Cockpit)** — manage every container, image and volume from the browser 🆕
 - **PostgreSQL Database**
+- **Qdrant (Vector Database)** — embeddings & semantic search for local RAG pipelines 🆕
 - **RabbitMQ Broker**
 - **Redis Cache & Broker**
 - **Redpanda (Kafka Compatible)**
+- **S3 Admin** — web GUI to browse S3 buckets, pre-wired to Floci S3 on `4566` 🆕
 - **Temporal Workflow Engine**
-- **AWS Transfer Family (SFTP)**
+
+### 🔁 Local ↔ AWS Parity
+
+Every recipe maps to a **managed AWS service**, so what you test locally behaves the same in production — the emulator's whole promise. Each recipe carries this mapping in its `recipe.json` (`aws` block), shows it as a **"Deploys to …"** badge on its Marketplace card, and documents it under **Path to AWS** in its README. The MCP server exposes the `aws` block too, so your AI agent can drive the migration.
+
+| Recipe | Managed AWS service | Switch to production |
+|---|---|---|
+| PostgreSQL | Amazon RDS for PostgreSQL / Aurora | Repoint the connection string |
+| Redis | Amazon ElastiCache for Redis | Point `REDIS_URL` at the cluster endpoint |
+| MongoDB | Amazon DocumentDB | Repoint the connection string (+ RDS CA) |
+| RabbitMQ | Amazon MQ for RabbitMQ | Swap the AMQP connection URI |
+| NATS JetStream | Amazon SNS + SQS (or Amazon MQ) | Map subjects→SNS, consumers→SQS |
+| Redpanda | Amazon MSK (Kafka) | Point bootstrap servers at MSK |
+| MinIO | Amazon S3 | Drop the custom endpoint from the SDK |
+| Meilisearch | Amazon OpenSearch Service | Migrate the index / self-host on ECS |
+| Qdrant | OpenSearch Serverless (vector) / pgvector | Recreate the collection, repoint client |
+| Keycloak | Amazon Cognito | Swap the OIDC issuer/JWKS URL |
+| Vault | AWS Secrets Manager + KMS | Migrate secrets, swap the SDK |
+| Mailpit | Amazon SES | Point SMTP at the SES relay |
+| Ollama | Amazon Bedrock | Swap the base URL/SDK to Bedrock Runtime |
+| ClickHouse | Self-host on ECS/EKS (alt: Redshift) | Run the image on ECS, attach a volume |
+| Temporal | Self-host on EKS (alt: Step Functions) | Run on EKS with RDS persistence |
+| n8n | Self-host on Amazon ECS/EKS | Run on ECS with EFS + RDS |
+| Jaeger | AWS X-Ray (via ADOT) | Export OTLP to the ADOT collector |
+| Observability | Managed Grafana + AMP | Remote-write to AMP, import dashboards |
+| Nginx Proxy Manager | AWS ALB + ACM | Recreate hosts as ALB rules |
+| PocketBase | Self-host on ECS/Fargate | Run on Fargate with an EFS volume |
+| Portainer | Amazon ECS / EKS console | Push to ECR, define ECS/EKS workloads |
+| IoT Core (MQTT) | AWS IoT Core | Repoint MQTT clients at the ATS endpoint |
+| Transfer Family | AWS Transfer Family | Provision a Transfer Family SFTP server |
+| DynamoDB Admin | Amazon DynamoDB | Repoint `DYNAMO_ENDPOINT` at the region |
+| S3 Admin | Amazon S3 | Repoint `S3_ENDPOINT` at the region |
+
+> **DynamoDB Admin** and **S3 Admin** go a step further — they're AWS-SDK clients wired straight to the Floci endpoint on `4566`, so you inspect the emulator's state locally exactly as you would the real AWS console.
 
 ---
 

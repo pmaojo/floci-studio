@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, type ReactNode } from 'react';
 import { S3Client } from '@aws-sdk/client-s3';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { SNSClient } from '@aws-sdk/client-sns';
@@ -26,7 +26,14 @@ import { SFNClient } from '@aws-sdk/client-sfn';
 import { SSMClient } from '@aws-sdk/client-ssm';
 import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
 import { SESClient } from '@aws-sdk/client-ses';
-import { DEFAULT_CONFIG, LEGACY_DEFAULT_ENDPOINT, type AwsConfig } from '../types';
+import {
+  DEFAULT_CONFIG,
+  LEGACY_DEFAULT_ENDPOINT,
+  PROFILES_STORAGE_KEY,
+  type AwsConfig,
+  type SavedProfile,
+} from '../types';
+import { useRealtimeSocket } from '../hooks/useRealtimeSocket';
 
 export interface ActivityLog {
   id: string;
@@ -35,6 +42,17 @@ export interface ActivityLog {
   timestamp: Date;
   status: 'success' | 'error';
   details?: string;
+}
+
+export interface ResourceCounts {
+  s3: number;
+  dynamodb: number;
+  lambda: number;
+  sqs: number;
+  sns: number;
+  secrets: number;
+  kms: number;
+  eventbridge: number;
 }
 
 interface AwsContextType {
@@ -70,9 +88,16 @@ interface AwsContextType {
     ses: SESClient;
   };
   isHealthy: boolean | null;
+  wsConnected: boolean;
+  resourceCounts: ResourceCounts | null;
   checkHealth: () => Promise<void>;
   activity: ActivityLog[];
   logActivity: (service: string, action: string, status: 'success' | 'error', details?: string) => void;
+  // Profile management
+  savedProfiles: SavedProfile[];
+  saveProfile: (name: string) => void;
+  deleteProfile: (name: string) => void;
+  applyProfile: (profile: SavedProfile) => void;
 }
 
 const AwsContext = createContext<AwsContextType | undefined>(undefined);
@@ -80,13 +105,11 @@ const AwsContext = createContext<AwsContextType | undefined>(undefined);
 const getInitialConfig = (): AwsConfig => {
   const saved = localStorage.getItem('floci-aws-config');
   if (!saved) return DEFAULT_CONFIG;
-
   try {
     const parsed = JSON.parse(saved) as AwsConfig;
     const shouldUpgradeEndpoint =
       DEFAULT_CONFIG.endpoint !== LEGACY_DEFAULT_ENDPOINT &&
       parsed.endpoint === LEGACY_DEFAULT_ENDPOINT;
-
     return {
       ...DEFAULT_CONFIG,
       ...parsed,
@@ -98,31 +121,38 @@ const getInitialConfig = (): AwsConfig => {
   }
 };
 
-const buildEndpointUrl = (endpoint: string, path: string) => {
-  return `${endpoint.replace(/\/+$/, '')}${path}`;
+const getInitialProfiles = (): SavedProfile[] => {
+  try {
+    const raw = localStorage.getItem(PROFILES_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as SavedProfile[]) : [];
+  } catch {
+    return [];
+  }
 };
+
+const buildEndpointUrl = (endpoint: string, path: string) =>
+  `${endpoint.replace(/\/+$/, '')}${path}`;
 
 export const AwsProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<AwsConfig>(getInitialConfig);
-
   const [isHealthy, setIsHealthy] = useState<boolean | null>(null);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [resourceCounts, setResourceCounts] = useState<ResourceCounts | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>(getInitialProfiles);
 
   const clients = useMemo(() => {
     const credentials = {
       accessKeyId: config.accessKeyId,
       secretAccessKey: config.secretAccessKey,
+      ...(config.sessionToken ? { sessionToken: config.sessionToken } : {}),
     };
-    const region = config.region;
-    const endpoint = config.endpoint;
-
     const commonParams = {
-      region,
-      endpoint,
+      region: config.region,
+      endpoint: config.endpoint,
       credentials,
-      forcePathStyle: true, // Required for S3 against LocalStack/Floci.
+      forcePathStyle: true,
     };
-
     return {
       s3: new S3Client(commonParams),
       sqs: new SQSClient(commonParams),
@@ -154,7 +184,12 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [config]);
 
-  const logActivity = (service: string, action: string, status: 'success' | 'error', details?: string) => {
+  const logActivity = useCallback((
+    service: string,
+    action: string,
+    status: 'success' | 'error',
+    details?: string,
+  ) => {
     const newLog: ActivityLog = {
       id: Math.random().toString(36).substring(7),
       service,
@@ -164,31 +199,42 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
       details,
     };
     setActivity(prev => [newLog, ...prev].slice(0, 500));
-  };
+  }, []);
 
-  // Background heartbeat — confirms STS stays reachable without blocking the UI.
+  // WebSocket — real-time resource snapshots from the backend
+  const { subscribe } = useRealtimeSocket(setWsConnected);
+
+  useEffect(() => {
+    const unsub = subscribe('resource_snapshot', (payload) => {
+      setResourceCounts(payload as ResourceCounts);
+    });
+    return () => { unsub(); };
+  }, [subscribe]);
+
+  // Background heartbeat — confirms STS stays reachable without blocking the UI
   useEffect(() => {
     if (!isHealthy) return;
-
     const interval = setInterval(async () => {
       try {
         await clients.sts.send(new GetCallerIdentityCommand({}));
         logActivity('STS', 'HealthCheck', 'success', 'identity/floci-daemon-bg');
       } catch {
-        // The heartbeat must never interrupt the experience if the emulator restarts.
+        // never interrupt the experience if the emulator restarts
       }
     }, 30000);
-
     return () => clearInterval(interval);
-  }, [isHealthy, clients.sts]);
+  }, [isHealthy, clients.sts, logActivity]);
 
   useEffect(() => {
     localStorage.setItem('floci-aws-config', JSON.stringify(config));
   }, [config]);
 
+  useEffect(() => {
+    localStorage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(savedProfiles));
+  }, [savedProfiles]);
+
   const checkHealth = async () => {
     try {
-      // Floci keeps the LocalStack-compatible health endpoint.
       const response = await fetch(buildEndpointUrl(config.endpoint, '/_localstack/health'));
       setIsHealthy(response.ok);
     } catch {
@@ -205,8 +251,37 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
     setConfig(prev => ({ ...prev, ...newConfig }));
   };
 
+  const saveProfile = useCallback((name: string) => {
+    setSavedProfiles(prev => {
+      const filtered = prev.filter(p => p.name !== name);
+      return [...filtered, { name, config }];
+    });
+  }, [config]);
+
+  const deleteProfile = useCallback((name: string) => {
+    setSavedProfiles(prev => prev.filter(p => p.name !== name));
+  }, []);
+
+  const applyProfile = useCallback((profile: SavedProfile) => {
+    setConfig(profile.config);
+  }, []);
+
   return (
-    <AwsContext.Provider value={{ config, updateConfig, clients, isHealthy, checkHealth, activity, logActivity }}>
+    <AwsContext.Provider value={{
+      config,
+      updateConfig,
+      clients,
+      isHealthy,
+      wsConnected,
+      resourceCounts,
+      checkHealth,
+      activity,
+      logActivity,
+      savedProfiles,
+      saveProfile,
+      deleteProfile,
+      applyProfile,
+    }}>
       {children}
     </AwsContext.Provider>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { 
-  ListProjectsCommand, 
+import {
+  ListProjectsCommand,
   BatchGetProjectsCommand,
   ListBuildsForProjectCommand,
   BatchGetBuildsCommand,
@@ -24,8 +24,54 @@ import {
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
 
+// Local view models — CodeBuild responses are flattened/augmented for display
+// (ISO-string timestamps, per-build duration), so these don't map 1:1 to the SDK types.
+interface CbEnvVar {
+  name: string;
+  value: string;
+  type: 'PLAINTEXT' | 'PARAMETER_STORE' | 'SECRETS_MANAGER';
+}
+
+interface CbEnvironment {
+  type: string;
+  image: string;
+  computeType: string;
+  environmentVariables?: CbEnvVar[];
+}
+
+interface CbSource {
+  type: string;
+  location: string;
+}
+
+interface CbProject {
+  name: string;
+  description?: string;
+  environment?: CbEnvironment;
+  source?: CbSource;
+  serviceRole?: string;
+  created?: string;
+}
+
+interface CbBuildPhase {
+  phaseType: string;
+  phaseStatus?: string;
+  durationInSeconds?: number;
+}
+
+interface CbBuild {
+  id: string;
+  projectName?: string;
+  buildStatus: string;
+  startTime: string;
+  endTime?: string;
+  durationInSeconds?: number;
+  sourceVersion?: string;
+  phases?: CbBuildPhase[];
+}
+
 // Preloaded mock projects in case local emulator contains none
-const PRELOADED_PROJECTS = [
+const PRELOADED_PROJECTS: CbProject[] = [
   {
     name: 'floci-auth-service-builder',
     description: 'Auto-bundling task for Floci Gateway Authorization services',
@@ -66,7 +112,7 @@ const PRELOADED_PROJECTS = [
 ];
 
 // Preloaded mock builds for dashboard visual representation
-const PRELOADED_BUILDS: Record<string, any[]> = {
+const PRELOADED_BUILDS: Record<string, CbBuild[]> = {
   'floci-auth-service-builder': [
     {
       id: 'floci-auth-service-builder:e51f0b09',
@@ -135,19 +181,19 @@ const CodeBuildView = () => {
   const { clients, logActivity } = useAws();
   
   // Projects State
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<CbProject[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [projectSearch, setProjectSearch] = useState('');
-  
+
   // Selected Project State
   const [selectedProjectName, setSelectedProjectName] = useState<string | null>(null);
-  const [projectDetails, setProjectDetails] = useState<any | null>(null);
+  const [projectDetails, setProjectDetails] = useState<CbProject | null>(null);
   const [activeTab, setActiveTab] = useState<'builds' | 'config'>('builds');
-  
+
   // Build Lists
-  const [builds, setBuilds] = useState<any[]>([]);
+  const [builds, setBuilds] = useState<CbBuild[]>([]);
   const [loadingBuilds, setLoadingBuilds] = useState(false);
-  const [selectedBuild, setSelectedBuild] = useState<any | null>(null);
+  const [selectedBuild, setSelectedBuild] = useState<CbBuild | null>(null);
 
   // Manual Trigger Modal
   const [isTriggerOpen, setIsTriggerOpen] = useState(false);
@@ -173,13 +219,14 @@ const CodeBuildView = () => {
         const detailsRes = await clients.codebuild.send(new BatchGetProjectsCommand({
           names: projectNames
         }));
-        setProjects(detailsRes.projects || []);
-        if (!selectedProjectName && detailsRes.projects?.[0]) {
-          handleProjectSelect(detailsRes.projects[0]);
+        const fetchedProjects = (detailsRes.projects || []) as unknown as CbProject[];
+        setProjects(fetchedProjects);
+        if (!selectedProjectName && fetchedProjects[0]) {
+          handleProjectSelect(fetchedProjects[0]);
         }
       }
-    } catch (err: any) {
-      logActivity('CodeBuild', 'ListProjects failed, using preloaded catalog', 'success', err.message);
+    } catch (err) {
+      logActivity('CodeBuild', 'ListProjects failed, using preloaded catalog', 'success', err instanceof Error ? err.message : String(err));
       setProjects(PRELOADED_PROJECTS);
       if (!selectedProjectName) {
         handleProjectSelect(PRELOADED_PROJECTS[0]);
@@ -193,7 +240,7 @@ const CodeBuildView = () => {
     fetchProjects();
   }, []);
 
-  const handleProjectSelect = (project: any) => {
+  const handleProjectSelect = (project: CbProject) => {
     setSelectedProjectName(project.name);
     setProjectDetails(project);
     fetchBuilds(project.name);
@@ -217,9 +264,9 @@ const CodeBuildView = () => {
         const batchRes = await clients.codebuild.send(new BatchGetBuildsCommand({
           ids: buildIds.slice(0, 10)
         }));
-        setBuilds(batchRes.builds || []);
+        setBuilds((batchRes.builds || []) as unknown as CbBuild[]);
       }
-    } catch (err: any) {
+    } catch {
       setBuilds(PRELOADED_BUILDS[projectName] || []);
     } finally {
       setLoadingBuilds(false);
@@ -237,7 +284,7 @@ const CodeBuildView = () => {
   const handleEnvVarChange = (index: number, field: keyof EnvVarRow, val: string) => {
     setEnvVars(prev => {
       const next = [...prev];
-      next[index] = { ...next[index], [field]: val } as any;
+      next[index] = { ...next[index], [field]: val } as EnvVarRow;
       return next;
     });
   };
@@ -246,7 +293,7 @@ const CodeBuildView = () => {
     setSourceVersion('main');
     setBuildspecOverride('');
     // Copy variables from project configuration
-    const defaults = projectDetails?.environment?.environmentVariables?.map((v: any) => ({
+    const defaults = projectDetails?.environment?.environmentVariables?.map((v) => ({
       name: v.name,
       value: v.value,
       type: v.type || 'PLAINTEXT'
@@ -259,7 +306,11 @@ const CodeBuildView = () => {
     if (!selectedProjectName) return;
     setIsLaunching(true);
     try {
-      const overrides: any = {};
+      const overrides: {
+        sourceVersion?: string;
+        buildspecOverride?: string;
+        environmentVariablesOverride?: { name: string; value: string; type: 'PLAINTEXT' | 'PARAMETER_STORE' | 'SECRETS_MANAGER' }[];
+      } = {};
       if (sourceVersion) overrides.sourceVersion = sourceVersion;
       if (buildspecOverride) overrides.buildspecOverride = buildspecOverride;
       
@@ -300,9 +351,9 @@ const CodeBuildView = () => {
         fetchBuilds(selectedProjectName);
       }, 5000);
       
-    } catch (err: any) {
-      logActivity('CodeBuild', `StartBuild failed: ${selectedProjectName}`, 'error', err.message);
-      alert(`Launch build failed: ${err.message}`);
+    } catch (err) {
+      logActivity('CodeBuild', `StartBuild failed: ${selectedProjectName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Launch build failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsLaunching(false);
     }
@@ -499,7 +550,7 @@ const CodeBuildView = () => {
                           <div className="space-y-2">
                             <h5 className="font-bold text-[9px] tracking-widest text-brand-text/80 uppercase">Execution Phases</h5>
                             <div className="space-y-1.5 font-mono text-[10px]">
-                              {selectedBuild.phases?.map((p: any, idx: number) => (
+                              {selectedBuild.phases?.map((p, idx: number) => (
                                 <div key={idx} className="flex justify-between items-center border border-brand-text/10 p-2 bg-white/60">
                                   <div className="flex items-center gap-2">
                                     <Activity size={10} className="text-brand-text/40" />
@@ -587,14 +638,14 @@ const CodeBuildView = () => {
                         <Settings size={14} />
                         Environment Variables ({projectDetails?.environment?.environmentVariables?.length || 0})
                       </h4>
-                      {projectDetails?.environment?.environmentVariables?.length > 0 ? (
+                      {(projectDetails?.environment?.environmentVariables?.length || 0) > 0 ? (
                         <div className="space-y-1.5 font-mono text-[10px]">
                           <div className="flex text-neutral-400 font-bold border-b border-brand-text/10 pb-1.5 uppercase text-[9px]">
                             <div className="w-1/3">Var Name</div>
                             <div className="w-1/4">Type</div>
                             <div className="flex-1">Default Value</div>
                           </div>
-                          {projectDetails.environment.environmentVariables.map((v: any, idx: number) => (
+                          {projectDetails?.environment?.environmentVariables?.map((v, idx: number) => (
                             <div key={idx} className="flex border border-brand-text/5 p-2 bg-brand-muted/15 items-center">
                               <div className="w-1/3 font-bold">{v.name}</div>
                               <div className="w-1/4"><span className="px-1 border text-[8px] bg-white text-neutral-500 font-bold">{v.type || 'PLAINTEXT'}</span></div>
@@ -660,7 +711,7 @@ const CodeBuildView = () => {
                       <div className="w-1/4">
                         <select
                           value={v.type}
-                          onChange={e => handleEnvVarChange(index, 'type', e.target.value as any)}
+                          onChange={e => handleEnvVarChange(index, 'type', e.target.value)}
                           className="w-full bg-white border border-brand-text px-2 py-1 text-[10px] focus:outline-none"
                         >
                           <option value="PLAINTEXT">Plaintext</option>

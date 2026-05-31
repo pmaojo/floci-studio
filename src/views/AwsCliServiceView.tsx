@@ -45,8 +45,8 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     try {
       const response = await sidecarApi.getAwsServiceOverview(serviceKey);
       applyOverview(response);
-    } catch (err: any) {
-      const message = err.message || `Failed to read ${serviceName}`;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : `Failed to read ${serviceName}`;
       setError(message);
       logActivity(serviceName, 'Read real AWS CLI overview failed', 'error', message);
     } finally {
@@ -64,8 +64,8 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     if (!name) return;
     try {
       applyOverview(await sidecarApi.createCodeArtifactDomain(name));
-    } catch (err: any) {
-      alert(err.message || 'Failed to create CodeArtifact domain');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to create CodeArtifact domain');
     }
   };
 
@@ -76,8 +76,8 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     if (!repositoryName) return;
     try {
       applyOverview(await sidecarApi.createCodeArtifactRepository(domainName, repositoryName));
-    } catch (err: any) {
-      alert(err.message || 'Failed to create CodeArtifact repository');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to create CodeArtifact repository');
     }
   };
 
@@ -85,8 +85,8 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     if (!confirm(`Delete repository ${repositoryName} in domain ${domainName}?`)) return;
     try {
       applyOverview(await sidecarApi.deleteCodeArtifactRepository(domainName, repositoryName));
-    } catch (err: any) {
-      alert(err.message || 'Failed to delete CodeArtifact repository');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete CodeArtifact repository');
     }
   };
 
@@ -102,8 +102,8 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
 
     try {
       applyOverview(await sidecarApi.createCompatibilityResource(serviceKey, resourceId, name));
-    } catch (err: any) {
-      alert(err.message || 'Failed to create compatibility resource');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to create compatibility resource');
     }
   };
 
@@ -111,8 +111,8 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     if (!confirm(`Delete ${resourceId} resource ${name}?`)) return;
     try {
       applyOverview(await sidecarApi.deleteCompatibilityResource(serviceKey, resourceId, name));
-    } catch (err: any) {
-      alert(err.message || 'Failed to delete compatibility resource');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete compatibility resource');
     }
   };
 
@@ -174,7 +174,7 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
         ) : overview.resources.length === 0 ? (
           <EmptyState
             title="No real connector configured"
-            detail="Esta sección ya no usa datos simulados, pero todavía no existe un backend operativo para este servicio en el catálogo del sidecar."
+            detail="This section no longer uses simulated data, but there is no operational backend for this service in the sidecar catalog yet."
           />
         ) : (
           <div className="grid grid-cols-1 gap-4">

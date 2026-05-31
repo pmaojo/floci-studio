@@ -4,6 +4,11 @@
   "description": "A high-performance local SFTP server emulating AWS Transfer Family. Connect and transfer files using standard SFTP clients.",
   "version": "1.0.0",
   "accessUrl": "sftp://{{SFTP_USER}}@localhost:{{SFTP_PORT}}",
+  "aws": {
+    "service": "AWS Transfer Family (SFTP)",
+    "parity": "Move files over SFTP locally exactly as clients will against a Transfer Family server — same protocol and auth.",
+    "deploy": "Provision an AWS Transfer Family SFTP server backed by an S3 bucket and migrate the users."
+  },
   "variables": [
     {
       "key": "SFTP_PORT",

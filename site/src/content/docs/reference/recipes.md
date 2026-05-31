@@ -1,9 +1,9 @@
 ---
 title: Marketplace Recipes
-description: All 18 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
+description: All 25 Floci Studio marketplace recipes with configurable variables, ports, and access URLs.
 ---
 
-Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools.
+Each recipe is a parameterized Docker Compose template deployed via the floci Marketplace UI or MCP tools. Every recipe also maps to a managed AWS service for production — see [Local-to-AWS Parity](/guides/aws-parity/).
 
 ## Deploy from the UI
 
@@ -14,6 +14,44 @@ Go to **Marketplace** in the sidebar → select a recipe → configure variables
 ```
 You: Deploy the Postgres recipe with password "mysecret" on port 5433
 Claude: [calls deploy_marketplace_app(recipe_id="postgres", variables={"POSTGRES_PASSWORD": "mysecret", "POSTGRES_PORT": "5433"})]
+```
+
+---
+
+## DynamoDB Admin
+
+A web-based GUI for browsing, querying, and editing DynamoDB tables. Pre-wired to point at the Floci DynamoDB endpoint (port 4566) out of the box — what you browse locally is the same data you'll see in the **Amazon DynamoDB** console.
+
+| Variable | Default | Description |
+|---|---|---|
+| `DYNAMODB_ADMIN_PORT` | `8001` | Host port for the web UI |
+| `DYNAMO_ENDPOINT` | `http://host.docker.internal:4566` | DynamoDB endpoint to connect to |
+| `AWS_REGION` | `us-east-1` | AWS region |
+
+**Access:** `http://localhost:8001`
+
+```
+You: Deploy DynamoDB Admin
+Claude: [calls deploy_marketplace_app(recipe_id="dynamodb-admin")]
+```
+
+---
+
+## S3 Admin
+
+A web GUI to browse, upload and download S3 buckets and objects. Pre-wired to the Floci (LocalStack) S3 endpoint on port 4566 — test S3 workflows locally exactly as they'll run against **Amazon S3**.
+
+| Variable | Default | Description |
+|---|---|---|
+| `S3_ADMIN_PORT` | `8002` | Host port for the web UI |
+| `S3_ENDPOINT` | `host.docker.internal:4566` | S3 endpoint (host:port) to connect to |
+| `AWS_REGION` | `us-east-1` | AWS region |
+
+**Access:** `http://localhost:8002`
+
+```
+You: Deploy S3 Admin
+Claude: [calls deploy_marketplace_app(recipe_id="s3-admin")]
 ```
 
 ---
@@ -228,3 +266,78 @@ Prometheus at `http://localhost:9090`
 | `SFTP_PORT` | `2222` | SFTP port |
 
 **Access:** `sftp://user@localhost:2222`
+
+---
+
+## Ollama (Local LLM Runtime)
+
+Run open-source LLMs (Llama 3, Mistral, Phi, Gemma…) locally behind an OpenAI-compatible API. Pair it with Qdrant for a fully local RAG stack.
+
+| Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_PORT` | `11434` | HTTP API port |
+| `OLLAMA_KEEP_ALIVE` | `5m` | How long a model stays loaded in memory |
+
+**Access:** `http://localhost:11434` (OpenAI-compatible at `/v1`)
+
+```
+You: Deploy Ollama
+Claude: [calls deploy_marketplace_app(recipe_id="ollama")]
+```
+
+---
+
+## Qdrant (Vector Database)
+
+High-performance vector search for embeddings, semantic search and RAG. Ships with a web dashboard and REST + gRPC APIs.
+
+| Variable | Default | Description |
+|---|---|---|
+| `QDRANT_HTTP_PORT` | `6333` | REST API + dashboard port |
+| `QDRANT_GRPC_PORT` | `6334` | gRPC port |
+| `QDRANT_API_KEY` | `qdrant123` | API key (sent in the `api-key` header) |
+
+**Access:** Dashboard at `http://localhost:6333/dashboard`
+
+---
+
+## HashiCorp Vault (Dev Mode)
+
+Secrets management and encryption-as-a-service — a local stand-in for AWS Secrets Manager and SSM Parameter Store.
+
+| Variable | Default | Description |
+|---|---|---|
+| `VAULT_PORT` | `8200` | HTTP API + UI port |
+| `VAULT_DEV_ROOT_TOKEN` | `root` | Root token for the dev server |
+
+**Access:** UI at `http://localhost:8200` (sign in with the root token)
+
+> Dev mode keeps everything in memory — great for local dev, not for production.
+
+---
+
+## ClickHouse (Analytics OLAP DB)
+
+Column-oriented database for real-time analytics over billions of rows, with a built-in web Play console.
+
+| Variable | Default | Description |
+|---|---|---|
+| `CLICKHOUSE_HTTP_PORT` | `8123` | HTTP interface + Play console port |
+| `CLICKHOUSE_NATIVE_PORT` | `9000` | Native TCP protocol port |
+| `CLICKHOUSE_USER` | `default` | Database user |
+| `CLICKHOUSE_PASSWORD` | `clickhouse123` | Database password |
+| `CLICKHOUSE_DB` | `analytics` | Default database created on boot |
+
+**Access:** Play console at `http://localhost:8123/play`
+
+---
+
+## Portainer (Docker Cockpit)
+
+A web UI to manage Docker itself — containers, images, volumes, networks, logs and in-browser shells.
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORTAINER_PORT` | `9443` | HTTPS web UI port |
+
+**Access:** `https://localhost:9443` (accept the self-signed cert, then create an admin user on first boot)
