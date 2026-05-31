@@ -189,6 +189,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { to: '/studio/drift', icon: GitFork, label: 'IaC Drift' },
         { to: '/studio/hybrid', icon: Cloud, label: 'Hybrid Dev' },
         { to: '/studio/extensibility', icon: Layers, label: 'Extensibility' },
+        { to: '/studio/pipeline', icon: GitBranch, label: 'Deployment Pipeline' },
       ]
     },
     {
