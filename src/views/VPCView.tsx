@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DescribeVpcsCommand,
   CreateVpcCommand,
@@ -61,7 +61,7 @@ const VpcsPanel = ({
   const [cidr, setCidr]   = useState('10.0.0.0/16');
   const [creating, setCreating] = useState(false);
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     setLoading(true);
     try {
       const r = await clients.ec2.send(new DescribeVpcsCommand({}));
@@ -70,7 +70,7 @@ const VpcsPanel = ({
     } catch (e: unknown) {
       logActivity('EC2/VPC', 'DescribeVpcs failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
-  };
+  }, [clients.ec2, logActivity]);
 
   const create = async () => {
     if (!validateCidr(cidr)) { alert('Invalid CIDR block'); return; }
@@ -94,7 +94,7 @@ const VpcsPanel = ({
     }
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   return (
     <>
@@ -178,7 +178,7 @@ const SubnetsPanel = ({
   const [creating, setCreating] = useState(false);
   const [vpcs, setVpcs] = useState<any[]>([]);
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     setLoading(true);
     try {
       const [sRes, vRes] = await Promise.all([
@@ -191,7 +191,7 @@ const SubnetsPanel = ({
     } catch (e: unknown) {
       logActivity('EC2/VPC', 'DescribeSubnets failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
-  };
+  }, [clients.ec2, logActivity]);
 
   const create = async () => {
     if (!vpcId || !cidr) { alert('VpcId and CIDR required'); return; }
@@ -220,7 +220,7 @@ const SubnetsPanel = ({
     }
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   return (
     <>
@@ -304,7 +304,7 @@ const IGWPanel = ({
   const [attachVpcId, setAttachVpcId] = useState('');
   const [attaching, setAttaching] = useState(false);
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     setLoading(true);
     try {
       const [iRes, vRes] = await Promise.all([
@@ -317,7 +317,7 @@ const IGWPanel = ({
     } catch (e: unknown) {
       logActivity('EC2/VPC', 'DescribeInternetGateways failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
-  };
+  }, [clients.ec2, logActivity]);
 
   const createIgw = async () => {
     try {
@@ -360,7 +360,7 @@ const IGWPanel = ({
     }
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   return (
     <>
@@ -470,7 +470,7 @@ const RouteTablesPanel = ({
   const [assocSubnetId, setAssocSubnetId] = useState('');
   const [associating, setAssociating] = useState(false);
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     setLoading(true);
     try {
       const [rtRes, vRes, sRes, iRes] = await Promise.all([
@@ -487,7 +487,7 @@ const RouteTablesPanel = ({
     } catch (e: unknown) {
       logActivity('EC2/VPC', 'DescribeRouteTables failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
-  };
+  }, [clients.ec2, logActivity]);
 
   const createTable = async () => {
     if (!createVpcId) return;
@@ -547,7 +547,7 @@ const RouteTablesPanel = ({
     } finally { setAssociating(false); }
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   return (
     <>

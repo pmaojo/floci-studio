@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DescribeDBInstancesCommand, CreateDBInstanceCommand, DeleteDBInstanceCommand } from '@aws-sdk/client-rds';
 import type { DBInstance } from '@aws-sdk/client-rds';
 import { useAws } from '../contexts/AwsContext';
@@ -15,7 +15,7 @@ const RDSView = () => {
   const [dbClass, setDbClass] = useState('db.t3.micro');
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchInstances = async () => {
+  const fetchInstances = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.rds.send(new DescribeDBInstancesCommand({}));
@@ -26,7 +26,7 @@ const RDSView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.rds, logActivity]);
 
   const handleCreate = async () => {
     if (!newDbId) return;
@@ -69,7 +69,7 @@ const RDSView = () => {
 
   useEffect(() => {
     fetchInstances();
-  }, []);
+  }, [fetchInstances]);
 
   return (
     <div className="flex flex-col h-full uppercase">

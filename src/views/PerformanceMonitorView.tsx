@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { sidecarApi, type ContainerPerformanceStat } from '../lib/sidecarApi';
 import { PageHeader, Card, Skeleton } from '../components/ui-elements';
 import { Activity, Cpu, Server, Box } from 'lucide-react';
@@ -10,7 +10,7 @@ const PerformanceMonitorView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     setError(null);
     try {
       const response = await sidecarApi.getPerformanceStats();
@@ -27,13 +27,13 @@ const PerformanceMonitorView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logActivity]);
 
   useEffect(() => {
     fetchStats();
     const interval = setInterval(fetchStats, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchStats]);
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 B';

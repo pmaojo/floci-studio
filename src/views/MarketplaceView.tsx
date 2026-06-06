@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   sidecarApi, 
   type Recipe, 
@@ -41,7 +41,7 @@ const MarketplaceView = () => {
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch active recipes and installations
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [recipesRes, instRes] = await Promise.all([
         sidecarApi.listRecipes(),
@@ -56,7 +56,7 @@ const MarketplaceView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logActivity]);
 
   // Poll installations states and logs when running transitions
   useEffect(() => {
@@ -78,7 +78,7 @@ const MarketplaceView = () => {
       clearInterval(interval);
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
-  }, []);
+  }, [fetchData]);
 
   // Poll logs for active terminal
   const fetchLogs = async (recipeId: string) => {

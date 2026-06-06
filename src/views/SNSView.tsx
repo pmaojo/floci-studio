@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListTopicsCommand,
   CreateTopicCommand,
@@ -91,7 +91,7 @@ const SNSView = () => {
 
   // ─── Data fetching ─────────────────────────────────────────────────────────
 
-  const fetchTopics = async () => {
+  const fetchTopics = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -104,7 +104,7 @@ const SNSView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.sns, logActivity]);
 
   const fetchSubscriptions = async (topicArn: string) => {
     setLoadingSubs(true);
@@ -121,7 +121,7 @@ const SNSView = () => {
     }
   };
 
-  const fetchTopicAttributes = async (topicArn: string) => {
+  const fetchTopicAttributes = useCallback(async (topicArn: string) => {
     setLoadingAttrs(true);
     try {
       const res = await clients.sns.send(new GetTopicAttributesCommand({ TopicArn: topicArn }));
@@ -132,9 +132,9 @@ const SNSView = () => {
     } finally {
       setLoadingAttrs(false);
     }
-  };
+  }, [clients.sns, logActivity]);
 
-  useEffect(() => { fetchTopics(); }, []);
+  useEffect(() => { fetchTopics(); }, [fetchTopics]);
 
   // ─── Topic CRUD ────────────────────────────────────────────────────────────
 
@@ -243,7 +243,7 @@ const SNSView = () => {
     if (selectedTopicArn && activeTab === 'attributes') {
       fetchTopicAttributes(selectedTopicArn);
     }
-  }, [activeTab, selectedTopicArn]);
+  }, [activeTab, selectedTopicArn, fetchTopicAttributes]);
 
   const filteredTopics = topics.filter(t =>
     t.TopicArn?.toLowerCase().includes(search.toLowerCase())

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListStateMachinesCommand,
   DescribeStateMachineCommand,
@@ -218,7 +218,7 @@ const StepFunctionsView = () => {
   const [isLaunching, setIsLaunching] = useState(false);
 
   // Fetch state machines
-  const fetchStateMachines = async () => {
+  const fetchStateMachines = useCallback(async () => {
     setLoadingMachines(true);
     try {
       const res = await clients.sfn.send(new ListStateMachinesCommand({}));
@@ -269,11 +269,11 @@ const StepFunctionsView = () => {
     } finally {
       setLoadingMachines(false);
     }
-  };
+  }, [clients.sfn, logActivity, selectedMachineArn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchStateMachines();
-  }, []);
+  }, [fetchStateMachines]);
 
   const handleMachineSelect = (machine: StateMachineItem) => {
     setSelectedMachineArn(machine.stateMachineArn);

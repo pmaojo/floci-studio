@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListSchedulesCommand,
   DeleteScheduleCommand,
@@ -86,7 +86,7 @@ const SchedulerView = () => {
   const [isUpdatingState, setIsUpdatingState] = useState(false);
 
   // Fetch schedules
-  const fetchSchedules = async () => {
+  const fetchSchedules = useCallback(async () => {
     setLoadingSchedules(true);
     try {
       const res = await clients.scheduler.send(new ListSchedulesCommand({}));
@@ -145,11 +145,11 @@ const SchedulerView = () => {
     } finally {
       setLoadingSchedules(false);
     }
-  };
+  }, [clients.scheduler, logActivity, selectedScheduleName]);
 
   useEffect(() => {
     fetchSchedules();
-  }, []);
+  }, [fetchSchedules]);
 
   const handleScheduleSelect = (schedule: ScheduleItem) => {
     setSelectedScheduleName(schedule.Name);

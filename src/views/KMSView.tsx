@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import type { AliasListEntry } from '@aws-sdk/client-kms';
 import {
   CreateAliasCommand,
@@ -25,7 +25,7 @@ const KMSView = () => {
   const [diagnostic, setDiagnostic] = useState<KmsRoundTripResult | null>(null);
   const [diagnosticRunning, setDiagnosticRunning] = useState(false);
 
-  const fetchKeys = async () => {
+  const fetchKeys = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -40,11 +40,11 @@ const KMSView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.kms]);
 
   useEffect(() => {
     fetchKeys();
-  }, []);
+  }, [fetchKeys]);
 
   const handleCreateKey = async () => {
     try {

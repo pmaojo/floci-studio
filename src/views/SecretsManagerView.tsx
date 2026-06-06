@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ListSecretsCommand, CreateSecretCommand, DeleteSecretCommand } from '@aws-sdk/client-secrets-manager';
 import { useAws } from '../contexts/AwsContext';
 import { Shield, Search, CirclePlus, Key, Eye } from 'lucide-react';
@@ -16,7 +16,7 @@ const SecretsManagerView = () => {
   const [newSecretValue, setNewSecretValue] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchSecrets = async () => {
+  const fetchSecrets = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -27,11 +27,11 @@ const SecretsManagerView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.secrets]);
 
   useEffect(() => {
     fetchSecrets();
-  }, []);
+  }, [fetchSecrets]);
 
   const handleCreate = async () => {
     if (!newSecretName || !newSecretValue) return;

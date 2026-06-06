@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   ListStreamsCommand, 
   CreateStreamCommand, 
@@ -67,7 +67,7 @@ const KinesisView = () => {
   const terminalBottomRef = useRef<HTMLDivElement>(null);
   const isStreamingRef = useRef(false);
 
-  const fetchStreams = async () => {
+  const fetchStreams = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.kinesis.send(new ListStreamsCommand({}));
@@ -78,7 +78,7 @@ const KinesisView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.kinesis, logActivity]);
 
   const handleCreate = async () => {
     if (!newStreamName) return;
@@ -180,7 +180,7 @@ const KinesisView = () => {
     }
   };
 
-  const startStreaming = async () => {
+  const startStreaming = useCallback(async () => {
     if (!selectedStreamName || !selectedShardId) return;
     setIsStreaming(true);
     isStreamingRef.current = true;
@@ -255,7 +255,7 @@ const KinesisView = () => {
       setIsStreaming(false);
       alert(`Could not start stream: ${err instanceof Error ? err.message : String(err)}`);
     }
-  };
+  }, [selectedStreamName, selectedShardId, iteratorType, pollingInterval, clients.kinesis, logActivity]);
 
   const stopStreaming = () => {
     setIsStreaming(false);
@@ -280,15 +280,15 @@ const KinesisView = () => {
     return () => {
       stopStreaming();
     };
-  }, []);
+  }, [fetchStreams]);
 
-  // Update polling thread variables live
+  // Update polling thread variables live — use ref to avoid re-triggering on isStreaming state
   useEffect(() => {
-    if (isStreaming) {
+    if (isStreamingRef.current) {
       stopStreaming();
       startStreaming();
     }
-  }, [selectedShardId, iteratorType, pollingInterval]);
+  }, [selectedShardId, iteratorType, pollingInterval, startStreaming]);
 
   return (
     <div className="flex flex-col h-full uppercase font-sans">

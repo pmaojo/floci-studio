@@ -34,10 +34,10 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     [overview.resources],
   );
 
-  const applyOverview = (response: AwsServiceOverview) => {
+  const applyOverview = useCallback((response: AwsServiceOverview) => {
     setOverview(response);
     logActivity(response.serviceName, 'Read compatibility overview', 'success', `items=${response.resources.reduce((total, resource) => total + resource.count, 0)}`);
-  };
+  }, [logActivity]);
 
   const loadOverview = useCallback(async () => {
     setLoading(true);
@@ -52,7 +52,7 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     } finally {
       setLoading(false);
     }
-  }, [serviceKey, serviceName, logActivity]);
+  }, [serviceKey, serviceName, logActivity, applyOverview]);
 
   useEffect(() => {
     setOverview(emptyOverview(serviceKey, serviceName));

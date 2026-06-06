@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAws } from '../contexts/AwsContext';
 import { ListBucketsCommand } from '@aws-sdk/client-s3';
 import { ListTablesCommand } from '@aws-sdk/client-dynamodb';
@@ -28,14 +28,14 @@ export const useDashboardStats = () => {
     error: null,
   });
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!isHealthy) {
         setStats(prev => ({ ...prev, loading: false }));
         return;
     }
-    
+
     setStats(prev => ({ ...prev, loading: true, error: null }));
-    
+
     try {
       const [s3, dynamo, lambda, sqs, ca] = await Promise.allSettled([
         clients.s3.send(new ListBucketsCommand({})),
@@ -57,11 +57,11 @@ export const useDashboardStats = () => {
     } catch (err) {
       setStats(prev => ({ ...prev, loading: false, error: err instanceof Error ? err.message : String(err) }));
     }
-  };
+  }, [clients, isHealthy]);
 
   useEffect(() => {
     fetchStats();
-  }, [clients, isHealthy]);
+  }, [fetchStats]);
 
   return { ...stats, refresh: fetchStats };
 };
