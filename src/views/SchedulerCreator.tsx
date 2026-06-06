@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CreateScheduleCommand } from '@aws-sdk/client-scheduler';
 import { ListFunctionsCommand } from '@aws-sdk/client-lambda';
 import { ListQueuesCommand } from '@aws-sdk/client-sqs';
@@ -80,7 +80,7 @@ export function SchedulerCreator({
   const [isCreating, setIsCreating] = useState(false);
 
   // Fetch live targetable resources from local container
-  const fetchTargetResources = async () => {
+  const fetchTargetResources = useCallback(async () => {
     setLoadingResources(true);
     try {
       // 1. Fetch Lambdas
@@ -125,11 +125,11 @@ export function SchedulerCreator({
     } finally {
       setLoadingResources(false);
     }
-  };
+  }, [clients.lambda, clients.sqs, clients.sns]);
 
   useEffect(() => {
     fetchTargetResources();
-  }, []);
+  }, [fetchTargetResources]);
 
   // Pre-fill target ARN when target dropdown switches or resources load
   useEffect(() => {

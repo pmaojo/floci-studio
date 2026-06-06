@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListWebACLsCommand,
   CreateWebACLCommand,
@@ -172,7 +172,7 @@ const WAFView = () => {
 
   // ─── Data fetching ───────────────────────────────────────────────────────
 
-  const fetchWebACLs = async (s: 'REGIONAL' | 'CLOUDFRONT') => {
+  const fetchWebACLs = useCallback(async (s: 'REGIONAL' | 'CLOUDFRONT') => {
     setLoading(true);
     try {
       const response = await clients.waf.send(new ListWebACLsCommand({ Scope: s }));
@@ -183,7 +183,7 @@ const WAFView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.waf, logActivity]);
 
   const fetchAclDetail = async (acl: any) => {
     setLoadingDetail(true);
@@ -201,7 +201,7 @@ const WAFView = () => {
     }
   };
 
-  useEffect(() => { fetchWebACLs(scope); }, [scope]);
+  useEffect(() => { fetchWebACLs(scope); }, [scope, fetchWebACLs]);
 
   // ─── ACL CRUD ─────────────────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListQueuesCommand,
   CreateQueueCommand,
@@ -50,7 +50,7 @@ const SQSView = () => {
   const [attributes, setAttributes] = useState<Record<string, string>>({});
   const [loadingAttrs, setLoadingAttrs] = useState(false);
 
-  const fetchQueues = async () => {
+  const fetchQueues = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -61,9 +61,9 @@ const SQSView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.sqs]);
 
-  useEffect(() => { fetchQueues(); }, []);
+  useEffect(() => { fetchQueues(); }, [fetchQueues]);
 
   const handleCreateQueue = async () => {
     if (!newQueueName) return;
@@ -177,7 +177,7 @@ const SQSView = () => {
 
   // ── Attributes tab ──────────────────────────────────────────────────────────
 
-  const handleLoadAttributes = async () => {
+  const handleLoadAttributes = useCallback(async () => {
     if (!selectedQueue) return;
     setLoadingAttrs(true);
     try {
@@ -189,11 +189,11 @@ const SQSView = () => {
     } finally {
       setLoadingAttrs(false);
     }
-  };
+  }, [selectedQueue, clients.sqs, logActivity]);
 
   useEffect(() => {
     if (activeTab === 'attributes' && selectedQueue) handleLoadAttributes();
-  }, [activeTab, selectedQueue]);
+  }, [activeTab, selectedQueue, handleLoadAttributes]);
 
   const filteredQueues = queues.filter(q => q.toLowerCase().includes(search.toLowerCase()));
 

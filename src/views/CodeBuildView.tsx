@@ -234,7 +234,7 @@ const CodeBuildView = () => {
     } finally {
       setLoadingProjects(false);
     }
-  }, [clients.codebuild, logActivity]);
+  }, [clients.codebuild, logActivity]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchProjects();

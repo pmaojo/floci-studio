@@ -83,7 +83,7 @@ const CloudWatchMetricsView = () => {
     } finally {
       setLoadingCatalog(false);
     }
-  }, [clients.cloudwatchMetrics, logActivity]);
+  }, [clients.cloudwatchMetrics, logActivity]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const generateSimulatedChartData = (metricName: string) => {
     setIsSimulatedData(true);
@@ -109,7 +109,7 @@ const CloudWatchMetricsView = () => {
     setDatapoints(mockPoints);
   };
 
-  const fetchMetricStatistics = async (namespace: string, metricName: string) => {
+  const fetchMetricStatistics = useCallback(async (namespace: string, metricName: string) => {
     setLoadingChart(true);
     setIsSimulatedData(false);
     try {
@@ -143,7 +143,7 @@ const CloudWatchMetricsView = () => {
     } finally {
       setLoadingChart(false);
     }
-  };
+  }, [timeRange, selectedStatistic, clients.cloudwatchMetrics, logActivity]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAlarms = useCallback(async () => {
     setLoadingAlarms(true);
@@ -233,7 +233,7 @@ const CloudWatchMetricsView = () => {
     if (selectedNamespace && selectedMetricName && !loadingCatalog) {
       fetchMetricStatistics(selectedNamespace, selectedMetricName);
     }
-  }, [selectedNamespace, selectedMetricName, timeRange, selectedStatistic]);
+  }, [selectedNamespace, selectedMetricName, timeRange, selectedStatistic, loadingCatalog, fetchMetricStatistics]);
 
   // Compute SVG Plot Coordinates
   const svgCoordinates = useMemo(() => {

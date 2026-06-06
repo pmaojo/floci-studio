@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   ListBucketsCommand, 
   CreateBucketCommand, 
@@ -44,7 +44,7 @@ const S3View = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch all S3 Buckets
-  const fetchBuckets = async () => {
+  const fetchBuckets = useCallback(async () => {
     setLoadingBuckets(true);
     try {
       const response = await clients.s3.send(new ListBucketsCommand({}));
@@ -55,7 +55,7 @@ const S3View = () => {
     } finally {
       setLoadingBuckets(false);
     }
-  };
+  }, [clients.s3, logActivity]);
 
   // Create a new S3 Bucket
   const handleCreateBucket = async () => {
@@ -214,7 +214,7 @@ const S3View = () => {
   // Initial load
   useEffect(() => {
     fetchBuckets();
-  }, []);
+  }, [fetchBuckets]);
 
   return (
     <div className="flex flex-col h-full uppercase">
