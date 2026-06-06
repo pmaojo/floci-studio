@@ -21,6 +21,11 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
+# RecipeService resolves os.getcwd()/recipes; bake the catalog in so the
+# image works without the dev bind-mount (CI, production, Docker Desktop).
+# Local dev: the .:/app volume mount overlays this with the live directory.
+COPY recipes/ ./recipes/
+
 ENV PATH="/app/mcp/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     AWS_ENDPOINT_URL="http://floci:4566" \
