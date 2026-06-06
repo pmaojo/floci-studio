@@ -233,19 +233,18 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(savedProfiles));
   }, [savedProfiles]);
 
-  const checkHealth = async () => {
+  const checkHealth = useCallback(async () => {
     try {
       const response = await fetch(buildEndpointUrl(config.endpoint, '/_localstack/health'));
       setIsHealthy(response.ok);
     } catch {
       setIsHealthy(false);
     }
-  };
+  }, [config.endpoint]);
 
   useEffect(() => {
     checkHealth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.endpoint]);
+  }, [checkHealth]);
 
   const updateConfig = (newConfig: Partial<AwsConfig>) => {
     setConfig(prev => ({ ...prev, ...newConfig }));

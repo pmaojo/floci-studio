@@ -20,6 +20,11 @@ export function useRealtimeSocket(onConnectedChange?: (connected: boolean) => vo
   const handlers = useRef(new Map<string, Set<Handler>>());
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unmounted = useRef(false);
+  const onConnectedChangeRef = useRef(onConnectedChange);
+
+  useEffect(() => {
+    onConnectedChangeRef.current = onConnectedChange;
+  });
 
   const connect = useCallback(() => {
     if (unmounted.current) return;
@@ -30,7 +35,7 @@ export function useRealtimeSocket(onConnectedChange?: (connected: boolean) => vo
       ws.current = socket;
 
       socket.onopen = () => {
-        onConnectedChange?.(true);
+        onConnectedChangeRef.current?.(true);
       };
 
       socket.onmessage = (e: MessageEvent) => {
@@ -44,7 +49,7 @@ export function useRealtimeSocket(onConnectedChange?: (connected: boolean) => vo
       };
 
       socket.onclose = () => {
-        onConnectedChange?.(false);
+        onConnectedChangeRef.current?.(false);
         if (!unmounted.current) {
           reconnectTimer.current = setTimeout(connect, 4000);
         }
@@ -54,7 +59,7 @@ export function useRealtimeSocket(onConnectedChange?: (connected: boolean) => vo
     } catch {
       reconnectTimer.current = setTimeout(connect, 4000);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     unmounted.current = false;

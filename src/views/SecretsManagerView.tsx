@@ -22,8 +22,8 @@ const SecretsManagerView = () => {
     try {
       const response = await clients.secrets.send(new ListSecretsCommand({}));
       setSecrets(response.SecretList || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch secrets');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err) || 'Failed to fetch secrets');
     } finally {
       setLoading(false);
     }
@@ -47,9 +47,9 @@ const SecretsManagerView = () => {
       setNewSecretValue('');
       setIsCreationModalOpen(false);
       fetchSecrets();
-    } catch (err: any) {
-      logActivity('SecretsManager', `CreateSecret failed: ${newSecretName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SecretsManager', `CreateSecret failed: ${newSecretName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsCreating(false);
     }
@@ -62,9 +62,9 @@ const SecretsManagerView = () => {
       await clients.secrets.send(new DeleteSecretCommand({ SecretId: name, ForceDeleteWithoutRecovery: true }));
       logActivity('SecretsManager', `DeleteSecret: ${name}`, 'success');
       fetchSecrets();
-    } catch (err: any) {
-      logActivity('SecretsManager', `DeleteSecret failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SecretsManager', `DeleteSecret failed: ${name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 

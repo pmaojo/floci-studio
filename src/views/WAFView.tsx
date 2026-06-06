@@ -178,8 +178,8 @@ const WAFView = () => {
       const response = await clients.waf.send(new ListWebACLsCommand({ Scope: s }));
       setAcls(response.WebACLs || []);
       logActivity('WAFv2', `ListWebACLs (${s})`, 'success');
-    } catch (err: any) {
-      logActivity('WAFv2', `ListWebACLs failed`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('WAFv2', `ListWebACLs failed`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -194,8 +194,8 @@ const WAFView = () => {
       );
       setAclDetail(res.WebACL);
       logActivity('WAFv2', `GetWebACL: ${acl.Name}`, 'success');
-    } catch (err: any) {
-      logActivity('WAFv2', `GetWebACL failed: ${acl.Name}`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('WAFv2', `GetWebACL failed: ${acl.Name}`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingDetail(false);
     }
@@ -224,9 +224,9 @@ const WAFView = () => {
       setNewName('');
       setIsCreateModalOpen(false);
       fetchWebACLs(scope);
-    } catch (err: any) {
-      logActivity('WAFv2', `CreateWebACL failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('WAFv2', `CreateWebACL failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setSubmitting(false);
     }
@@ -247,9 +247,9 @@ const WAFView = () => {
       logActivity('WAFv2', `DeleteWebACL: ${aclName}`, 'success');
       if (selectedAcl?.Id === aclId) { setSelectedAcl(null); setAclDetail(null); }
       fetchWebACLs(scope);
-    } catch (err: any) {
-      logActivity('WAFv2', `DeleteWebACL failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('WAFv2', `DeleteWebACL failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -297,9 +297,9 @@ const WAFView = () => {
       setIsRuleModalOpen(false);
       setDraft(BLANK_DRAFT());
       fetchAclDetail(selectedAcl);
-    } catch (err: any) {
-      logActivity('WAFv2', `AddRule failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('WAFv2', `AddRule failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setSavingRule(false);
     }
@@ -335,9 +335,9 @@ const WAFView = () => {
 
       logActivity('WAFv2', `DeleteRule: ${ruleName}`, 'success');
       fetchAclDetail(selectedAcl);
-    } catch (err: any) {
-      logActivity('WAFv2', `DeleteRule failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('WAFv2', `DeleteRule failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -611,7 +611,7 @@ const WAFView = () => {
           <div className="flex items-center gap-4">
             <Select
               value={scope}
-              onChange={e => setScope(e.target.value as any)}
+              onChange={e => setScope(e.target.value as 'REGIONAL' | 'CLOUDFRONT')}
               className="w-32 py-1 h-8 text-[10px]"
             >
               <option value="REGIONAL">REGIONAL</option>
@@ -637,7 +637,7 @@ const WAFView = () => {
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase opacity-60">Default Action</label>
-            <Select value={defaultAction} onChange={e => setDefaultAction(e.target.value as any)}>
+            <Select value={defaultAction} onChange={e => setDefaultAction(e.target.value as 'ALLOW' | 'BLOCK')}>
               <option value="ALLOW">ALLOW all traffic</option>
               <option value="BLOCK">BLOCK all traffic</option>
             </Select>

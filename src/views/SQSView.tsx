@@ -56,8 +56,8 @@ const SQSView = () => {
     try {
       const r = await clients.sqs.send(new ListQueuesCommand({}));
       setQueues(r.QueueUrls || []);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -76,9 +76,9 @@ const SQSView = () => {
       logActivity('SQS', `CreateQueue: ${name}`, 'success');
       setNewQueueName(''); setIsFifo(false); setIsCreationModalOpen(false);
       fetchQueues();
-    } catch (err: any) {
-      logActivity('SQS', `CreateQueue failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `CreateQueue failed: ${name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsCreating(false);
     }
@@ -91,9 +91,9 @@ const SQSView = () => {
       logActivity('SQS', `DeleteQueue: ${getQueueName(url)}`, 'success');
       if (selectedQueue === url) setSelectedQueue(null);
       fetchQueues();
-    } catch (err: any) {
-      logActivity('SQS', `DeleteQueue failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `DeleteQueue failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -120,9 +120,9 @@ const SQSView = () => {
       const received = r.Messages || [];
       setMessages(received);
       logActivity('SQS', `ReceiveMessage from: ${getQueueName(selectedQueue)} (${received.length} msgs)`, 'success');
-    } catch (err: any) {
-      logActivity('SQS', `ReceiveMessage failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `ReceiveMessage failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingMessages(false);
     }
@@ -134,9 +134,9 @@ const SQSView = () => {
       await clients.sqs.send(new DeleteMessageCommand({ QueueUrl: selectedQueue, ReceiptHandle: msg.ReceiptHandle }));
       logActivity('SQS', `DeleteMessage: ${msg.MessageId?.slice(0, 8)}...`, 'success');
       setMessages(prev => prev.filter(m => m.MessageId !== msg.MessageId));
-    } catch (err: any) {
-      logActivity('SQS', `DeleteMessage failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `DeleteMessage failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -147,9 +147,9 @@ const SQSView = () => {
       await clients.sqs.send(new PurgeQueueCommand({ QueueUrl: selectedQueue }));
       logActivity('SQS', `PurgeQueue: ${getQueueName(selectedQueue)}`, 'success');
       setMessages([]);
-    } catch (err: any) {
-      logActivity('SQS', `PurgeQueue failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `PurgeQueue failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -167,9 +167,9 @@ const SQSView = () => {
       }));
       logActivity('SQS', `SendMessage to: ${getQueueName(selectedQueue)}`, 'success');
       setMessageBody('');
-    } catch (err: any) {
-      logActivity('SQS', `SendMessage failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `SendMessage failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsSending(false);
     }
@@ -184,8 +184,8 @@ const SQSView = () => {
       const r = await clients.sqs.send(new GetQueueAttributesCommand({ QueueUrl: selectedQueue, AttributeNames: ['All'] }));
       setAttributes(r.Attributes || {});
       logActivity('SQS', `GetQueueAttributes: ${getQueueName(selectedQueue)}`, 'success');
-    } catch (err: any) {
-      logActivity('SQS', `GetQueueAttributes failed`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('SQS', `GetQueueAttributes failed`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingAttrs(false);
     }

@@ -38,7 +38,7 @@ const MarketplaceView = () => {
   const [isTerminalModalOpen, setIsTerminalModalOpen] = useState(false);
   
   const logEndRef = useRef<HTMLDivElement>(null);
-  const pollIntervalRef = useRef<any>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch active recipes and installations
   const fetchData = async () => {
@@ -51,8 +51,8 @@ const MarketplaceView = () => {
       if (recipesRes.ok) setRecipes(recipesRes.recipes);
       if (instRes.ok) setInstallations(instRes.installations);
       logActivity('Marketplace', 'Fetch catalog and status', 'success');
-    } catch (err: any) {
-      logActivity('Marketplace', 'Fetch catalog failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('Marketplace', 'Fetch catalog failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -146,9 +146,9 @@ const MarketplaceView = () => {
       // Auto-open live terminal to show logs immediately
       openTerminal(recipeId);
       fetchData();
-    } catch (err: any) {
-      logActivity('Marketplace', `Install failed: ${recipeId}`, 'error', err.message);
-      alert(`Deployment failed: ${err.message}`);
+    } catch (err: unknown) {
+      logActivity('Marketplace', `Install failed: ${recipeId}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Deployment failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -164,9 +164,9 @@ const MarketplaceView = () => {
       // Auto-open terminal to watch downlogs
       openTerminal(recipeId);
       fetchData();
-    } catch (err: any) {
-      logActivity('Marketplace', `Uninstall failed: ${recipeId}`, 'error', err.message);
-      alert(`Teardown failed: ${err.message}`);
+    } catch (err: unknown) {
+      logActivity('Marketplace', `Uninstall failed: ${recipeId}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Teardown failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
