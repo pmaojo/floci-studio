@@ -183,8 +183,8 @@ export function SchedulerCreator({
       try {
         JSON.parse(targetPayload);
         parsedInput = targetPayload;
-      } catch (e: any) {
-        alert(`Target payload must be valid JSON: ${e.message}`);
+      } catch (e: unknown) {
+        alert(`Target payload must be valid JSON: ${e instanceof Error ? e.message : String(e)}`);
         return;
       }
     }
@@ -228,9 +228,9 @@ export function SchedulerCreator({
 
       // Reset creation fields
       setNewName('');
-    } catch (err: any) {
-      logActivity('Scheduler', `CreateSchedule failed: ${newName}`, 'error', err.message);
-      alert(`Failed to create schedule: ${err.message}`);
+    } catch (err: unknown) {
+      logActivity('Scheduler', `CreateSchedule failed: ${newName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Failed to create schedule: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsCreating(false);
     }
@@ -415,7 +415,7 @@ export function SchedulerCreator({
                 <button
                   key={target.type}
                   type="button"
-                  onClick={() => setTargetType(target.type as any)}
+                  onClick={() => setTargetType(target.type as 'lambda' | 'sqs' | 'sns' | 'custom')}
                   className={`flex flex-col items-center justify-center p-2.5 border transition-all ${
                     targetType === target.type
                       ? 'bg-brand-text text-brand-bg border-brand-text font-bold shadow-xs'

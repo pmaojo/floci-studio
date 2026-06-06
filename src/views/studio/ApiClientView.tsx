@@ -28,8 +28,8 @@ export default function ApiClientView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Proxy request failed');
       setResponse(data);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }

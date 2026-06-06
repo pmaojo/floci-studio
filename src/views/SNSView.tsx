@@ -98,9 +98,9 @@ const SNSView = () => {
       const response = await clients.sns.send(new ListTopicsCommand({}));
       setTopics(response.Topics || []);
       logActivity('SNS', 'ListTopics', 'success');
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch topics');
-      logActivity('SNS', 'ListTopics failed', 'error', err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err) || 'Failed to fetch topics');
+      logActivity('SNS', 'ListTopics failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -114,8 +114,8 @@ const SNSView = () => {
       );
       setSubscriptions(res.Subscriptions || []);
       logActivity('SNS', `ListSubscriptionsByTopic: ${getTopicName(topicArn)}`, 'success');
-    } catch (err: any) {
-      logActivity('SNS', `ListSubscriptionsByTopic failed`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `ListSubscriptionsByTopic failed`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingSubs(false);
     }
@@ -127,8 +127,8 @@ const SNSView = () => {
       const res = await clients.sns.send(new GetTopicAttributesCommand({ TopicArn: topicArn }));
       setTopicAttributes(res.Attributes ?? {});
       logActivity('SNS', `GetTopicAttributes: ${getTopicName(topicArn)}`, 'success');
-    } catch (err: any) {
-      logActivity('SNS', `GetTopicAttributes failed`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `GetTopicAttributes failed`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingAttrs(false);
     }
@@ -152,9 +152,9 @@ const SNSView = () => {
       setIsFifo(false);
       setIsCreationModalOpen(false);
       fetchTopics();
-    } catch (err: any) {
-      logActivity('SNS', `CreateTopic failed: ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `CreateTopic failed: ${name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsCreating(false);
     }
@@ -167,9 +167,9 @@ const SNSView = () => {
       logActivity('SNS', `DeleteTopic: ${getTopicName(arn)}`, 'success');
       if (selectedTopicArn === arn) setSelectedTopicArn(null);
       fetchTopics();
-    } catch (err: any) {
-      logActivity('SNS', `DeleteTopic failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `DeleteTopic failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -187,9 +187,9 @@ const SNSView = () => {
       logActivity('SNS', `Publish to: ${getTopicName(publishingTo)}`, 'success');
       setMessage('');
       setSubject('');
-    } catch (err: any) {
-      logActivity('SNS', `Publish failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `Publish failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsPublishing(false);
     }
@@ -210,9 +210,9 @@ const SNSView = () => {
       setIsSubModalOpen(false);
       setSubEndpoint('');
       fetchSubscriptions(selectedTopicArn);
-    } catch (err: any) {
-      logActivity('SNS', `Subscribe failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `Subscribe failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setSubscribing(false);
     }
@@ -224,9 +224,9 @@ const SNSView = () => {
       await clients.sns.send(new UnsubscribeCommand({ SubscriptionArn: subscriptionArn }));
       logActivity('SNS', `Unsubscribe: ${subscriptionArn.split(':').pop()}`, 'success');
       if (selectedTopicArn) fetchSubscriptions(selectedTopicArn);
-    } catch (err: any) {
-      logActivity('SNS', `Unsubscribe failed`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('SNS', `Unsubscribe failed`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 

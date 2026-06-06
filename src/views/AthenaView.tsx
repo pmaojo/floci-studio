@@ -101,8 +101,8 @@ const AthenaView = () => {
         }
       }
       logActivity('Athena', 'List databases and tables from Glue', 'success');
-    } catch (err: any) {
-      logActivity('Athena', 'Fetch catalog failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('Athena', 'Fetch catalog failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingCatalog(false);
     }
@@ -115,8 +115,8 @@ const AthenaView = () => {
       if (res.ok) {
         setHistory(res.history);
       }
-    } catch (err: any) {
-      logActivity('Athena', 'Fetch execution history failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('Athena', 'Fetch execution history failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingHistory(false);
     }
@@ -142,10 +142,10 @@ const AthenaView = () => {
       } else {
         throw new Error('Could not start query execution');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsExecuting(false);
-      setQueryError(err.message || 'Execution failed');
-      logActivity('Athena', 'Query submission failed', 'error', err.message);
+      setQueryError(err instanceof Error ? err.message : String(err) || 'Execution failed');
+      logActivity('Athena', 'Query submission failed', 'error', err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -174,10 +174,10 @@ const AthenaView = () => {
             setQueryError(res.execution.errorMessage || 'Query failed with standard AWS syntax error');
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         clearInterval(statusPollRef.current);
         setIsExecuting(false);
-        setQueryError(err.message);
+        setQueryError(err instanceof Error ? err.message : String(err));
       }
 
       if (attempts > 30) {
@@ -196,8 +196,8 @@ const AthenaView = () => {
         setHistory([]);
         logActivity('Athena', 'Cleared queries execution history', 'success');
       }
-    } catch (err: any) {
-      alert(`Failed: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 

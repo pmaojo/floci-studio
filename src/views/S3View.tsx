@@ -50,8 +50,8 @@ const S3View = () => {
       const response = await clients.s3.send(new ListBucketsCommand({}));
       setBuckets(response.Buckets || []);
       logActivity('S3', 'ListBuckets', 'success');
-    } catch (err: any) {
-      logActivity('S3', 'ListBuckets failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('S3', 'ListBuckets failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingBuckets(false);
     }
@@ -67,9 +67,9 @@ const S3View = () => {
       setNewBucketName('');
       setIsBucketModalOpen(false);
       fetchBuckets();
-    } catch (err: any) {
-      logActivity('S3', `CreateBucket failed: ${newBucketName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('S3', `CreateBucket failed: ${newBucketName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsCreatingBucket(false);
     }
@@ -83,9 +83,9 @@ const S3View = () => {
       await clients.s3.send(new DeleteBucketCommand({ Bucket: bucketName }));
       logActivity('S3', `DeleteBucket: ${bucketName}`, 'success');
       fetchBuckets();
-    } catch (err: any) {
-      logActivity('S3', `DeleteBucket failed: ${bucketName}`, 'error', err.message);
-      alert(`Could not delete bucket: ${err.message}. Make sure the bucket is empty.`);
+    } catch (err: unknown) {
+      logActivity('S3', `DeleteBucket failed: ${bucketName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Could not delete bucket: ${err instanceof Error ? err.message : String(err)}. Make sure the bucket is empty.`);
     }
   };
 
@@ -111,8 +111,8 @@ const S3View = () => {
       setFolders(subdirs);
       setObjects(files);
       logActivity('S3', `ListObjects in ${bucketName} (prefix: "${prefix}")`, 'success');
-    } catch (err: any) {
-      logActivity('S3', `ListObjects failed in ${bucketName}`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('S3', `ListObjects failed in ${bucketName}`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingObjects(false);
     }
@@ -164,9 +164,9 @@ const S3View = () => {
       
       logActivity('S3', `UploadObject: ${objectKey}`, 'success');
       fetchObjects(selectedBucket, currentPrefix);
-    } catch (err: any) {
-      logActivity('S3', `UploadObject failed: ${objectKey}`, 'error', err.message);
-      alert(`Upload failed: ${err.message}`);
+    } catch (err: unknown) {
+      logActivity('S3', `UploadObject failed: ${objectKey}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Upload failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -185,9 +185,9 @@ const S3View = () => {
       }));
       logActivity('S3', `DeleteObject: ${objectKey}`, 'success');
       fetchObjects(selectedBucket, currentPrefix);
-    } catch (err: any) {
-      logActivity('S3', `DeleteObject failed: ${objectKey}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('S3', `DeleteObject failed: ${objectKey}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 

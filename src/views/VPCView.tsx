@@ -67,8 +67,8 @@ const VpcsPanel = ({
       const r = await clients.ec2.send(new DescribeVpcsCommand({}));
       setVpcs(r.Vpcs || []);
       logActivity('EC2/VPC', 'DescribeVpcs', 'success');
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'DescribeVpcs failed', 'error', e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'DescribeVpcs failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
   };
 
@@ -79,8 +79,8 @@ const VpcsPanel = ({
       await clients.ec2.send(new CreateVpcCommand({ CidrBlock: cidr }));
       logActivity('EC2/VPC', `CreateVpc: ${cidr}`, 'success');
       setIsModalOpen(false); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `CreateVpc failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `CreateVpc failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     } finally { setCreating(false); }
   };
 
@@ -89,8 +89,8 @@ const VpcsPanel = ({
     try {
       await clients.ec2.send(new DeleteVpcCommand({ VpcId: id }));
       logActivity('EC2/VPC', `DeleteVpc: ${id}`, 'success'); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `DeleteVpc failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `DeleteVpc failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -188,8 +188,8 @@ const SubnetsPanel = ({
       setSubnets(sRes.Subnets || []);
       setVpcs(vRes.Vpcs || []);
       logActivity('EC2/VPC', 'DescribeSubnets', 'success');
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'DescribeSubnets failed', 'error', e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'DescribeSubnets failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
   };
 
@@ -205,8 +205,8 @@ const SubnetsPanel = ({
       }));
       logActivity('EC2/VPC', `CreateSubnet: ${cidr} in ${vpcId}`, 'success');
       setIsModalOpen(false); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `CreateSubnet failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `CreateSubnet failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     } finally { setCreating(false); }
   };
 
@@ -215,8 +215,8 @@ const SubnetsPanel = ({
     try {
       await clients.ec2.send(new DeleteSubnetCommand({ SubnetId: id }));
       logActivity('EC2/VPC', `DeleteSubnet: ${id}`, 'success'); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `DeleteSubnet failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `DeleteSubnet failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -314,8 +314,8 @@ const IGWPanel = ({
       setIgws(iRes.InternetGateways || []);
       setVpcs(vRes.Vpcs || []);
       logActivity('EC2/VPC', 'DescribeInternetGateways', 'success');
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'DescribeInternetGateways failed', 'error', e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'DescribeInternetGateways failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
   };
 
@@ -323,8 +323,8 @@ const IGWPanel = ({
     try {
       await clients.ec2.send(new CreateInternetGatewayCommand({}));
       logActivity('EC2/VPC', 'CreateInternetGateway', 'success'); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'CreateInternetGateway failed', 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'CreateInternetGateway failed', 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -335,8 +335,8 @@ const IGWPanel = ({
       await clients.ec2.send(new AttachInternetGatewayCommand({ InternetGatewayId: attachIgwId, VpcId: attachVpcId }));
       logActivity('EC2/VPC', `AttachIGW: ${attachIgwId} → ${attachVpcId}`, 'success');
       setIsAttachModalOpen(false); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `AttachIGW failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `AttachIGW failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     } finally { setAttaching(false); }
   };
 
@@ -345,8 +345,8 @@ const IGWPanel = ({
     try {
       await clients.ec2.send(new DetachInternetGatewayCommand({ InternetGatewayId: igwId, VpcId: vpcId }));
       logActivity('EC2/VPC', `DetachIGW: ${igwId}`, 'success'); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `DetachIGW failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `DetachIGW failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -355,8 +355,8 @@ const IGWPanel = ({
     try {
       await clients.ec2.send(new DeleteInternetGatewayCommand({ InternetGatewayId: id }));
       logActivity('EC2/VPC', `DeleteIGW: ${id}`, 'success'); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', `DeleteIGW failed`, 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', `DeleteIGW failed`, 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -484,8 +484,8 @@ const RouteTablesPanel = ({
       setSubnets(sRes.Subnets || []);
       setIgws(iRes.InternetGateways || []);
       logActivity('EC2/VPC', 'DescribeRouteTables', 'success');
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'DescribeRouteTables failed', 'error', e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'DescribeRouteTables failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoading(false); }
   };
 
@@ -496,8 +496,8 @@ const RouteTablesPanel = ({
       await clients.ec2.send(new CreateRouteTableCommand({ VpcId: createVpcId }));
       logActivity('EC2/VPC', `CreateRouteTable in ${createVpcId}`, 'success');
       setIsCreateModalOpen(false); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'CreateRouteTable failed', 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'CreateRouteTable failed', 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     } finally { setCreating(false); }
   };
 
@@ -508,8 +508,8 @@ const RouteTablesPanel = ({
       logActivity('EC2/VPC', `DeleteRouteTable: ${id}`, 'success');
       if (selectedTable?.RouteTableId === id) setSelectedTable(null);
       fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'DeleteRouteTable failed', 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'DeleteRouteTable failed', 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -527,8 +527,8 @@ const RouteTablesPanel = ({
       logActivity('EC2/VPC', `CreateRoute: ${routeDest} → ${routeTarget}`, 'success');
       setIsAddRouteModalOpen(false);
       fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'CreateRoute failed', 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'CreateRoute failed', 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     } finally { setAddingRoute(false); }
   };
 
@@ -542,8 +542,8 @@ const RouteTablesPanel = ({
       }));
       logActivity('EC2/VPC', `AssociateRouteTable → ${assocSubnetId}`, 'success');
       setIsAssocModal(false); fetch();
-    } catch (e: any) {
-      logActivity('EC2/VPC', 'AssociateRouteTable failed', 'error', e.message); alert(e.message);
+    } catch (e: unknown) {
+      logActivity('EC2/VPC', 'AssociateRouteTable failed', 'error', e instanceof Error ? e.message : String(e)); alert(e instanceof Error ? e.message : String(e));
     } finally { setAssociating(false); }
   };
 

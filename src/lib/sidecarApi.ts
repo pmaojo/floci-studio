@@ -225,6 +225,45 @@ export interface Installation {
   error?: string | null;
 }
 
+export interface AthenaTable {
+  name: string;
+  tableType?: string;
+  columns?: Array<{ name: string; type: string }>;
+}
+
+export interface AthenaDatabase {
+  name: string;
+  tables: AthenaTable[];
+}
+
+export interface AthenaCatalog {
+  databases: AthenaDatabase[];
+}
+
+export interface AthenaQueryResultColumn {
+  name: string;
+  type: string;
+}
+
+export interface AthenaQueryExecution {
+  status?: string;
+  errorMessage?: string;
+  results?: {
+    columns?: AthenaQueryResultColumn[];
+    rows?: string[][];
+  };
+}
+
+export interface AthenaHistoryItem {
+  id: string;
+  query?: string;
+  status?: string;
+  database?: string;
+  startedAt?: string;
+  completedAt?: string;
+  durationMs?: number;
+}
+
 const sidecarBaseUrl = import.meta.env.VITE_SIDECAR_URL || '/sidecar';
 
 const requestSidecar = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
@@ -236,9 +275,15 @@ const requestSidecar = async <T>(path: string, options: RequestInit = {}): Promi
     },
   });
 
-  const payload = await response.json().catch(() => ({}));
+  let payload: Record<string, unknown> = {};
+  try {
+    payload = await response.json();
+  } catch {
+    // body is empty or not JSON
+  }
+
   if (!response.ok) {
-    throw new Error(payload.error || `Sidecar request failed with ${response.status}`);
+    throw new Error((payload.error as string | undefined) || `Sidecar request failed with ${response.status}`);
   }
 
   return payload as T;
@@ -257,25 +302,25 @@ const requestDiagnostic = async <T>(path: string): Promise<T> => {
 export const sidecarApi = {
   health: () => requestSidecar<{ ok: boolean; endpointUrl: string; region: string }>('/health'),
   getLambdaCapabilities: () => requestSidecar<LambdaCapabilities>('/api/lambda/capabilities'),
-  listLambdaFunctions: () => requestSidecar<{ ok: boolean; Functions?: any[] }>('/api/lambda/functions'),
-  createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<{ ok: boolean; [key: string]: any }>('/api/lambda/functions', {
+  listLambdaFunctions: () => requestSidecar<{ ok: boolean; Functions?: Record<string, unknown>[] }>('/api/lambda/functions'),
+  createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<{ ok: boolean }>('/api/lambda/functions', {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
-  updateLambdaCode: (functionName: string, payload: UpdateLambdaCodePayload) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/code`, {
+  updateLambdaCode: (functionName: string, payload: UpdateLambdaCodePayload) => requestSidecar<{ ok: boolean }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/code`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   }),
-  updateLambdaConfiguration: (functionName: string, payload: UpdateLambdaConfigurationPayload) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/configuration`, {
+  updateLambdaConfiguration: (functionName: string, payload: UpdateLambdaConfigurationPayload) => requestSidecar<{ ok: boolean }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/configuration`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   }),
-  invokeLambdaFunction: (functionName: string, payload: unknown) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/invoke`, {
+  invokeLambdaFunction: (functionName: string, payload: unknown) => requestSidecar<{ ok: boolean; StatusCode?: number; Payload?: string; FunctionError?: string }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/invoke`, {
     method: 'POST',
     body: JSON.stringify({ payload }),
   }),
-  getLambdaLogs: (functionName: string) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/logs`),
-  deleteLambdaFunction: (functionName: string) => requestSidecar<{ ok: boolean; [key: string]: any }>(`/api/lambda/functions/${encodeURIComponent(functionName)}`, {
+  getLambdaLogs: (functionName: string) => requestSidecar<{ ok: boolean; logs?: string[] }>(`/api/lambda/functions/${encodeURIComponent(functionName)}/logs`),
+  deleteLambdaFunction: (functionName: string) => requestSidecar<{ ok: boolean }>(`/api/lambda/functions/${encodeURIComponent(functionName)}`, {
     method: 'DELETE',
   }),
   getEksOverview: () => requestSidecar<EksOverview>('/api/eks/overview'),
@@ -322,14 +367,14 @@ export const sidecarApi = {
     `/api/marketplace/install/${recipeId}`,
     { method: 'DELETE' }
   ),
-  getAthenaCatalog: () => requestSidecar<{ ok: boolean; catalog: any }>('/api/athena/catalog'),
+  getAthenaCatalog: () => requestSidecar<{ ok: boolean; catalog: AthenaCatalog }>('/api/athena/catalog'),
   startAthenaQuery: (query: string, database: string, workGroup?: string) => requestSidecar<{ ok: boolean; queryExecutionId: string }>('/api/athena/query', {
     method: 'POST',
     body: JSON.stringify({ query, database, workGroup }),
   }),
-  getAthenaQueryStatus: (id: string) => requestSidecar<{ ok: boolean; execution: any }>(`/api/athena/query/${id}`),
-  getAthenaQueryResults: (id: string) => requestSidecar<{ ok: boolean; results: any }>(`/api/athena/query/${id}/results`),
-  getAthenaHistory: () => requestSidecar<{ ok: boolean; history: any[] }>('/api/athena/history'),
+  getAthenaQueryStatus: (id: string) => requestSidecar<{ ok: boolean; execution: AthenaQueryExecution }>(`/api/athena/query/${id}`),
+  getAthenaQueryResults: (id: string) => requestSidecar<{ ok: boolean; results: AthenaQueryExecution['results'] }>(`/api/athena/query/${id}/results`),
+  getAthenaHistory: () => requestSidecar<{ ok: boolean; history: AthenaHistoryItem[] }>('/api/athena/history'),
   clearAthenaHistory: () => requestSidecar<{ ok: boolean }>('/api/athena/history', { method: 'DELETE' }),
   // Auth / profile helpers
   listAwsProfiles: () => requestSidecar<{ profiles: AwsCliProfile[] }>('/api/auth/aws-profiles'),
