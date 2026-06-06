@@ -73,6 +73,24 @@ services:
     networks:
       - floci
 
+  # ── QA test runner ─────────────────────────────────────────────────────────
+  # Only started when the `test` profile is active:
+  #   docker compose --profile test run --rm test
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      CI: "true"
+      BASE_URL: http://gui:3000
+    depends_on:
+      - gui
+      - sidecar
+    networks:
+      - floci
+    profiles:
+      - test
+
 networks:
   floci:
     name: ${FLOCI_DOCKER_NETWORK_NAME:-floci-studio_floci}
