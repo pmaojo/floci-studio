@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Cable, CirclePlus, Database, RefreshCw, Terminal, Trash2 } from 'lucide-react';
 import { useAws } from '../contexts/AwsContext';
 import { Button, Card, PageHeader, Skeleton } from '../components/ui-elements';
@@ -39,7 +39,7 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     logActivity(response.serviceName, 'Read compatibility overview', 'success', `items=${response.resources.reduce((total, resource) => total + resource.count, 0)}`);
   };
 
-  const loadOverview = async () => {
+  const loadOverview = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -52,12 +52,12 @@ const AwsCliServiceView = ({ serviceKey, serviceName }: AwsCliServiceViewProps) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [serviceKey, serviceName, logActivity]);
 
   useEffect(() => {
     setOverview(emptyOverview(serviceKey, serviceName));
     loadOverview();
-  }, [serviceKey, serviceName]);
+  }, [serviceKey, serviceName, loadOverview]);
 
   const handleCreateCodeArtifactDomain = async () => {
     const name = prompt('Domain Name:');

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   ListMetricsCommand, 
   GetMetricStatisticsCommand, 
@@ -56,7 +56,7 @@ const CloudWatchMetricsView = () => {
   const [alarmStatistic, setAlarmStatistic] = useState<'Average' | 'Sum' | 'Maximum' | 'Minimum'>('Average');
   const [alarmComparison, setAlarmComparison] = useState<'GreaterThanOrEqualToThreshold' | 'GreaterThanThreshold' | 'LessThanThreshold' | 'LessThanOrEqualToThreshold'>('GreaterThanOrEqualToThreshold');
 
-  const fetchCatalog = async () => {
+  const fetchCatalog = useCallback(async () => {
     setLoadingCatalog(true);
     try {
       const res = await clients.cloudwatchMetrics.send(new ListMetricsCommand({}));
@@ -83,7 +83,7 @@ const CloudWatchMetricsView = () => {
     } finally {
       setLoadingCatalog(false);
     }
-  };
+  }, [clients.cloudwatchMetrics, logActivity]);
 
   const generateSimulatedChartData = (metricName: string) => {
     setIsSimulatedData(true);
@@ -145,7 +145,7 @@ const CloudWatchMetricsView = () => {
     }
   };
 
-  const fetchAlarms = async () => {
+  const fetchAlarms = useCallback(async () => {
     setLoadingAlarms(true);
     try {
       const res = await clients.cloudwatchMetrics.send(new DescribeAlarmsCommand({}));
@@ -155,7 +155,7 @@ const CloudWatchMetricsView = () => {
     } finally {
       setLoadingAlarms(false);
     }
-  };
+  }, [clients.cloudwatchMetrics, logActivity]);
 
   const handleCreateAlarm = async () => {
     if (!alarmName) return;
@@ -226,7 +226,7 @@ const CloudWatchMetricsView = () => {
   useEffect(() => {
     fetchCatalog();
     fetchAlarms();
-  }, []);
+  }, [fetchCatalog, fetchAlarms]);
 
   // Poll for metrics whenever selections, statistic, or ranges update
   useEffect(() => {
@@ -294,7 +294,7 @@ const CloudWatchMetricsView = () => {
         };
       })
     };
-  }, [datapoints, selectedStatistic]);
+  }, [datapoints, selectedStatistic, timeRange]);
 
   const getAlarmStateBadge = (state: string) => {
     switch (state) {

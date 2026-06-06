@@ -221,7 +221,7 @@ export interface Installation {
   recipeId: string;
   status: 'IDLE' | 'INSTALLING' | 'RUNNING' | 'FAILED' | 'UNINSTALLING';
   installedAt?: string;
-  vars?: Record<string, any>;
+  vars?: Record<string, string | number>;
   error?: string | null;
 }
 
@@ -355,7 +355,7 @@ export const sidecarApi = {
   listRecipes: () => requestSidecar<{ ok: boolean; recipes: Recipe[] }>('/api/marketplace/recipes'),
   getInstallations: () => requestSidecar<{ ok: boolean; installations: Record<string, Installation> }>('/api/marketplace/installations'),
   getRecipeLogs: (recipeId: string) => requestSidecar<{ ok: boolean; logs: string[] }>(`/api/marketplace/recipes/${recipeId}/logs`),
-  installRecipe: (recipeId: string, vars: Record<string, any>) => requestSidecar<{ ok: boolean; installation: Installation }>(
+  installRecipe: (recipeId: string, vars: Record<string, string | number>) => requestSidecar<{ ok: boolean; installation: Installation }>(
     '/api/marketplace/install',
     {
       method: 'POST',

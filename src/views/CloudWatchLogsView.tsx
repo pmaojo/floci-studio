@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DescribeLogGroupsCommand, DescribeLogStreamsCommand, GetLogEventsCommand, CreateLogGroupCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { LogGroup, LogStream, OutputLogEvent } from '@aws-sdk/client-cloudwatch-logs';
 import { useAws } from '../contexts/AwsContext';
@@ -16,7 +16,7 @@ const CloudWatchLogsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -27,7 +27,7 @@ const CloudWatchLogsView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.cloudwatch]);
 
   const fetchStreams = async (groupName: string) => {
     setSelectedGroup(groupName);
@@ -73,7 +73,7 @@ const CloudWatchLogsView = () => {
 
   useEffect(() => {
     fetchGroups();
-  }, []);
+  }, [fetchGroups]);
 
   return (
     <div className="flex flex-col h-full uppercase">

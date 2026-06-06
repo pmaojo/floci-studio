@@ -8,6 +8,7 @@ export default function LambdaLogsView() {
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let unmounted = false;
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/sidecar/api/studio/lambda-logs/ws`;
 
@@ -15,6 +16,7 @@ export default function LambdaLogsView() {
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
+      if (unmounted) return;
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'log' || data.type === 'info') {
@@ -26,13 +28,15 @@ export default function LambdaLogsView() {
     };
 
     const interval = setInterval(() => {
-        if(ws.readyState === WebSocket.OPEN) {
-            ws.send("ping");
-        }
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send('ping');
+      }
     }, 30000);
 
     return () => {
+      unmounted = true;
       clearInterval(interval);
+      ws.onmessage = null;
       ws.close();
     };
   }, []);
@@ -69,7 +73,7 @@ export default function LambdaLogsView() {
                 let color = "text-green-400";
                 if(log.includes("ERROR") || log.includes("Exception")) color = "text-red-500";
                 else if (log.includes("WARN")) color = "text-yellow-400";
-                return <div key={i} className={`${color} mb-1 break-all`}>{log}</div>
+                return <div key={`${i}-${log.slice(0, 24)}`} className={`${color} mb-1 break-all`}>{log}</div>
             })
           )}
           <div ref={logsEndRef} />

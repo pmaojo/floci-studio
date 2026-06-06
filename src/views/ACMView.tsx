@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ListCertificatesCommand, RequestCertificateCommand } from '@aws-sdk/client-acm';
 import type { CertificateSummary } from '@aws-sdk/client-acm';
 import { useAws } from '../contexts/AwsContext';
@@ -12,7 +12,7 @@ const ACMView = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  const fetchCerts = async () => {
+  const fetchCerts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -23,11 +23,11 @@ const ACMView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.acm]);
 
   useEffect(() => {
     fetchCerts();
-  }, []);
+  }, [fetchCerts]);
 
   const handleRequestCert = async () => {
     const domain = prompt('Domain Name (e.g. *.localhost):');

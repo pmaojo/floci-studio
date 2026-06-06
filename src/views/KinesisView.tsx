@@ -65,6 +65,7 @@ const KinesisView = () => {
   const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const iteratorRef = useRef<string | null>(null);
   const terminalBottomRef = useRef<HTMLDivElement>(null);
+  const isStreamingRef = useRef(false);
 
   const fetchStreams = async () => {
     setLoading(true);
@@ -182,6 +183,7 @@ const KinesisView = () => {
   const startStreaming = async () => {
     if (!selectedStreamName || !selectedShardId) return;
     setIsStreaming(true);
+    isStreamingRef.current = true;
     setStreamRecords([]);
     iteratorRef.current = null;
 
@@ -199,7 +201,7 @@ const KinesisView = () => {
       const delay = parseInt(pollingInterval);
       
       const poll = async () => {
-        if (!iteratorRef.current || !isStreaming) return;
+        if (!iteratorRef.current || !isStreamingRef.current) return;
         try {
           const recordsRes = await clients.kinesis.send(new GetRecordsCommand({
             ShardIterator: iteratorRef.current
@@ -242,7 +244,7 @@ const KinesisView = () => {
         }
 
         // Loop next polling cycle
-        if (isStreaming) {
+        if (isStreamingRef.current) {
           pollingRef.current = setTimeout(poll, delay);
         }
       };
@@ -257,6 +259,7 @@ const KinesisView = () => {
 
   const stopStreaming = () => {
     setIsStreaming(false);
+    isStreamingRef.current = false;
     if (pollingRef.current) {
       clearTimeout(pollingRef.current);
       pollingRef.current = null;

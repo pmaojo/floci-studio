@@ -45,7 +45,7 @@ const IdentityCard = () => {
       }
     };
     fetchIdentity();
-  }, [clients, isHealthy]);
+  }, [clients, isHealthy, logActivity]);
 
   if (loading) return <Skeleton className="h-32" />;
 

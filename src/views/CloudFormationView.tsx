@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ListStacksCommand, CreateStackCommand, DeleteStackCommand } from '@aws-sdk/client-cloudformation';
 import type { StackSummary } from '@aws-sdk/client-cloudformation';
 import { useAws } from '../contexts/AwsContext';
@@ -25,7 +25,7 @@ const CloudFormationView = () => {
 }`);
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchStacks = async () => {
+  const fetchStacks = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.cloudformation.send(new ListStacksCommand({
@@ -38,7 +38,7 @@ const CloudFormationView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.cloudformation, logActivity]);
 
   const handleCreate = async () => {
     if (!newStackName) return;
@@ -76,7 +76,7 @@ const CloudFormationView = () => {
 
   useEffect(() => {
     fetchStacks();
-  }, []);
+  }, [fetchStacks]);
 
   return (
     <div className="flex flex-col h-full uppercase">

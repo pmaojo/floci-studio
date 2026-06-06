@@ -195,7 +195,7 @@ export default function CapabilityMatrix() {
         {/* Filter Integrations */}
         <select
           value={filterType}
-          onChange={e => setFilterType(e.target.value as any)}
+          onChange={e => setFilterType(e.target.value as 'all' | 'native' | 'compat' | 'unsupported')}
           className="bg-white border border-brand-text px-3 py-1.5 text-xs focus:outline-none uppercase font-bold font-mono tracking-tight cursor-pointer"
         >
           <option value="all">ALL INTEGRATIONS</option>
