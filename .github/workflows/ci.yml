@@ -68,14 +68,17 @@ jobs:
         run: docker compose --profile test build test
 
       - name: Run e2e tests
-        run: docker compose --profile test run --rm test sh -c "
-          echo 'Waiting for GUI...';
-          until curl -sf http://gui:3000 > /dev/null 2>&1; do sleep 3; done;
-          echo 'Running e2e tests only';
-          pnpm test:e2e
-        "
         env:
           BASE_URL: http://gui:3000
+        run: |
+          docker compose --profile test run --rm \
+            -e BASE_URL=$BASE_URL \
+            test sh -c '
+              echo "Waiting for GUI...";
+              until curl -sf http://gui:3000 > /dev/null 2>&1; do sleep 3; done;
+              echo "Running e2e tests only";
+              pnpm test:e2e
+            '
 
       - name: Upload Playwright report
         if: always()
