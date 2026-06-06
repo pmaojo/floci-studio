@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { Card, Button, Input } from '../../components/ui-elements';
 
+interface ProxyResponse {
+  status: number;
+  latency_ms: number;
+  body: unknown;
+}
+
 export default function ApiClientView() {
   const [method, setMethod] = useState('GET');
   const [url, setUrl] = useState('http://localhost:4566/restapis');
   const [body, setBody] = useState('');
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<ProxyResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -99,7 +105,7 @@ export default function ApiClientView() {
             {error && <div className="text-red-400">{error}</div>}
             {response ? (
               <pre className="text-xs text-blue-300 font-mono break-all whitespace-pre-wrap">
-                {typeof response.body === 'object' ? JSON.stringify(response.body, null, 2) : response.body}
+                {typeof response.body === 'object' ? JSON.stringify(response.body, null, 2) : String(response.body ?? '')}
               </pre>
             ) : (
               !error && <div className="text-slate-600 italic">No response yet.</div>

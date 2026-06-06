@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   ListTablesCommand, 
   DescribeTableCommand, 
@@ -75,7 +75,7 @@ const DynamoDBView = () => {
   const [isSavingRecord, setIsSavingRecord] = useState(false);
 
   // Load table list
-  const fetchTables = async () => {
+  const fetchTables = useCallback(async () => {
     setLoadingTables(true);
     try {
       const res = await clients.dynamo.send(new ListTablesCommand({}));
@@ -85,11 +85,11 @@ const DynamoDBView = () => {
     } finally {
       setLoadingTables(false);
     }
-  };
+  }, [clients.dynamo, logActivity]);
 
   useEffect(() => {
     fetchTables();
-  }, []);
+  }, [fetchTables]);
 
   // Fetch Table details (Key Schema, GSIs, description)
   const fetchTableDetails = async (tableName: string) => {

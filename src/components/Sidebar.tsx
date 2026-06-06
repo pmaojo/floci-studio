@@ -54,6 +54,13 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+interface SidebarNavItem {
+  to: string;
+  icon: React.ComponentType<{ size: number; className?: string }>;
+  label: string;
+  badge?: string;
+}
+
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { isHealthy, wsConnected } = useAws();
   const [filterText, setFilterText] = React.useState('');
@@ -65,7 +72,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   React.useEffect(() => {
     const updateMemory = () => {
       if (typeof window !== 'undefined') {
-        const perf = window.performance as any;
+        const perf = window.performance as Performance & { memory?: { usedJSHeapSize: number } };
         if (perf && perf.memory) {
           const used = perf.memory.usedJSHeapSize / (1024 * 1024);
           setMemUsage(`${used.toFixed(1)} MiB`);
@@ -338,7 +345,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   <div className="px-4 py-1 text-[10px] uppercase font-bold opacity-40 tracking-widest">{cat.label}</div>
                 )}
                 
-                {(!isCollapsible || !isCollapsed) && cat.items.map((item: any) => (
+                {(!isCollapsible || !isCollapsed) && (cat.items as SidebarNavItem[]).map((item) => (
                   <NavLink
                     key={item.to}
                     to={item.to}

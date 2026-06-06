@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListProjectsCommand,
   BatchGetProjectsCommand,
@@ -203,7 +203,7 @@ const CodeBuildView = () => {
   const [isLaunching, setIsLaunching] = useState(false);
 
   // Fetch projects from emulator or load mock values
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoadingProjects(true);
     try {
       const res = await clients.codebuild.send(new ListProjectsCommand({}));
@@ -234,11 +234,11 @@ const CodeBuildView = () => {
     } finally {
       setLoadingProjects(false);
     }
-  };
+  }, [clients.codebuild, logActivity]);
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const handleProjectSelect = (project: CbProject) => {
     setSelectedProjectName(project.name);

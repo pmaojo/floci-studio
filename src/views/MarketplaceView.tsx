@@ -29,7 +29,7 @@ const MarketplaceView = () => {
   
   // Modal / config drawer states
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [configVars, setConfigVars] = useState<Record<string, any>>({});
+  const [configVars, setConfigVars] = useState<Record<string, string | number>>({});
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   
   // Terminal logs state
@@ -122,7 +122,7 @@ const MarketplaceView = () => {
     setSelectedRecipe(recipe);
     
     // Initialize default variables
-    const defaults: Record<string, any> = {};
+    const defaults: Record<string, string | number> = {};
     recipe.variables.forEach(v => {
       defaults[v.key] = v.default;
     });

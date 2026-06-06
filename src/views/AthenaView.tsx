@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   sidecarApi 
 } from '../lib/sidecarApi';
@@ -61,15 +61,6 @@ const AthenaView = () => {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const statusPollRef = useRef<any>(null);
 
-  // Initial loads
-  useEffect(() => {
-    fetchCatalog();
-    fetchHistory();
-    return () => {
-      if (statusPollRef.current) clearInterval(statusPollRef.current);
-    };
-  }, []);
-
   // Sync scroll of line numbers gutter
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -86,7 +77,7 @@ const AthenaView = () => {
     }
   };
 
-  const fetchCatalog = async () => {
+  const fetchCatalog = useCallback(async () => {
     setLoadingCatalog(true);
     try {
       const res = await sidecarApi.getAthenaCatalog();
@@ -106,9 +97,9 @@ const AthenaView = () => {
     } finally {
       setLoadingCatalog(false);
     }
-  };
+  }, [logActivity]);
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     setLoadingHistory(true);
     try {
       const res = await sidecarApi.getAthenaHistory();
@@ -120,7 +111,16 @@ const AthenaView = () => {
     } finally {
       setLoadingHistory(false);
     }
-  };
+  }, [logActivity]);
+
+  // Initial loads
+  useEffect(() => {
+    fetchCatalog();
+    fetchHistory();
+    return () => {
+      if (statusPollRef.current) clearInterval(statusPollRef.current);
+    };
+  }, [fetchCatalog, fetchHistory]);
 
   const handleExecuteQuery = async (overrideQuery?: string) => {
     const code = overrideQuery || queryText;

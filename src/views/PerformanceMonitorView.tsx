@@ -11,6 +11,7 @@ const PerformanceMonitorView = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchStats = async () => {
+    setError(null);
     try {
       const response = await sidecarApi.getPerformanceStats();
       if (response.ok) {
