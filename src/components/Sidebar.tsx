@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronDown,
   Activity,
+  Tag,
   Shield,
   Archive,
   Mail,
@@ -209,6 +210,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       label: 'Floci Management',
       items: [
         { to: '/roadmap', icon: Target, label: 'Roadmap' },
+        { to: '/tags', icon: Tag, label: 'Tag Editor' },
         { to: '/codeartifact', icon: Archive, label: 'CodeArtifact' },
         { to: '/ses', icon: Mail, label: 'SES Sink' },
         { to: '/settings', icon: Settings, label: 'System Settings' },
