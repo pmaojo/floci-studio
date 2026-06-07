@@ -338,6 +338,20 @@ export const sidecarApi = {
     `/api/aws-services/codeartifact/repositories/${encodeURIComponent(domainName)}/${encodeURIComponent(repositoryName)}`,
     { method: 'DELETE' },
   ),
+  getTagsKeys: () => requestSidecar<{ tagKeys: string[]; warning?: string }>('/api/tags/keys'),
+  getTagValues: (key: string) => requestSidecar<{ key: string; values: string[]; warning?: string }>(`/api/tags/values/${encodeURIComponent(key)}`),
+  searchResourcesByTags: (payload: { tagFilters?: { Key: string; Values?: string[] }[]; resourceTypes?: string[] }) => requestSidecar<{ count: number; resources: { ResourceARN: string; Tags: { Key: string; Value: string }[] }[]; warning?: string }>('/api/tags/resources/search', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+  tagResources: (payload: { resourceArns: string[]; tags: Record<string, string> }) => requestSidecar<{ tagged: string[]; failed: Record<string, string>; success: boolean }>('/api/tags/resources/tag', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+  untagResources: (payload: { resourceArns: string[]; tagKeys: string[] }) => requestSidecar<{ untagged: string[]; failed: Record<string, string>; success: boolean }>('/api/tags/resources/untag', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
   createCompatibilityResource: (serviceKey: string, resourceId: string, name: string) => requestSidecar<AwsServiceOverview>(
     `/api/aws-services/${encodeURIComponent(serviceKey)}/resources/${encodeURIComponent(resourceId)}`,
     {

@@ -50,6 +50,7 @@ const PerformanceMonitorView = lazy(() => import('./views/PerformanceMonitorView
 const S3View = lazy(() => import('./views/S3View'));
 const MarketplaceView = lazy(() => import('./views/MarketplaceView'));
 const AthenaView = lazy(() => import('./views/AthenaView'));
+const TagsView = lazy(() => import('./views/TagsView'));
 const DynamoDBView = lazy(() => import('./views/DynamoDBView'));
 const CodeBuildView = lazy(() => import('./views/CodeBuildView'));
 const SchedulerView = lazy(() => import('./views/SchedulerView'));
@@ -172,6 +173,7 @@ const AppContent = () => {
                 <Route path="/appsync" element={awsServiceRoute('appsync', 'AppSync')} />
                 <Route path="/marketplace" element={<MarketplaceView />} />
                 <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
+                <Route path="/tags" element={<TagsView />} />
                 <Route path="/settings" element={<SettingsView />} />
 
               <Route path="/studio/architecture" element={<ArchitectureView />} />
