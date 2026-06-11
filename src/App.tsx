@@ -28,6 +28,7 @@ const CloudFormationView = lazy(() => import('./views/CloudFormationView'));
 const ECRView = lazy(() => import('./views/ECRView'));
 const ElastiCacheView = lazy(() => import('./views/ElastiCacheView'));
 const GlueView = lazy(() => import('./views/GlueView'));
+const APIGatewayView = lazy(() => import('./views/APIGatewayView'));
 const WAFView = lazy(() => import('./views/WAFView'));
 const SettingsView = lazy(() => import('./views/SettingsView'));
 
@@ -148,7 +149,7 @@ const AppContent = () => {
                 <Route path="/cloudwatch-metrics" element={<CloudWatchMetricsView />} />
                 <Route path="/eventbridge" element={<EventBridgeView />} />
                 <Route path="/scheduler" element={<SchedulerView />} />
-                <Route path="/apigateway" element={awsServiceRoute('apigateway', 'API Gateway')} />
+                <Route path="/apigateway" element={<APIGatewayView />} />
                 <Route path="/rds" element={<RDSView />} />
                 <Route path="/vpc" element={<VPCView />} />
                 <Route path="/route53" element={awsServiceRoute('route53', 'Route 53')} />
