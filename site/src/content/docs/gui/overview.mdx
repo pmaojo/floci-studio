@@ -1,0 +1,62 @@
+---
+title: The Floci Studio Cockpit
+description: A guided tour of the Floci Studio GUI — the local AWS console for AI-native development. Every screenshot is captured from a real, passing end-to-end test run.
+---
+
+The **Floci Studio cockpit** is a React single-page app that gives you a full
+AWS-style console for your local emulator — ~50 service views, a live event
+stream, a one-click software marketplace, and an AWS capability matrix. It talks
+to the Floci engine (`:4566`) for browser-direct SDK calls and to the FastAPI
+sidecar (`:8000`) for everything that needs a server.
+
+:::note[Every screenshot here is real]
+The images on these pages are **not mock-ups**. They are produced by an
+automated Playwright tour (`.playwright-mcp/gui-tour.spec.ts`) that drives the
+live GUI against a fully-seeded emulator and asserts the data is present before
+each capture. See [How these screenshots are made](/gui/testing/).
+:::
+
+## The dashboard
+
+The landing screen is mission control. The header carries the **REAL DATA ONLY**
+policy badge, the top strip shows live resource counts (S3 buckets, Lambda
+functions, DynamoDB tables, CodeArtifact repos), and the right rail streams every
+AWS call the UI makes — colour-coded by service and status.
+
+![Floci Studio dashboard — System Overview with live resource counts, STS caller identity, a validation matrix, and the real-time event stream](../../../assets/gui/dashboard.png)
+
+The left sidebar groups every emulated service (Computing, Storage, Security &
+Identity, Networking, …). The footer shows process status, the live WebSocket
+indicator, and the in-browser memory footprint.
+
+## AWS capability matrix
+
+Switch to the **AWS Capability Matrix** tab to see, at a glance, every service
+the cockpit can reach — which ones are **native** (browser-direct AWS SDK against
+the emulator) versus **compatibility** (routed through the sidecar's persistent
+JSON store).
+
+![AWS Capability Matrix — 66 services, 27 native client connections and 39 sidecar compatibility connectors, each tagged by category](../../../assets/gui/dashboard-capability-matrix.png)
+
+## Software marketplace
+
+The marketplace turns Docker Compose recipes into one-click local
+infrastructure. Each card shows the recipe, its version, and a **"Deploys to …"**
+badge mapping it to the managed AWS service it stands in for — so what you test
+locally has a clear path to production.
+
+![Software Marketplace — recipe cards for IoT Core, MinIO, Redpanda, Redis, Ollama and the observability stack, each with an AWS-parity badge and a Launch App button](../../../assets/gui/marketplace.png)
+
+## Settings & connection profiles
+
+The settings view manages the emulator endpoint, region, and credentials, and
+lets you save named connection profiles.
+
+![Floci Studio settings view — endpoint, region and credential configuration with saved connection profiles](../../../assets/gui/settings.png)
+
+## Where next
+
+- [Service views — a visual tour](/gui/service-views/) — S3, DynamoDB, Lambda,
+  KMS, CloudWatch and more, each rendering real seeded data.
+- [How these screenshots are made](/gui/testing/) — the reproducible end-to-end
+  harness behind every image on this site.
