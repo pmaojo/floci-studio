@@ -16,4 +16,5 @@ dependencies = [
     "asyncpg>=0.31.0",
     "faker>=40.19.1",
     "pyjwt>=2.13.0",
+    "pytest-asyncio>=1.4.0",
 ]
