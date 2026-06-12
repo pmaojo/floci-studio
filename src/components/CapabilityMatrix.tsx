@@ -41,7 +41,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   // Security & Identity
   { key: 'iam', name: 'IAM Roles', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Users, groups, policies and execution role definitions.' },
   { key: 'sts', name: 'STS Identity', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Token validation and caller identity operations.' },
-  { key: 'cognito', name: 'Cognito Pools', category: 'Security & Identity', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'User pools, identity pools and developer authentication.' },
+  { key: 'cognito', name: 'Cognito Pools', category: 'Security & Identity', type: 'native', endpoint: 'Sidecar Routed', storage: 'Localstack Memory', description: 'User pools, identity pools and developer authentication.' },
   { key: 'identitycenter', name: 'IAM Identity Center', category: 'Security & Identity', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Single sign-on instances metadata store.' },
   { key: 'secrets', name: 'Secrets Manager', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Database credentials and API key secure store.' },
   { key: 'ssm', name: 'SSM Parameters', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Systems Manager Parameter Store configuration strings.' },
