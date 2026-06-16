@@ -21,7 +21,9 @@ import {
   FileJson, 
   Key, 
   Save, 
-  Play
+  Play,
+  Upload,
+  Download
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
 import { unmarshalItem, marshalItem, marshalValue } from './dynamodbUtils';
@@ -57,6 +59,10 @@ const DynamoDBView = () => {
   const [pageHistory, setPageHistory] = useState<Array<Record<string, AttributeValue> | null>>([]); // stack of ExclusiveStartKeys
   const [currentPage, setCurrentPage] = useState(0);
   
+  // Bulk import / export state
+  const [isImporting, setIsImporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
   // Query / Scan operation
   const [operationType, setOperationType] = useState<'scan' | 'query'>('scan');
   const [queryPartitionValue, setQueryPartitionValue] = useState('');
@@ -532,6 +538,78 @@ const DynamoDBView = () => {
     }
   };
 
+  // Bulk Import Logic
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !selectedTableName) return;
+    const file = e.target.files[0];
+
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+      const parsedItems = JSON.parse(text);
+
+      if (!Array.isArray(parsedItems)) {
+        throw new Error("JSON file must contain an array of objects.");
+      }
+
+      let successCount = 0;
+      let failCount = 0;
+
+      // Import sequentially. For large files we might want batching, but for simple emulator seed data this works and requires no extra dependencies.
+      for (const item of parsedItems) {
+        try {
+          const marshalledItem = marshalItem(item);
+          await clients.dynamo.send(new PutItemCommand({
+            TableName: selectedTableName,
+            Item: marshalledItem
+          }));
+          successCount++;
+        } catch (itemErr) {
+          console.error("Failed to import item:", item, itemErr);
+          failCount++;
+        }
+      }
+
+      const msg = `Imported ${successCount} items successfully.` + (failCount > 0 ? ` Failed to import ${failCount} items.` : '');
+      alert(msg);
+      logActivity('DynamoDB', `Imported to ${selectedTableName}`, 'success', msg);
+
+      // Refresh items
+      fetchItems(selectedTableName, null, 'scan');
+    } catch (err) {
+      alert(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `Import failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsImporting(false);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
+    }
+  };
+
+  // Bulk Export Logic
+  const handleExportItems = () => {
+    if (!items || items.length === 0) return;
+    try {
+      setIsExporting(true);
+      const jsonStr = JSON.stringify(items, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedTableName || 'dynamodb'}_export.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      logActivity('DynamoDB', `Exported ${items.length} items from ${selectedTableName}`, 'success');
+    } catch (err) {
+      alert(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `Export failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Filtered tables for left sidebar
   const filteredTables = tables.filter(t => t.toLowerCase().includes(tableSearch.toLowerCase()));
 
@@ -679,13 +757,41 @@ const DynamoDBView = () => {
                             Query Index/Keys
                           </label>
                         </div>
-                        <Button 
-                          size="sm" 
-                          onClick={() => openEditor()} 
-                          icon={<Plus size={12} />}
-                        >
-                          Create Item
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleExportItems}
+                            disabled={isExporting || items.length === 0}
+                            icon={<Download size={12} />}
+                            title="Export all displayed items as JSON"
+                          >
+                            {isExporting ? 'Exporting...' : 'Export JSON'}
+                          </Button>
+                          <label className={`
+                            inline-flex items-center justify-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide
+                            border border-brand-text bg-transparent text-brand-text
+                            hover:bg-brand-text hover:text-brand-bg transition-colors cursor-pointer
+                            ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}
+                          `}>
+                            <Upload size={12} />
+                            {isImporting ? 'Importing...' : 'Import JSON'}
+                            <input
+                              type="file"
+                              accept=".json"
+                              className="hidden"
+                              disabled={isImporting}
+                              onChange={handleImportFile}
+                            />
+                          </label>
+                          <Button
+                            size="sm"
+                            onClick={() => openEditor()}
+                            icon={<Plus size={12} />}
+                          >
+                            Create Item
+                          </Button>
+                        </div>
                       </div>
 
                       {operationType === 'query' && (
