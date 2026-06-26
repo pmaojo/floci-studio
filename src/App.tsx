@@ -19,6 +19,7 @@ const LiveEventsView = lazy(() => import('./views/LiveEventsView'));
 const KMSView = lazy(() => import('./views/KMSView'));
 const ACMView = lazy(() => import('./views/ACMView'));
 const ECSView = lazy(() => import('./views/ECSView'));
+const Ec2View = lazy(() => import('./views/Ec2View'));
 const CloudWatchLogsView = lazy(() => import('./views/CloudWatchLogsView'));
 const EventBridgeView = lazy(() => import('./views/EventBridgeView'));
 const RDSView = lazy(() => import('./views/RDSView'));
@@ -187,7 +188,7 @@ const AppContent = () => {
               <Route path="/studio/pipeline" element={<PipelineView />} />
 
                 <Route path="/ecs" element={<ECSView />} />
-                <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
+                <Route path="/ec2" element={<Ec2View />} />
                 <Route path="/redshift" element={awsServiceRoute('redshift', 'Redshift')} />
                 <Route path="/opensearch" element={awsServiceRoute('opensearch', 'OpenSearch')} />
                 <Route path="/msk" element={awsServiceRoute('msk', 'MSK')} />
