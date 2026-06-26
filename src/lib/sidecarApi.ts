@@ -96,6 +96,14 @@ export interface KubernetesPodSummary {
   }>;
 }
 
+export interface Ec2Overview {
+  endpointUrl: string;
+  region: string;
+  instances: Record<string, unknown>[];
+  vpcs: Record<string, unknown>[];
+  securityGroups: Record<string, unknown>[];
+}
+
 export interface EksOverview {
   endpointUrl: string;
   region: string;
@@ -324,6 +332,7 @@ export const sidecarApi = {
     method: 'DELETE',
   }),
   getEksOverview: () => requestSidecar<EksOverview>('/api/eks/overview'),
+  getEc2Overview: () => requestSidecar<Ec2Overview>('/api/ec2/overview'),
   listAwsServices: () => requestSidecar<{ services: AwsServiceSummary[] }>('/api/aws-services'),
   getAwsServiceOverview: (serviceKey: string) => requestSidecar<AwsServiceOverview>(`/api/aws-services/${encodeURIComponent(serviceKey)}/overview`),
   createCodeArtifactDomain: (name: string) => requestSidecar<AwsServiceOverview>('/api/aws-services/codeartifact/domains', {
