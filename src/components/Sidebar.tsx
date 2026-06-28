@@ -45,7 +45,7 @@ import {
   Binary,
   FileText,
   Sparkles
-} from 'lucide-react';
+, Tag} from 'lucide-react';
 import { useAws } from '../contexts/AwsContext';
 import { cn } from '../lib/utils';
 
@@ -208,6 +208,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     {
       label: 'Floci Management',
       items: [
+        { to: '/tags', icon: Tag, label: 'Resource Tags' },
+
         { to: '/roadmap', icon: Target, label: 'Roadmap' },
         { to: '/codeartifact', icon: Archive, label: 'CodeArtifact' },
         { to: '/ses', icon: Mail, label: 'SES Sink' },
