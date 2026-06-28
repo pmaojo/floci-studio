@@ -51,6 +51,7 @@ const S3View = lazy(() => import('./views/S3View'));
 const MarketplaceView = lazy(() => import('./views/MarketplaceView'));
 const AthenaView = lazy(() => import('./views/AthenaView'));
 const DynamoDBView = lazy(() => import('./views/DynamoDBView'));
+const DataSeederView = lazy(() => import('./views/DataSeederView'));
 const CodeBuildView = lazy(() => import('./views/CodeBuildView'));
 const SchedulerView = lazy(() => import('./views/SchedulerView'));
 const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
@@ -173,6 +174,7 @@ const AppContent = () => {
                 <Route path="/marketplace" element={<MarketplaceView />} />
                 <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
                 <Route path="/settings" element={<SettingsView />} />
+                <Route path="/data-seeder" element={<DataSeederView />} />
 
               <Route path="/studio/architecture" element={<ArchitectureView />} />
               <Route path="/studio/logs" element={<LambdaLogsView />} />

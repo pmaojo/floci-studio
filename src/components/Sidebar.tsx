@@ -102,8 +102,9 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       ]
     },
     {
-      label: 'Storage',
+      label: 'Studio Tools',
       items: [
+        { to: '/data-seeder', icon: DatabaseIcon, label: 'Data Seeder' },
         { to: '/s3', icon: Box, label: 'S3 Buckets' },
         { to: '/dynamodb', icon: List, label: 'DynamoDB' },
         { to: '/ecr', icon: EcrIcon, label: 'ECR Registries' },
