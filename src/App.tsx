@@ -9,6 +9,7 @@ import { AwsProvider } from './contexts/AwsContext';
 import Sidebar from './components/Sidebar';
 
 // Lazy load all views to implement dynamic imports, resolve chunk warnings, and optimize bundling
+const TagsView = lazy(() => import('./views/TagsView'));
 const Dashboard = lazy(() => import('./views/Dashboard'));
 const SQSView = lazy(() => import('./views/SQSView'));
 const SNSView = lazy(() => import('./views/SNSView'));
@@ -173,6 +174,8 @@ const AppContent = () => {
                 <Route path="/marketplace" element={<MarketplaceView />} />
                 <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
                 <Route path="/settings" element={<SettingsView />} />
+                <Route path="/tags" element={<TagsView />} />
+
 
               <Route path="/studio/architecture" element={<ArchitectureView />} />
               <Route path="/studio/logs" element={<LambdaLogsView />} />

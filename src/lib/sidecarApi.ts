@@ -264,6 +264,36 @@ export interface AthenaHistoryItem {
   durationMs?: number;
 }
 
+export interface TagResourceMapping {
+  ResourceARN: string;
+  Tags: { Key: string; Value: string }[];
+}
+
+export interface GetResourcesResult {
+  count: number;
+  resources: TagResourceMapping[];
+  warning?: string;
+}
+
+export interface GetTagKeysResult {
+  tagKeys: string[];
+  warning?: string;
+}
+
+export interface GetTagValuesResult {
+  key: string;
+  values: string[];
+  warning?: string;
+}
+
+export interface TagResult {
+  tagged?: string[];
+  untagged?: string[];
+  failed: Record<string, string>;
+  success: boolean;
+}
+
+
 const sidecarBaseUrl = import.meta.env.VITE_SIDECAR_URL || '/sidecar';
 
 const requestSidecar = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
@@ -300,6 +330,20 @@ const requestDiagnostic = async <T>(path: string): Promise<T> => {
 };
 
 export const sidecarApi = {
+  getTagKeys: () => requestSidecar<GetTagKeysResult>('/api/tags/keys'),
+  getTagValues: (key: string) => requestSidecar<GetTagValuesResult>(`/api/tags/values/${encodeURIComponent(key)}`),
+  getResourcesByTags: (tagFilters?: { Key: string; Values?: string[] }[], resourceTypes?: string[]) => requestSidecar<GetResourcesResult>('/api/tags/resources/search', {
+    method: 'POST',
+    body: JSON.stringify({ tagFilters, resourceTypes }),
+  }),
+  tagResources: (resourceArns: string[], tags: Record<string, string>) => requestSidecar<TagResult>('/api/tags/resources/tag', {
+    method: 'POST',
+    body: JSON.stringify({ resourceArns, tags }),
+  }),
+  untagResources: (resourceArns: string[], tagKeys: string[]) => requestSidecar<TagResult>('/api/tags/resources/untag', {
+    method: 'POST',
+    body: JSON.stringify({ resourceArns, tagKeys }),
+  }),
   health: () => requestSidecar<{ ok: boolean; endpointUrl: string; region: string }>('/health'),
   getLambdaCapabilities: () => requestSidecar<LambdaCapabilities>('/api/lambda/capabilities'),
   listLambdaFunctions: () => requestSidecar<{ ok: boolean; Functions?: Record<string, unknown>[] }>('/api/lambda/functions'),

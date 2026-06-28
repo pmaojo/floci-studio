@@ -294,6 +294,11 @@ AWS_RESOURCE_CATALOG = {
         'description': 'No hay backend operativo configurado para roadmap dentro de Floci.',
         'resources': [],
     },
+    'tags': {
+        'serviceName': 'Tag Editor',
+        'description': 'Editor y buscador global de Resource Groups y Tags.',
+        'resources': [],
+    },
     'redshift': {
         'serviceName': 'Redshift',
         'description': 'Clusters reales de Redshift.',
