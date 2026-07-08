@@ -16,6 +16,7 @@ const IAMView = lazy(() => import('./views/IAMView'));
 const SecretsManagerView = lazy(() => import('./views/SecretsManagerView'));
 const LambdaView = lazy(() => import('./views/LambdaView'));
 const LiveEventsView = lazy(() => import('./views/LiveEventsView'));
+const ApiGatewayView = lazy(() => import('./views/ApiGatewayView'));
 const KMSView = lazy(() => import('./views/KMSView'));
 const ACMView = lazy(() => import('./views/ACMView'));
 const ECSView = lazy(() => import('./views/ECSView'));
@@ -148,7 +149,7 @@ const AppContent = () => {
                 <Route path="/cloudwatch-metrics" element={<CloudWatchMetricsView />} />
                 <Route path="/eventbridge" element={<EventBridgeView />} />
                 <Route path="/scheduler" element={<SchedulerView />} />
-                <Route path="/apigateway" element={awsServiceRoute('apigateway', 'API Gateway')} />
+                <Route path="/apigateway" element={<ApiGatewayView />} />
                 <Route path="/rds" element={<RDSView />} />
                 <Route path="/vpc" element={<VPCView />} />
                 <Route path="/route53" element={awsServiceRoute('route53', 'Route 53')} />
