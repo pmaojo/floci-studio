@@ -104,7 +104,7 @@ const CognitoView = () => {
       <PageHeader
         title="Cognito User Pools"
         icon={<Users size={24} className="text-brand-text" />}
-        description="Manage user directories, identity pools and developer authentication."
+        subtitle="Manage user directories, identity pools and developer authentication."
         actions={
           <Button onClick={() => setIsCreationModalOpen(true)}>
             <CirclePlus size={16} className="mr-2" />
@@ -121,12 +121,15 @@ const CognitoView = () => {
 
       <div className="flex gap-6">
         <div className="flex-1 space-y-4">
-          <Input
-            placeholder="Search user pools..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            icon={<Search size={16} />}
-          />
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <Input
+              placeholder="Search user pools..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
           {loading ? (
             <div className="space-y-3">
