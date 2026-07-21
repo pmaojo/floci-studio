@@ -23,6 +23,7 @@ const CloudWatchLogsView = lazy(() => import('./views/CloudWatchLogsView'));
 const EventBridgeView = lazy(() => import('./views/EventBridgeView'));
 const RDSView = lazy(() => import('./views/RDSView'));
 const VPCView = lazy(() => import('./views/VPCView'));
+const CognitoView = lazy(() => import('./views/CognitoView'));
 const KinesisView = lazy(() => import('./views/KinesisView'));
 const CloudFormationView = lazy(() => import('./views/CloudFormationView'));
 const ECRView = lazy(() => import('./views/ECRView'));
@@ -158,7 +159,7 @@ const AppContent = () => {
                 <Route path="/cloudformation" element={<CloudFormationView />} />
                 <Route path="/appconfig" element={awsServiceRoute('appconfig', 'AppConfig')} />
                 <Route path="/appconfigdata" element={awsServiceRoute('appconfigdata', 'AppConfig Data')} />
-                <Route path="/cognito" element={awsServiceRoute('cognito', 'Cognito')} />
+                <Route path="/cognito" element={<CognitoView />} />
                 <Route path="/ecr" element={<ECRView />} />
                 <Route path="/athena" element={<AthenaView />} />
                 <Route path="/cloudfront" element={awsServiceRoute('cloudfront', 'CloudFront')} />
