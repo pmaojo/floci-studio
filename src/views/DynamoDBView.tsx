@@ -5,7 +5,8 @@ import {
   ScanCommand, 
   QueryCommand, 
   PutItemCommand, 
-  DeleteItemCommand
+  DeleteItemCommand,
+  ExecuteStatementCommand
 } from '@aws-sdk/client-dynamodb';
 import type { AttributeValue, TableDescription } from '@aws-sdk/client-dynamodb';
 import { useAws } from '../contexts/AwsContext';
@@ -45,7 +46,13 @@ const DynamoDBView = () => {
   const [selectedTableName, setSelectedTableName] = useState<string | null>(null);
   const [tableDetails, setTableDetails] = useState<TableDescription | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState<'items' | 'schema' | 'actions'>('items');
+  const [activeTab, setActiveTab] = useState<'items' | 'partiql' | 'schema' | 'actions'>('items');
+
+  // PartiQL Runner state
+  const [partiqlQuery, setPartiqlQuery] = useState('');
+  const [partiqlResults, setPartiqlResults] = useState<any[] | null>(null);
+  const [partiqlError, setPartiqlError] = useState<string | null>(null);
+  const [isPartiqlRunning, setIsPartiqlRunning] = useState(false);
 
   // Items exploration state
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
@@ -92,6 +99,32 @@ const DynamoDBView = () => {
   }, [fetchTables]);
 
   // Fetch Table details (Key Schema, GSIs, description)
+  const handleRunPartiQL = async () => {
+    if (!partiqlQuery.trim()) return;
+
+    setIsPartiqlRunning(true);
+    setPartiqlError(null);
+    setPartiqlResults(null);
+
+    try {
+      const command = new ExecuteStatementCommand({
+        Statement: partiqlQuery,
+      });
+
+      const response = await clients.dynamo.send(command);
+
+      const items = response.Items ? response.Items.map(unmarshalItem) : [];
+      setPartiqlResults(items);
+      logActivity('DynamoDB', `ExecuteStatement success: ${items.length} items returned`, 'success');
+    } catch (error: any) {
+      console.error('PartiQL execution error:', error);
+      setPartiqlError(error.message || 'Error executing PartiQL statement');
+      logActivity('DynamoDB', `ExecuteStatement failed: ${error.message}`, 'error');
+    } finally {
+      setIsPartiqlRunning(false);
+    }
+  };
+
   const fetchTableDetails = async (tableName: string) => {
     setLoadingDetails(true);
     setItemsError(null);
@@ -632,10 +665,15 @@ const DynamoDBView = () => {
 
                 {/* Tabs selection */}
                 <div className="flex gap-2 mt-4 border-t border-brand-text/20 pt-3">
-                  {(['items', 'schema', 'actions'] as const).map(tab => (
+                  {(['items', 'partiql', 'schema', 'actions'] as const).map(tab => (
                     <button
                       key={tab}
-                      onClick={() => setActiveTab(tab)}
+                      onClick={() => {
+                        setActiveTab(tab);
+                        if (tab === 'partiql' && selectedTableName && !partiqlQuery) {
+                          setPartiqlQuery(`SELECT * FROM "${selectedTableName}"`);
+                        }
+                      }}
                       className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider border transition-all ${
                         activeTab === tab
                           ? 'bg-brand-text text-brand-bg border-brand-text'
@@ -643,6 +681,7 @@ const DynamoDBView = () => {
                       }`}
                     >
                       {tab === 'items' && 'Items Explorer'}
+                      {tab === 'partiql' && 'PartiQL Runner'}
                       {tab === 'schema' && 'Table Schema'}
                       {tab === 'actions' && 'Table Operations'}
                     </button>
@@ -875,6 +914,73 @@ const DynamoDBView = () => {
                         >
                           Next
                         </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'partiql' && (
+                  <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                    <div className="p-4 border-b border-brand-text/10 bg-brand-muted/10 shrink-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <label className="text-[10px] font-bold uppercase opacity-60 flex items-center gap-2">
+                            <Database size={12} />
+                            PartiQL Editor
+                          </label>
+                          <textarea
+                            className="w-full bg-brand-muted/20 border border-brand-text p-4 font-mono text-[11px] h-32 focus:outline-none focus:border-brand-green/50 text-brand-text resize-y"
+                            value={partiqlQuery}
+                            onChange={(e) => setPartiqlQuery(e.target.value)}
+                            placeholder={`SELECT * FROM "${selectedTableName}" WHERE id = '123'`}
+                            spellCheck="false"
+                          />
+                        </div>
+                        <div className="pt-6">
+                          <Button
+                            onClick={handleRunPartiQL}
+                            disabled={isPartiqlRunning || !partiqlQuery.trim()}
+                            className="w-32 flex justify-center"
+                            icon={isPartiqlRunning ? undefined : <Play size={12} />}
+                          >
+                            {isPartiqlRunning ? 'RUNNING...' : 'EXECUTE'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 p-4 overflow-auto bg-brand-bg">
+                      <div className="h-full border border-brand-text/10 rounded-sm overflow-hidden flex flex-col bg-white">
+                        <div className="p-2 border-b border-brand-text/10 bg-brand-muted/20 flex justify-between items-center shrink-0">
+                          <h4 className="font-bold text-[10px] uppercase opacity-70 flex items-center gap-2">
+                            <FileJson size={12} />
+                            Execution Results
+                          </h4>
+                          {partiqlResults && (
+                            <span className="text-[9px] font-mono opacity-50">{partiqlResults.length} items</span>
+                          )}
+                        </div>
+                        <div className="flex-1 p-4 overflow-auto bg-[#fafafa]">
+                          {partiqlError ? (
+                            <div className="p-4 border border-rose-500 bg-rose-50 font-mono text-[11px] text-rose-700 flex gap-3 items-start">
+                              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                              <div className="whitespace-pre-wrap">{partiqlError}</div>
+                            </div>
+                          ) : partiqlResults ? (
+                            partiqlResults.length > 0 ? (
+                              <pre className="font-mono text-[11px] text-brand-text whitespace-pre-wrap">
+                                {JSON.stringify(partiqlResults, null, 2)}
+                              </pre>
+                            ) : (
+                              <div className="text-[11px] font-mono opacity-50 italic">Statement executed successfully. No items returned.</div>
+                            )
+                          ) : (
+                            <div className="flex items-center justify-center h-full opacity-30 text-[10px] font-mono uppercase tracking-widest flex-col gap-2">
+                              <Play size={24} />
+                              Enter a PartiQL statement and execute
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
