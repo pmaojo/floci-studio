@@ -24,7 +24,7 @@ importers:
         specifier: ^3.1050.0
         version: 3.1050.0
       '@aws-sdk/client-cognito-identity-provider':
-        specifier: ^3.1101.0
+        specifier: ^3.1049.0
         version: 3.1101.0
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1049.0
