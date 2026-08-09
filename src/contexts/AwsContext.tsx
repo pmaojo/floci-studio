@@ -15,6 +15,7 @@ import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
 import { RDSClient } from '@aws-sdk/client-rds';
 import { KinesisClient } from '@aws-sdk/client-kinesis';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
 import { ECRClient } from '@aws-sdk/client-ecr';
 import { GlueClient } from '@aws-sdk/client-glue';
@@ -86,6 +87,7 @@ interface AwsContextType {
     ssm: SSMClient;
     cloudwatchMetrics: CloudWatchClient;
     ses: SESClient;
+    cognito: CognitoIdentityProviderClient;
   };
   isHealthy: boolean | null;
   wsConnected: boolean;
@@ -181,6 +183,7 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
       ssm: new SSMClient(commonParams),
       cloudwatchMetrics: new CloudWatchClient(commonParams),
       ses: new SESClient(commonParams),
+      cognito: new CognitoIdentityProviderClient(commonParams),
     };
   }, [config]);
 
