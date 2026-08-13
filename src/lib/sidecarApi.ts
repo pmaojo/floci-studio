@@ -383,6 +383,22 @@ export const sidecarApi = {
       method: 'POST',
       body: JSON.stringify({ roleArn, sessionName, durationSeconds, externalId }),
     }),
+
+  // Tags API
+  getTagKeys: () => requestSidecar<{ tagKeys: string[] }>('/api/tags/keys'),
+  getTagValues: (key: string) => requestSidecar<{ key: string; values: string[] }>(`/api/tags/values/${encodeURIComponent(key)}`),
+  searchResources: (payload: { tagFilters?: Array<Record<string, unknown>>; resourceTypes?: string[] }) => requestSidecar<{ count: number; resources: Array<{ ResourceARN: string; Tags: Array<{ Key: string; Value: string }> }> }>('/api/tags/resources/search', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+  tagResources: (resourceArns: string[], tags: Record<string, string>) => requestSidecar<{ tagged: string[]; failed: Record<string, string>; success: boolean }>('/api/tags/resources/tag', {
+    method: 'POST',
+    body: JSON.stringify({ resourceArns, tags }),
+  }),
+  untagResources: (resourceArns: string[], tagKeys: string[]) => requestSidecar<{ untagged: string[]; failed: Record<string, string>; success: boolean }>('/api/tags/resources/untag', {
+    method: 'POST',
+    body: JSON.stringify({ resourceArns, tagKeys }),
+  }),
 };
 
 export const fileToBase64 = (file: File) => {
