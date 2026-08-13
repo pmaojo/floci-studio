@@ -98,6 +98,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
 
   // Floci
   { key: 'roadmap', name: 'Roadmap', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Development roadmap items.' },
+  { key: 'tags', name: 'Global Tag Editor', category: 'Floci Management', type: 'native', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Search and manage tags across all resources.' },
   { key: 'codeartifact', name: 'CodeArtifact', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Code repository artifact domains.' },
   { key: 'ses', name: 'SES Sink', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Email transmission sink logs.' },
 
