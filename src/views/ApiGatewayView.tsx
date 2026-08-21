@@ -4,7 +4,6 @@ import { GetRestApisCommand, CreateRestApiCommand, DeleteRestApiCommand, RestApi
 import { Globe, Trash2, Terminal, Plus, Search } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
 import { format } from 'date-fns';
-import { cn } from '../lib/utils';
 
 const ApiGatewayView = () => {
   const { clients, logActivity, config } = useAws();
@@ -133,7 +132,7 @@ const ApiGatewayView = () => {
                       <div className="mt-3 pt-2 border-t border-brand-text/10 group-hover:border-white/20 text-[9px] font-mono">
                          <div className="flex flex-col gap-1 opacity-70">
                            <span className="font-bold text-[8px] uppercase tracking-widest mb-1 opacity-50">Local Endpoints</span>
-                           <span>https://{api.id}.execute-api.{config.aws_region}.localhost.localstack.cloud:4566</span>
+                           <span>https://{api.id}.execute-api.{config.region}.localhost.localstack.cloud:4566</span>
                            <span>http://localhost:4566/restapis/{api.id}</span>
                          </div>
                       </div>
