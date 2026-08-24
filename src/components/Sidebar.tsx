@@ -211,6 +211,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { to: '/roadmap', icon: Target, label: 'Roadmap' },
         { to: '/codeartifact', icon: Archive, label: 'CodeArtifact' },
         { to: '/ses', icon: Mail, label: 'SES Sink' },
+        { to: '/seeder', icon: DatabaseIcon, label: 'Data Seeder' },
         { to: '/settings', icon: Settings, label: 'System Settings' },
       ]
     },
