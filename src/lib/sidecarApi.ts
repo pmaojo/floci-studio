@@ -301,6 +301,18 @@ const requestDiagnostic = async <T>(path: string): Promise<T> => {
 
 export const sidecarApi = {
   health: () => requestSidecar<{ ok: boolean; endpointUrl: string; region: string }>('/health'),
+
+  seedData: (target: string, targetName: string, connectionString?: string, customSchema?: Record<string, any>) =>
+    requestSidecar<{ status: string; message: string }>('/extensions/seed-data', {
+      method: 'POST',
+      body: JSON.stringify({
+        target,
+        target_name: targetName,
+        connection_string: connectionString,
+        custom_schema: customSchema
+      }),
+    }),
+
   getLambdaCapabilities: () => requestSidecar<LambdaCapabilities>('/api/lambda/capabilities'),
   listLambdaFunctions: () => requestSidecar<{ ok: boolean; Functions?: Record<string, unknown>[] }>('/api/lambda/functions'),
   createLambdaFunction: (payload: CreateLambdaPayload) => requestSidecar<{ ok: boolean }>('/api/lambda/functions', {

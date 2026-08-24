@@ -100,6 +100,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   { key: 'roadmap', name: 'Roadmap', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Development roadmap items.' },
   { key: 'codeartifact', name: 'CodeArtifact', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Code repository artifact domains.' },
   { key: 'ses', name: 'SES Sink', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Email transmission sink logs.' },
+  { key: 'seeder', name: 'Data Seeder', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'None', description: 'Visual data seeder for local databases and S3.' },
 
   // Special/Legacy/WAF
   { key: 'waf', name: 'WAF Web ACLs', category: 'Unsupported in Floci', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Shield WAFv2 rules and ACL blocks.' },
