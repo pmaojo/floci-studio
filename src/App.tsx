@@ -44,6 +44,7 @@ const ExtensibilityView = lazy(() => import('./views/studio/ExtensibilityView'))
 const PipelineView = lazy(() => import('./views/studio/PipelineView'));
 
 const EksView = lazy(() => import('./views/EksView'));
+const EC2View = lazy(() => import('./views/EC2View'));
 const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
 const CostExplorerView = lazy(() => import('./views/CostExplorerView'));
 const PerformanceMonitorView = lazy(() => import('./views/PerformanceMonitorView'));
@@ -187,7 +188,7 @@ const AppContent = () => {
               <Route path="/studio/pipeline" element={<PipelineView />} />
 
                 <Route path="/ecs" element={<ECSView />} />
-                <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
+                <Route path="/ec2" element={<EC2View />} />
                 <Route path="/redshift" element={awsServiceRoute('redshift', 'Redshift')} />
                 <Route path="/opensearch" element={awsServiceRoute('opensearch', 'OpenSearch')} />
                 <Route path="/msk" element={awsServiceRoute('msk', 'MSK')} />
