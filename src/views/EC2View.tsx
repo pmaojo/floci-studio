@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DescribeInstancesCommand,
   DescribeVpcsCommand,
@@ -13,10 +13,9 @@ import {
   HardDrive,
   RefreshCw,
   Search,
-  ExternalLink
+
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton } from '../components/ui-elements';
-import { format } from 'date-fns';
 
 const EC2View = () => {
   const { clients, logActivity, isHealthy } = useAws();
