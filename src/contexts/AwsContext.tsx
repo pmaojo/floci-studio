@@ -11,6 +11,7 @@ import { ECSClient } from '@aws-sdk/client-ecs';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import { KMSClient } from '@aws-sdk/client-kms';
 import { ACMClient } from '@aws-sdk/client-acm';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
 import { RDSClient } from '@aws-sdk/client-rds';
@@ -71,6 +72,7 @@ interface AwsContextType {
     sts: STSClient;
     kms: KMSClient;
     acm: ACMClient;
+    cognito: CognitoIdentityProviderClient;
     cloudwatch: CloudWatchLogsClient;
     eventbridge: EventBridgeClient;
     rds: RDSClient;
@@ -166,6 +168,7 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
       sts: new STSClient(commonParams),
       kms: new KMSClient(commonParams),
       acm: new ACMClient(commonParams),
+      cognito: new CognitoIdentityProviderClient(commonParams),
       cloudwatch: new CloudWatchLogsClient(commonParams),
       eventbridge: new EventBridgeClient(commonParams),
       rds: new RDSClient(commonParams),
