@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Network, Search, CirclePlus, Trash2, Cpu, Globe, Server, Activity } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Network, Search, CirclePlus, Trash2, Globe, Server, Activity } from 'lucide-react';
 import { useAws } from '../contexts/AwsContext';
 import { PageHeader, Card, Skeleton, Button, Input, Modal } from '../components/ui-elements';
 import { GetRestApisCommand, DeleteRestApiCommand, CreateRestApiCommand } from '@aws-sdk/client-api-gateway';
