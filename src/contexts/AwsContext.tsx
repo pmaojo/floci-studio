@@ -26,6 +26,8 @@ import { SFNClient } from '@aws-sdk/client-sfn';
 import { SSMClient } from '@aws-sdk/client-ssm';
 import { CloudWatchClient } from '@aws-sdk/client-cloudwatch';
 import { SESClient } from '@aws-sdk/client-ses';
+import { APIGatewayClient } from '@aws-sdk/client-api-gateway';
+import { ApiGatewayV2Client } from '@aws-sdk/client-apigatewayv2';
 import {
   DEFAULT_CONFIG,
   LEGACY_DEFAULT_ENDPOINT,
@@ -86,6 +88,8 @@ interface AwsContextType {
     ssm: SSMClient;
     cloudwatchMetrics: CloudWatchClient;
     ses: SESClient;
+    apigateway: APIGatewayClient;
+    apigatewayv2: ApiGatewayV2Client;
   };
   isHealthy: boolean | null;
   wsConnected: boolean;
@@ -181,6 +185,8 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
       ssm: new SSMClient(commonParams),
       cloudwatchMetrics: new CloudWatchClient(commonParams),
       ses: new SESClient(commonParams),
+      apigateway: new APIGatewayClient(commonParams),
+      apigatewayv2: new ApiGatewayV2Client(commonParams),
     };
   }, [config]);
 

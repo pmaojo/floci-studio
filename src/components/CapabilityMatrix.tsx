@@ -53,7 +53,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   { key: 'elb', name: 'Elastic Load Balancing', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Load balancer classic and v2 emulations.' },
   { key: 'route53', name: 'DNS Zones', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Hosted zones, resolver rules and DNS records.' },
   { key: 'cloudfront', name: 'CloudFront', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'CDN distributions and edge functions configuration.' },
-  { key: 'apigateway', name: 'API Gateway', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'REST APIs, WebSocket and HTTP APIs endpoint routing.' },
+  { key: 'apigateway', name: 'API Gateway', category: 'Networking & Content', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'REST APIs, WebSocket and HTTP APIs endpoint routing.' },
   { key: 'appsync', name: 'AppSync GraphQL', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'GraphQL APIs schemas and resolvers.' },
   { key: 'transitgateway', name: 'Transit Gateways', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'VPC transit gateway routing nodes.' },
 
