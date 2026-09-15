@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Server, AlertCircle, Link as LinkIcon, Box } from 'lucide-react';
+import { Server, AlertCircle, Link as LinkIcon, Box } from 'lucide-react';
 import { useAws } from '../contexts/AwsContext';
 import { PageHeader, Card, Skeleton } from '../components/ui-elements';
 import { GetRestApisCommand, GetResourcesCommand, RestApi, Resource } from '@aws-sdk/client-api-gateway';
@@ -72,9 +72,9 @@ export default function APIGatewayView() {
         <PageHeader
           title="API Gateway Studio"
           subtitle="Local REST APIs routing and endpoints."
-          icon={Server}
+          icon={<Server size={24} />}
           onRefresh={handleRefresh}
-          isLoading={loading}
+          isRefreshing={loading}
         />
 
         {error && (
