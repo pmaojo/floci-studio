@@ -10,7 +10,15 @@ class RecipeService:
     def __init__(self):
         self.state_file_path = os.path.join(config.state_dir, 'marketplace-installations.json')
         # Point to the real 'recipes' directory at the root of the project
-        self.recipes_dir_path = os.path.abspath(os.path.join(os.getcwd(), 'recipes'))
+        # In testing and different environments, the cwd might be /app or /app/mcp,
+        # so we resolve relative to the file location up to root.
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        self.recipes_dir_path = os.path.abspath(os.path.join(base_dir, 'recipes'))
+        if not os.path.isdir(self.recipes_dir_path):
+            self.recipes_dir_path = os.path.abspath(os.path.join(os.getcwd(), 'recipes'))
+            if not os.path.isdir(self.recipes_dir_path):
+                self.recipes_dir_path = os.path.abspath(os.path.join(os.getcwd(), '..', 'recipes'))
+
         self.log_map: Dict[str, List[str]] = {}
 
     async def list_recipes(self) -> List[Dict[str, Any]]:
