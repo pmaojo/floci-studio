@@ -191,6 +191,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       label: 'Studio Enterprise',
       items: [
         { to: '/studio/service-graph', icon: Share2, label: 'Service Graph (X-Ray)' },
+        { to: '/studio/resource-explorer', icon: Share2, label: 'Resource Explorer' },
         { to: '/studio/dlq', icon: ShieldAlert, label: 'Dead Letter Queues' },
         { to: '/studio/flight-recorder', icon: Activity, label: 'Flight Recorder' },
         { to: '/studio/drift', icon: GitFork, label: 'IaC Drift' },

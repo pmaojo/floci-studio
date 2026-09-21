@@ -34,6 +34,7 @@ const SettingsView = lazy(() => import('./views/SettingsView'));
 const ArchitectureView = lazy(() => import('./views/studio/ArchitectureView'));
 const LambdaLogsView = lazy(() => import('./views/studio/LambdaLogsView'));
 const JwtMocksView = lazy(() => import('./views/studio/JwtMocksView'));
+const ResourceExplorerView = lazy(() => import('./views/studio/ResourceExplorerView'));
 const ApiClientView = lazy(() => import('./views/studio/ApiClientView'));
 const DlqView = lazy(() => import('./views/studio/DlqView'));
 const FlightRecorderView = lazy(() => import('./views/studio/FlightRecorderView'));
@@ -179,6 +180,7 @@ const AppContent = () => {
               <Route path="/studio/jwt" element={<JwtMocksView />} />
               <Route path="/studio/api-client" element={<ApiClientView />} />
               <Route path="/studio/service-graph" element={<ServiceGraphView />} />
+              <Route path="/studio/resource-explorer" element={<ResourceExplorerView />} />
               <Route path="/studio/dlq" element={<DlqView />} />
               <Route path="/studio/flight-recorder" element={<FlightRecorderView />} />
               <Route path="/studio/drift" element={<DriftView />} />
