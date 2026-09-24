@@ -53,15 +53,15 @@ const ApiGatewayView = () => {
     <div className="space-y-6">
       <PageHeader
         title="API Gateway"
-        description="REST APIs endpoint routing."
-        icon={Network}
+        subtitle="REST APIs endpoint routing."
+        icon={<Network className="h-6 w-6 text-emerald-500" />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1 space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-slate-200">REST APIs</h3>
-            <Button variant="ghost" onClick={fetchApis} size="icon" title="Refresh">
+            <Button variant="ghost" onClick={fetchApis} size="sm" title="Refresh">
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
