@@ -56,6 +56,7 @@ const SchedulerView = lazy(() => import('./views/SchedulerView'));
 const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
 const SSMView = lazy(() => import('./views/SSMView'));
 const CloudWatchMetricsView = lazy(() => import('./views/CloudWatchMetricsView'));
+const ApiGatewayView = lazy(() => import('./views/ApiGatewayView'));
 const SESView = lazy(() => import('./views/SESView'));
 import { useAws } from './contexts/AwsContext';
 import { format } from 'date-fns';
@@ -148,10 +149,10 @@ const AppContent = () => {
                 <Route path="/cloudwatch-metrics" element={<CloudWatchMetricsView />} />
                 <Route path="/eventbridge" element={<EventBridgeView />} />
                 <Route path="/scheduler" element={<SchedulerView />} />
-                <Route path="/apigateway" element={awsServiceRoute('apigateway', 'API Gateway')} />
                 <Route path="/rds" element={<RDSView />} />
                 <Route path="/vpc" element={<VPCView />} />
                 <Route path="/route53" element={awsServiceRoute('route53', 'Route 53')} />
+                <Route path="/apigateway" element={<ApiGatewayView />} />
                 <Route path="/stepfunctions" element={<StepFunctionsView />} />
                 <Route path="/kinesis" element={<KinesisView />} />
                 <Route path="/firehose" element={awsServiceRoute('firehose', 'Data Firehose')} />

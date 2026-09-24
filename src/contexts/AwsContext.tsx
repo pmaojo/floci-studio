@@ -19,6 +19,7 @@ import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
 import { ECRClient } from '@aws-sdk/client-ecr';
 import { GlueClient } from '@aws-sdk/client-glue';
 import { ElastiCacheClient } from '@aws-sdk/client-elasticache';
+import { APIGatewayClient } from '@aws-sdk/client-api-gateway';
 import { WAFV2Client } from '@aws-sdk/client-wafv2';
 import { CodeBuildClient } from '@aws-sdk/client-codebuild';
 import { SchedulerClient } from '@aws-sdk/client-scheduler';
@@ -79,6 +80,7 @@ interface AwsContextType {
     ecr: ECRClient;
     glue: GlueClient;
     elasticache: ElastiCacheClient;
+    apigateway: APIGatewayClient;
     waf: WAFV2Client;
     codebuild: CodeBuildClient;
     scheduler: SchedulerClient;
@@ -174,6 +176,7 @@ export const AwsProvider = ({ children }: { children: ReactNode }) => {
       ecr: new ECRClient(commonParams),
       glue: new GlueClient(commonParams),
       elasticache: new ElastiCacheClient(commonParams),
+      apigateway: new APIGatewayClient(commonParams),
       waf: new WAFV2Client(commonParams),
       codebuild: new CodeBuildClient(commonParams),
       scheduler: new SchedulerClient(commonParams),
