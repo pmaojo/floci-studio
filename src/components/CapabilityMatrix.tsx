@@ -97,6 +97,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   { key: 'costexplorer', name: 'Cost Explorer', category: 'Billing & Cost', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Visual cost allocation dashboards based on local resources.' },
 
   // Floci
+  { key: 'data-seeder', name: 'Data Seeder', category: 'Floci Management', type: 'native', endpoint: 'Sidecar Routed', storage: 'Localstack Memory', description: 'Generate mock data for databases and buckets using Faker.' },
   { key: 'roadmap', name: 'Roadmap', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Development roadmap items.' },
   { key: 'codeartifact', name: 'CodeArtifact', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Code repository artifact domains.' },
   { key: 'ses', name: 'SES Sink', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Email transmission sink logs.' },
