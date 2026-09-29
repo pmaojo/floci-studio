@@ -29,6 +29,7 @@ import os
 from mcp.server.fastmcp import FastMCP
 from tools import (
     athena,
+    cognito,
     devtools,
     dynamodb,
     eventbridge,
@@ -65,6 +66,7 @@ for module in [
     stepfunctions,
     athena,
     ses,
+    cognito,
     marketplace,
     devtools,
     observability,
