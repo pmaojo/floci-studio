@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Instalamos dependencias en una capa estable para acelerar reconstrucciones locales.
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN pnpm install
 
 COPY . .
 
