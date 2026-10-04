@@ -29,6 +29,7 @@ import os
 from mcp.server.fastmcp import FastMCP
 from tools import (
     athena,
+    autoscaling,
     devtools,
     dynamodb,
     eventbridge,
@@ -55,6 +56,7 @@ mcp = FastMCP("floci-mcp")
 for module in [
     meta,
     lambda_,
+    autoscaling,
     sqs,
     sns,
     s3,

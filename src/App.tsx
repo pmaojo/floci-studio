@@ -16,6 +16,7 @@ const IAMView = lazy(() => import('./views/IAMView'));
 const SecretsManagerView = lazy(() => import('./views/SecretsManagerView'));
 const LambdaView = lazy(() => import('./views/LambdaView'));
 const LiveEventsView = lazy(() => import('./views/LiveEventsView'));
+const AutoScalingView = lazy(() => import('./views/AutoScalingView'));
 const KMSView = lazy(() => import('./views/KMSView'));
 const ACMView = lazy(() => import('./views/ACMView'));
 const ECSView = lazy(() => import('./views/ECSView'));
@@ -135,7 +136,7 @@ const AppContent = () => {
                 <Route path="/sqs" element={<SQSView />} />
                 <Route path="/sns" element={<SNSView />} />
                 <Route path="/lambda" element={<LambdaView />} />
-                <Route path="/autoscaling" element={awsServiceRoute('autoscaling', 'Auto Scaling')} />
+                <Route path="/autoscaling" element={<AutoScalingView />} />
                 <Route path="/iam" element={<IAMView />} />
                 <Route path="/sts" element={awsServiceRoute('sts', 'STS')} />
                 <Route path="/secrets" element={<SecretsManagerView />} />

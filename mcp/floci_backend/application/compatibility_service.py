@@ -67,7 +67,6 @@ GENERIC_COMPATIBILITY_CATALOG = {
     'sagemaker': {'serviceName': 'SageMaker', 'description': 'Compatibilidad local persistente para SageMaker.', 'resources': [{'id': 'models', 'label': 'Models'}, {'id': 'endpoints', 'label': 'Endpoints'}]},
     'iotcore': {'serviceName': 'IoT Core', 'description': 'Compatibilidad local persistente para IoT Core.', 'resources': [{'id': 'things', 'label': 'Things'}]},
     'batch': {'serviceName': 'AWS Batch', 'description': 'Compatibilidad local persistente para AWS Batch.', 'resources': [{'id': 'job-queues', 'label': 'Job queues'}, {'id': 'compute-environments', 'label': 'Compute environments'}]},
-    'autoscaling': {'serviceName': 'Auto Scaling', 'description': 'Compatibilidad local persistente para Auto Scaling.', 'resources': [{'id': 'auto-scaling-groups', 'label': 'Auto Scaling groups'}, {'id': 'launch-configurations', 'label': 'Launch configurations'}]},
     'transitgateway': {'serviceName': 'Transit Gateway', 'description': 'Compatibilidad local persistente para Transit Gateway.', 'resources': [{'id': 'transit-gateways', 'label': 'Transit gateways'}]},
     'beanstalk': {'serviceName': 'Elastic Beanstalk', 'description': 'Compatibilidad local persistente para Elastic Beanstalk.', 'resources': [{'id': 'applications', 'label': 'Applications'}, {'id': 'environments', 'label': 'Environments'}]},
     'efs': {'serviceName': 'EFS', 'description': 'Compatibilidad local persistente para EFS.', 'resources': [{'id': 'file-systems', 'label': 'File systems'}]},
