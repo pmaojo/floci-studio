@@ -57,6 +57,7 @@ const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
 const SSMView = lazy(() => import('./views/SSMView'));
 const CloudWatchMetricsView = lazy(() => import('./views/CloudWatchMetricsView'));
 const SESView = lazy(() => import('./views/SESView'));
+const CognitoView = lazy(() => import('./views/CognitoView'));
 import { useAws } from './contexts/AwsContext';
 import { format } from 'date-fns';
 import { Menu, ChevronUp, ChevronDown } from 'lucide-react';
@@ -158,7 +159,7 @@ const AppContent = () => {
                 <Route path="/cloudformation" element={<CloudFormationView />} />
                 <Route path="/appconfig" element={awsServiceRoute('appconfig', 'AppConfig')} />
                 <Route path="/appconfigdata" element={awsServiceRoute('appconfigdata', 'AppConfig Data')} />
-                <Route path="/cognito" element={awsServiceRoute('cognito', 'Cognito')} />
+                <Route path="/cognito" element={<CognitoView />} />
                 <Route path="/ecr" element={<ECRView />} />
                 <Route path="/athena" element={<AthenaView />} />
                 <Route path="/cloudfront" element={awsServiceRoute('cloudfront', 'CloudFront')} />
