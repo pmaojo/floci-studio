@@ -57,6 +57,7 @@ const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
 const SSMView = lazy(() => import('./views/SSMView'));
 const CloudWatchMetricsView = lazy(() => import('./views/CloudWatchMetricsView'));
 const SESView = lazy(() => import('./views/SESView'));
+const ApiGatewayView = lazy(() => import('./views/ApiGatewayView'));
 import { useAws } from './contexts/AwsContext';
 import { format } from 'date-fns';
 import { Menu, ChevronUp, ChevronDown } from 'lucide-react';
@@ -133,6 +134,7 @@ const AppContent = () => {
                 <Route path="/s3" element={<S3View />} />
                 <Route path="/dynamodb" element={<DynamoDBView />} />
                 <Route path="/sqs" element={<SQSView />} />
+                <Route path="/apigateway" element={<ApiGatewayView />} />
                 <Route path="/sns" element={<SNSView />} />
                 <Route path="/lambda" element={<LambdaView />} />
                 <Route path="/autoscaling" element={awsServiceRoute('autoscaling', 'Auto Scaling')} />
