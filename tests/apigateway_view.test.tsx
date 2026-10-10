@@ -10,10 +10,10 @@ vi.mock('../src/contexts/AwsContext', () => ({
 
 // Mock ui components
 vi.mock('../src/components/ui-elements', () => ({
-  PageHeader: ({ title, description, actions }: any) => (
+  PageHeader: ({ title, subtitle, actions }: any) => (
     <div data-testid="page-header">
       <h1>{title}</h1>
-      <p>{description}</p>
+      <p>{subtitle}</p>
       <div>{actions}</div>
     </div>
   ),
@@ -21,32 +21,6 @@ vi.mock('../src/components/ui-elements', () => ({
     <div data-testid="card" className={className}>
       {children}
     </div>
-  ),
-  Table: ({ columns, data, emptyMessage }: any) => (
-    <table data-testid="table">
-      <thead>
-        <tr>
-          {columns.map((col: any, i: number) => (
-            <th key={i}>{col.header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.length === 0 ? (
-          <tr>
-            <td colSpan={columns.length}>{emptyMessage}</td>
-          </tr>
-        ) : (
-          data.map((row: any, i: number) => (
-            <tr key={i}>
-              {columns.map((col: any, j: number) => (
-                <td key={j}>{col.accessor(row)}</td>
-              ))}
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
   ),
 }));
 

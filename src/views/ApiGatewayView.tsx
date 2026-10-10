@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAws } from '../contexts/AwsContext';
 import { GetRestApisCommand, RestApi } from '@aws-sdk/client-api-gateway';
-import { PageHeader, Card, Table } from '../components/ui-elements';
+import { PageHeader, Card } from '../components/ui-elements';
 import { Network, RefreshCw } from 'lucide-react';
 
 export default function ApiGatewayView() {
@@ -42,7 +42,7 @@ export default function ApiGatewayView() {
     <div className="space-y-6">
       <PageHeader
         title="API Gateway"
-        description="Manage your local REST APIs routing and endpoints."
+        subtitle="Manage your local REST APIs routing and endpoints."
         icon={<Network />}
         actions={
           <button
@@ -62,12 +62,33 @@ export default function ApiGatewayView() {
         </Card>
       )}
 
-      <Card className="p-0 overflow-hidden">
-        <Table
-          columns={columns}
-          data={apis}
-          emptyMessage="No REST APIs found in local API Gateway."
-        />
+      <Card className="p-0 overflow-hidden overflow-x-auto">
+        <table className="w-full text-left text-[10px] font-mono whitespace-nowrap">
+          <thead className="bg-brand-muted/30 text-brand-text border-b border-brand-text/10">
+            <tr>
+              {columns.map((col, i) => (
+                <th key={i} className="px-4 py-3 font-bold">{col.header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-brand-text/5">
+            {apis.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="px-4 py-8 text-center text-neutral-500 italic">
+                  No REST APIs found in local API Gateway.
+                </td>
+              </tr>
+            ) : (
+              apis.map((api, i) => (
+                <tr key={i} className="hover:bg-brand-muted/10 transition-colors">
+                  {columns.map((col, j) => (
+                    <td key={j} className="px-4 py-3">{col.accessor(api)}</td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </Card>
     </div>
   );
