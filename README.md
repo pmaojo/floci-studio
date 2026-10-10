@@ -1,6 +1,10 @@
 # Floci Studio — The Ultimate Local AWS Cockpit & Marketplace 🚀
 
-Welcome to the ultimate cockpit of **Floci Studio**.
+**Floci Studio is an unofficial, community-built frontend for [Floci](https://floci.io).**
+
+[Floci](https://floci.io) is a free, open-source (MIT) local cloud emulator created and maintained by the Floci authors and contributors ([floci-io](https://github.com/floci-io) on GitHub, main repository [floci-io/floci](https://github.com/floci-io/floci)). Floci does the actual emulation; Floci Studio only adds a GUI, an MCP server and a recipe marketplace on top of it. Floci Studio is not affiliated with or endorsed by the Floci project, and all credit for the emulator goes to its authors.
+
+If you find Floci useful, please star and support the [upstream project](https://github.com/floci-io/floci).
 
 ---
 
@@ -14,7 +18,7 @@ graph TD
     LLM[AI / Claude / Cursor] <-->|JSON-RPC Stdio| MCP[Python MCP Server - uv]
     SPA[Vite SPA - React] <-->|API Calls| Backend[FastAPI Backend - Python]
     MCP <-->|In-Memory ASGI| Backend
-    Backend <-->|Local SDK / FS| LocalStack[AWS Localstack / Floci Studio Engine]
+    Backend <-->|Local SDK / FS| LocalStack[Floci emulator - floci.io]
     Backend <-->|Docker Socket| DockerMarket[Docker Compose - Marketplace]
 
     %% Styles
@@ -29,7 +33,7 @@ graph TD
 * **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of ~30 AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
 * **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
 * **Native MCP Server (Python + `uv`):** Model Context Protocol server with 89 tools that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state, provision local architectures, manage resource tags across all services, and deploy Marketplace recipes — all via natural language.
-* **Engine (AWS Localstack / Floci Studio):** Local AWS emulator exposed on port `4566`.
+* **Engine ([Floci](https://floci.io)):** The local AWS emulator, developed by the Floci project (not part of this repository), exposed on port `4566`. Floci Studio runs the official `floci/floci` Docker image.
 
 ---
 
@@ -198,10 +202,10 @@ Once your application and its associated infrastructure are tested, validated, a
 
 ### 2. Portable Infrastructure as Code (IaC) (Terraform / Pulumi / AWS CDK)
 If your Floci Studio cockpit is interacting with resources like RDS databases, S3 buckets, or SQS queues, using IaC guarantees immediate portability:
-* **How it works:** During local development, you configure your Terraform or AWS CDK provider to redirect API endpoint calls to the local Floci Studio address (`http://localhost:4566`).
+* **How it works:** During local development, you configure your Terraform or AWS CDK provider to redirect API endpoint calls to the local Floci emulator address (`http://localhost:4566`).
 * **Path to production flow:** Simply remove the endpoint rewrite lines from your configuration code so the Terraform SDK or CDK interacts directly with the real global APIs of Amazon Web Services:
   ```hcl
-  # Local Development (pointing to Floci Studio)
+  # Local Development (pointing to the local Floci emulator)
   provider "aws" {
     region                      = "us-east-1"
     s3_use_path_style           = true
@@ -222,7 +226,7 @@ If your Floci Studio cockpit is interacting with resources like RDS databases, S
 
 ### 3. AWS SAM (Serverless Application Model)
 If your application uses event-driven architectures with **AWS Lambda** functions and **API Gateway**:
-* **How it works:** SAM allows you to test interconnected functions locally in Floci Studio and deploy them to real production in a single step.
+* **How it works:** SAM allows you to test interconnected functions locally against Floci and deploy them to real production in a single step.
 * **Path to production flow:**
   ```bash
   # Validate local serverless template
@@ -241,3 +245,9 @@ included GUI
 
 > [!TIP]
 > **Development Excellence:** Floci Studio ensures that 100% of your code and infrastructure will run exactly the same in real AWS as on your development machine. Test locally at zero cost and deploy to production with total confidence!
+
+---
+
+## 🙏 Credits
+
+The AWS emulation behind Floci Studio is provided entirely by **[Floci](https://floci.io)**, an MIT-licensed open-source project by the Floci authors and contributors ([github.com/floci-io/floci](https://github.com/floci-io/floci)). Floci Studio is an independent frontend and is not an official Floci product.
