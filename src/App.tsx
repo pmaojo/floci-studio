@@ -22,7 +22,6 @@ const ECSView = lazy(() => import('./views/ECSView'));
 const CloudWatchLogsView = lazy(() => import('./views/CloudWatchLogsView'));
 const EventBridgeView = lazy(() => import('./views/EventBridgeView'));
 const RDSView = lazy(() => import('./views/RDSView'));
-const DataSeederView = lazy(() => import('./views/studio/DataSeederView'));
 const VPCView = lazy(() => import('./views/VPCView'));
 const KinesisView = lazy(() => import('./views/KinesisView'));
 const CloudFormationView = lazy(() => import('./views/CloudFormationView'));
@@ -32,12 +31,10 @@ const GlueView = lazy(() => import('./views/GlueView'));
 const WAFView = lazy(() => import('./views/WAFView'));
 const SettingsView = lazy(() => import('./views/SettingsView'));
 const APIGatewayView = lazy(() => import('./views/APIGatewayView'));
-const RoadmapView = lazy(() => import('./views/RoadmapView'));
 
 const ArchitectureView = lazy(() => import('./views/studio/ArchitectureView'));
 const LambdaLogsView = lazy(() => import('./views/studio/LambdaLogsView'));
 const JwtMocksView = lazy(() => import('./views/studio/JwtMocksView'));
-const ResourceExplorerView = lazy(() => import('./views/studio/ResourceExplorerView'));
 const ApiClientView = lazy(() => import('./views/studio/ApiClientView'));
 const DlqView = lazy(() => import('./views/studio/DlqView'));
 const FlightRecorderView = lazy(() => import('./views/studio/FlightRecorderView'));
@@ -48,7 +45,6 @@ const ExtensibilityView = lazy(() => import('./views/studio/ExtensibilityView'))
 const PipelineView = lazy(() => import('./views/studio/PipelineView'));
 
 const EksView = lazy(() => import('./views/EksView'));
-const EC2View = lazy(() => import('./views/EC2View'));
 const AwsCliServiceView = lazy(() => import('./views/AwsCliServiceView'));
 const CostExplorerView = lazy(() => import('./views/CostExplorerView'));
 const PerformanceMonitorView = lazy(() => import('./views/PerformanceMonitorView'));
@@ -62,7 +58,6 @@ const StepFunctionsView = lazy(() => import('./views/StepFunctionsView'));
 const SSMView = lazy(() => import('./views/SSMView'));
 const CloudWatchMetricsView = lazy(() => import('./views/CloudWatchMetricsView'));
 const SESView = lazy(() => import('./views/SESView'));
-const CognitoView = lazy(() => import('./views/CognitoView'));
 import { useAws } from './contexts/AwsContext';
 import { format } from 'date-fns';
 import { Menu, ChevronUp, ChevronDown } from 'lucide-react';
@@ -164,7 +159,7 @@ const AppContent = () => {
                 <Route path="/cloudformation" element={<CloudFormationView />} />
                 <Route path="/appconfig" element={awsServiceRoute('appconfig', 'AppConfig')} />
                 <Route path="/appconfigdata" element={awsServiceRoute('appconfigdata', 'AppConfig Data')} />
-                <Route path="/cognito" element={<CognitoView />} />
+                <Route path="/cognito" element={awsServiceRoute('cognito', 'Cognito')} />
                 <Route path="/ecr" element={<ECRView />} />
                 <Route path="/athena" element={<AthenaView />} />
                 <Route path="/cloudfront" element={awsServiceRoute('cloudfront', 'CloudFront')} />
@@ -177,16 +172,14 @@ const AppContent = () => {
                 <Route path="/codedeploy" element={awsServiceRoute('codedeploy', 'CodeDeploy')} />
                 <Route path="/appsync" element={awsServiceRoute('appsync', 'AppSync')} />
                 <Route path="/marketplace" element={<MarketplaceView />} />
-                <Route path="/roadmap" element={<RoadmapView />} />
+                <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
                 <Route path="/settings" element={<SettingsView />} />
 
               <Route path="/studio/architecture" element={<ArchitectureView />} />
               <Route path="/studio/logs" element={<LambdaLogsView />} />
               <Route path="/studio/jwt" element={<JwtMocksView />} />
               <Route path="/studio/api-client" element={<ApiClientView />} />
-              <Route path="/studio/data-seeder" element={<DataSeederView />} />
               <Route path="/studio/service-graph" element={<ServiceGraphView />} />
-              <Route path="/studio/resource-explorer" element={<ResourceExplorerView />} />
               <Route path="/studio/dlq" element={<DlqView />} />
               <Route path="/studio/flight-recorder" element={<FlightRecorderView />} />
               <Route path="/studio/drift" element={<DriftView />} />
@@ -195,7 +188,7 @@ const AppContent = () => {
               <Route path="/studio/pipeline" element={<PipelineView />} />
 
                 <Route path="/ecs" element={<ECSView />} />
-                <Route path="/ec2" element={<EC2View />} />
+                <Route path="/ec2" element={awsServiceRoute('ec2', 'EC2 Inventory')} />
                 <Route path="/redshift" element={awsServiceRoute('redshift', 'Redshift')} />
                 <Route path="/opensearch" element={awsServiceRoute('opensearch', 'OpenSearch')} />
                 <Route path="/msk" element={awsServiceRoute('msk', 'MSK')} />

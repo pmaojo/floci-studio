@@ -22,14 +22,6 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'The GUI',
-					items: [
-						{ label: 'The Cockpit', slug: 'gui/overview' },
-						{ label: 'Service Views (Visual Tour)', slug: 'gui/service-views' },
-						{ label: 'End-to-End GUI Tests', slug: 'gui/testing' },
-					],
-				},
-				{
 					label: 'Guides',
 					items: [
 						{ label: 'SQS — Queues & Messages', slug: 'guides/sqs' },
@@ -65,7 +57,6 @@ export default defineConfig({
 					items: [
 						{ label: 'AWS Service Coverage', slug: 'reference/aws-services' },
 						{ label: 'Marketplace Recipes', slug: 'reference/recipes' },
-						{ label: 'Enterprise Roadmap', slug: 'reference/roadmap' },
 					],
 				},
 			],
