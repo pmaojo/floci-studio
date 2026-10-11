@@ -132,12 +132,44 @@ def register(mcp):
         return {"deleted": True}
 
     @mcp.tool()
-    async def execute_partiql_dynamodb(statement: str) -> dict:
+    async def truncate_dynamodb_table(table: str) -> dict:
         """
-        Ejecuta una consulta PartiQL en DynamoDB.
-        PartiQL es un lenguaje compatible con SQL.
+        Elimina todos los ítems de una tabla DynamoDB.
 
-        Ejemplo: SELECT * FROM "mi_tabla" WHERE "pk" = '123'
+        Realiza un scan para obtener las claves de todos los ítems y los elimina
+        uno por uno usando delete_item. Es útil para limpiar tablas sin tener
+        que eliminarlas y volver a crearlas.
         """
-        r = make_client("dynamodb").execute_statement(Statement=statement)
-        return clean({"items": r.get("Items", [])})
+        client = make_client("dynamodb")
+
+        # Primero necesitamos saber las claves primarias de la tabla
+        table_desc = client.describe_table(TableName=table)
+        key_schema = table_desc["Table"]["KeySchema"]
+        key_names = [k["AttributeName"] for k in key_schema]
+
+        deleted_count = 0
+
+        # Hacemos scan iterativo para obtener todas las claves y eliminarlas
+        scan_params = {
+            "TableName": table,
+            "ProjectionExpression": ", ".join(f"#{k}" for k in key_names),
+            "ExpressionAttributeNames": {f"#{k}": k for k in key_names}
+        }
+
+        while True:
+            r = client.scan(**scan_params)
+            items = r.get("Items", [])
+
+            for item in items:
+                # El ítem ya solo contiene los atributos que forman la clave primaria
+                # y están en formato DynamoDB nativo
+                client.delete_item(TableName=table, Key=item)
+                deleted_count += 1
+
+            last_evaluated_key = r.get("LastEvaluatedKey")
+            if not last_evaluated_key:
+                break
+
+            scan_params["ExclusiveStartKey"] = last_evaluated_key
+
+        return {"table": table, "truncated": True, "deleted_count": deleted_count}

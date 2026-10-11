@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
-from floci_backend.application.resource_explorer import ResourceExplorer
 import jwt
 import httpx
 from pydantic import BaseModel
@@ -110,14 +109,6 @@ async def proxy_request(request: ProxyRequest, http_request: Request):
             logger.exception("Proxy request failed")
             raise HTTPException(status_code=500, detail="Proxy request failed")
 
-@router.get("/studio/resource-explorer")
-async def get_resource_explorer(resource_id: str, resource_type: str):
-    explorer = ResourceExplorer()
-    try:
-        return explorer.get_relations(resource_id, resource_type)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @router.get("/studio/architecture")
 async def get_architecture():
     aws_cli = AwsCli()
@@ -222,28 +213,3 @@ async def websocket_lambda_logs(websocket: WebSocket):
             await websocket.send_text(json.dumps({"type": "error", "message": str(e)}))
         except Exception:
             pass
-
-from pydantic import BaseModel
-from typing import Dict, Any, Optional
-from floci_backend.application.data_seeder import DataSeeder
-
-class SeedRequest(BaseModel):
-    target: str
-    target_name: str
-    connection_string: Optional[str] = None
-    custom_schema: Optional[Dict[str, Any]] = None
-
-@router.post("/studio/seed")
-async def seed_data(request: SeedRequest):
-    seeder = DataSeeder()
-    try:
-        result = await seeder.auto_seed(
-            target=request.target,
-            target_name=request.target_name,
-            connection_string=request.connection_string,
-            custom_schema=request.custom_schema
-        )
-        return result
-    except Exception as e:
-        logger.exception("Data seeder failed")
-        raise HTTPException(status_code=500, detail=str(e))
