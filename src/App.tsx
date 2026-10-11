@@ -22,6 +22,7 @@ const ECSView = lazy(() => import('./views/ECSView'));
 const CloudWatchLogsView = lazy(() => import('./views/CloudWatchLogsView'));
 const EventBridgeView = lazy(() => import('./views/EventBridgeView'));
 const RDSView = lazy(() => import('./views/RDSView'));
+const DataSeederView = lazy(() => import('./views/studio/DataSeederView'));
 const VPCView = lazy(() => import('./views/VPCView'));
 const KinesisView = lazy(() => import('./views/KinesisView'));
 const CloudFormationView = lazy(() => import('./views/CloudFormationView'));
@@ -181,6 +182,7 @@ const AppContent = () => {
               <Route path="/studio/logs" element={<LambdaLogsView />} />
               <Route path="/studio/jwt" element={<JwtMocksView />} />
               <Route path="/studio/api-client" element={<ApiClientView />} />
+              <Route path="/studio/data-seeder" element={<DataSeederView />} />
               <Route path="/studio/service-graph" element={<ServiceGraphView />} />
               <Route path="/studio/resource-explorer" element={<ResourceExplorerView />} />
               <Route path="/studio/dlq" element={<DlqView />} />
