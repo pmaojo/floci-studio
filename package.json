@@ -26,11 +26,11 @@
   },
   "dependencies": {
     "@aws-sdk/client-acm": "^3.1049.0",
+    "@aws-sdk/client-auto-scaling": "^3.1146.0",
     "@aws-sdk/client-cloudformation": "^3.1049.0",
     "@aws-sdk/client-cloudwatch": "^3.1050.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.1049.0",
     "@aws-sdk/client-codebuild": "^3.1050.0",
-    "@aws-sdk/client-cognito-identity-provider": "^3.1147.0",
     "@aws-sdk/client-dynamodb": "^3.1049.0",
     "@aws-sdk/client-ec2": "^3.1049.0",
     "@aws-sdk/client-ecr": "^3.1049.0",
