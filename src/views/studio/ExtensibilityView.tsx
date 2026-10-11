@@ -36,26 +36,48 @@ export default function ExtensibilityView() {
   useEffect(() => { load(); }, []);
 
   const addWebhook = async () => {
-    const res = await fetch('/sidecar/api/extensibility/webhooks', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event: whEvent, url: whUrl }),
-    });
-    if (!res.ok) { setError((await res.json()).error || 'Failed'); return; }
-    setWhUrl(''); await load();
+    try {
+      const res = await fetch('/sidecar/api/extensibility/webhooks', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: whEvent, url: whUrl }),
+      });
+      if (!res.ok) { setError((await res.json()).error || 'Failed'); return; }
+      setWhUrl(''); await load();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Network error');
+    }
   };
-  const delWebhook = async (id: string) => { await fetch(`/sidecar/api/extensibility/webhooks/${id}`, { method: 'DELETE' }); await load(); };
+  const delWebhook = async (id: string) => {
+    try {
+      await fetch(`/sidecar/api/extensibility/webhooks/${id}`, { method: 'DELETE' });
+      await load();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Network error');
+    }
+  };
 
   const addInterceptor = async () => {
     let params: Record<string, unknown> = {};
     try { params = JSON.parse(icParams); } catch { setError('Params must be valid JSON'); return; }
-    const res = await fetch('/sidecar/api/extensibility/interceptors', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url_pattern: icPattern, phase: icPhase, action: icAction, params }),
-    });
-    if (!res.ok) { setError((await res.json()).error || 'Failed'); return; }
-    setIcPattern(''); await load();
+    try {
+      const res = await fetch('/sidecar/api/extensibility/interceptors', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url_pattern: icPattern, phase: icPhase, action: icAction, params }),
+      });
+      if (!res.ok) { setError((await res.json()).error || 'Failed'); return; }
+      setIcPattern(''); await load();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Network error');
+    }
   };
-  const delInterceptor = async (id: string) => { await fetch(`/sidecar/api/extensibility/interceptors/${id}`, { method: 'DELETE' }); await load(); };
+  const delInterceptor = async (id: string) => {
+    try {
+      await fetch(`/sidecar/api/extensibility/interceptors/${id}`, { method: 'DELETE' });
+      await load();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Network error');
+    }
+  };
 
   return (
     <div className="space-y-6">

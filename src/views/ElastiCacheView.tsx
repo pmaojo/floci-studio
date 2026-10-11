@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DescribeCacheClustersCommand, CreateCacheClusterCommand, DeleteCacheClusterCommand } from '@aws-sdk/client-elasticache';
 import type { CacheCluster } from '@aws-sdk/client-elasticache';
 import { useAws } from '../contexts/AwsContext';
@@ -15,7 +15,7 @@ const ElastiCacheView = () => {
   const [nodeType, setNodeType] = useState('cache.t3.micro');
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.elasticache.send(new DescribeCacheClustersCommand({}));
@@ -26,7 +26,7 @@ const ElastiCacheView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.elasticache, logActivity]);
 
   const handleCreate = async () => {
     if (!clusterId) return;
@@ -66,7 +66,7 @@ const ElastiCacheView = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="flex flex-col h-full uppercase">

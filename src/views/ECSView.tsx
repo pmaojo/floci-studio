@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListClustersCommand,
   DescribeClustersCommand,
@@ -32,7 +32,7 @@ const ECSView = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -56,11 +56,11 @@ const ECSView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, clients.ecs, clients.ec2]);
 
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+  }, [fetchData]);
 
   const handleInstanceState = async (instanceId: string, action: 'start' | 'stop') => {
     try {

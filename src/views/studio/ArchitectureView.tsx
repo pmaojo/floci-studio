@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import mermaid from 'mermaid';
 import { Card } from '../../components/ui-elements';
 
@@ -17,7 +17,7 @@ export default function ArchitectureView() {
   const [data, setData] = useState<ArchData | null>(null);
   const [loading, setLoading] = useState(true);
   const [svgContent, setSvgContent] = useState<string>('');
-  const mermaidRef = useRef<HTMLDivElement>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: { primaryColor: '#f97316', lineColor: '#3b82f6' } });
@@ -29,6 +29,7 @@ export default function ArchitectureView() {
         setLoading(false);
       })
       .catch(() => {
+        setFetchError('Failed to load architecture data from the sidecar.');
         setLoading(false);
       });
   }, []);
@@ -79,10 +80,11 @@ export default function ArchitectureView() {
         <div className="p-4">
           {loading ? (
              <div className="flex justify-center p-10"><div className="text-brand-text">Loading...</div></div>
+          ) : fetchError ? (
+            <div className="flex justify-center p-10 text-red-400 text-sm">{fetchError}</div>
           ) : (
             <div className="w-full bg-slate-900 rounded p-4 flex justify-center overflow-x-auto min-h-[400px]">
               <div
-                ref={mermaidRef}
                 className="mermaid"
                 dangerouslySetInnerHTML={{ __html: svgContent }}
               />

@@ -1,11 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   ListTablesCommand, 
   DescribeTableCommand, 
   ScanCommand, 
   QueryCommand, 
   PutItemCommand, 
-  DeleteItemCommand
+  DeleteItemCommand,
+  ExecuteStatementCommand
 } from '@aws-sdk/client-dynamodb';
 import type { AttributeValue, TableDescription } from '@aws-sdk/client-dynamodb';
 import { useAws } from '../contexts/AwsContext';
@@ -21,7 +22,9 @@ import {
   FileJson, 
   Key, 
   Save, 
-  Play
+  Play,
+  Upload,
+  Download
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
 import { unmarshalItem, marshalItem, marshalValue } from './dynamodbUtils';
@@ -45,7 +48,13 @@ const DynamoDBView = () => {
   const [selectedTableName, setSelectedTableName] = useState<string | null>(null);
   const [tableDetails, setTableDetails] = useState<TableDescription | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState<'items' | 'schema' | 'actions'>('items');
+  const [activeTab, setActiveTab] = useState<'items' | 'schema' | 'partiql' | 'actions'>('items');
+
+  // PartiQL state
+  const [partiqlQuery, setPartiqlQuery] = useState('');
+  const [partiqlResults, setPartiqlResults] = useState<any[] | null>(null);
+  const [partiqlError, setPartiqlError] = useState('');
+  const [executingPartiql, setExecutingPartiql] = useState(false);
 
   // Items exploration state
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
@@ -57,6 +66,10 @@ const DynamoDBView = () => {
   const [pageHistory, setPageHistory] = useState<Array<Record<string, AttributeValue> | null>>([]); // stack of ExclusiveStartKeys
   const [currentPage, setCurrentPage] = useState(0);
   
+  // Bulk import / export state
+  const [isImporting, setIsImporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
   // Query / Scan operation
   const [operationType, setOperationType] = useState<'scan' | 'query'>('scan');
   const [queryPartitionValue, setQueryPartitionValue] = useState('');
@@ -75,7 +88,31 @@ const DynamoDBView = () => {
   const [isSavingRecord, setIsSavingRecord] = useState(false);
 
   // Load table list
-  const fetchTables = async () => {
+  const handleExecutePartiql = async () => {
+    if (!partiqlQuery.trim()) return;
+    setExecutingPartiql(true);
+    setPartiqlError('');
+    setPartiqlResults(null);
+    try {
+      const response = await clients.dynamo.send(new ExecuteStatementCommand({
+        Statement: partiqlQuery
+      }));
+      if (response.Items) {
+        setPartiqlResults(response.Items.map((item: any) => unmarshalItem(item)));
+      } else {
+        setPartiqlResults([]);
+      }
+      logActivity('DynamoDB', `Execute PartiQL: ${partiqlQuery.substring(0, 30)}...`, 'success');
+    } catch (err: any) {
+      console.error("PartiQL error:", err);
+      setPartiqlError(err.message || 'Error executing PartiQL statement');
+      logActivity('DynamoDB', 'Execute PartiQL failed', 'error', err.message);
+    } finally {
+      setExecutingPartiql(false);
+    }
+  };
+
+  const fetchTables = useCallback(async () => {
     setLoadingTables(true);
     try {
       const res = await clients.dynamo.send(new ListTablesCommand({}));
@@ -85,11 +122,11 @@ const DynamoDBView = () => {
     } finally {
       setLoadingTables(false);
     }
-  };
+  }, [clients.dynamo, logActivity]);
 
   useEffect(() => {
     fetchTables();
-  }, []);
+  }, [fetchTables]);
 
   // Fetch Table details (Key Schema, GSIs, description)
   const fetchTableDetails = async (tableName: string) => {
@@ -532,6 +569,78 @@ const DynamoDBView = () => {
     }
   };
 
+  // Bulk Import Logic
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !selectedTableName) return;
+    const file = e.target.files[0];
+
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+      const parsedItems = JSON.parse(text);
+
+      if (!Array.isArray(parsedItems)) {
+        throw new Error("JSON file must contain an array of objects.");
+      }
+
+      let successCount = 0;
+      let failCount = 0;
+
+      // Import sequentially. For large files we might want batching, but for simple emulator seed data this works and requires no extra dependencies.
+      for (const item of parsedItems) {
+        try {
+          const marshalledItem = marshalItem(item);
+          await clients.dynamo.send(new PutItemCommand({
+            TableName: selectedTableName,
+            Item: marshalledItem
+          }));
+          successCount++;
+        } catch (itemErr) {
+          console.error("Failed to import item:", item, itemErr);
+          failCount++;
+        }
+      }
+
+      const msg = `Imported ${successCount} items successfully.` + (failCount > 0 ? ` Failed to import ${failCount} items.` : '');
+      alert(msg);
+      logActivity('DynamoDB', `Imported to ${selectedTableName}`, 'success', msg);
+
+      // Refresh items
+      fetchItems(selectedTableName, null, 'scan');
+    } catch (err) {
+      alert(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `Import failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsImporting(false);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
+    }
+  };
+
+  // Bulk Export Logic
+  const handleExportItems = () => {
+    if (!items || items.length === 0) return;
+    try {
+      setIsExporting(true);
+      const jsonStr = JSON.stringify(items, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedTableName || 'dynamodb'}_export.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      logActivity('DynamoDB', `Exported ${items.length} items from ${selectedTableName}`, 'success');
+    } catch (err) {
+      alert(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `Export failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Filtered tables for left sidebar
   const filteredTables = tables.filter(t => t.toLowerCase().includes(tableSearch.toLowerCase()));
 
@@ -632,10 +741,10 @@ const DynamoDBView = () => {
 
                 {/* Tabs selection */}
                 <div className="flex gap-2 mt-4 border-t border-brand-text/20 pt-3">
-                  {(['items', 'schema', 'actions'] as const).map(tab => (
+                      {['items', 'schema', 'partiql', 'actions'].map((tab) => (
                     <button
                       key={tab}
-                      onClick={() => setActiveTab(tab)}
+                      onClick={() => setActiveTab(tab as 'items' | 'schema' | 'partiql' | 'actions')}
                       className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider border transition-all ${
                         activeTab === tab
                           ? 'bg-brand-text text-brand-bg border-brand-text'
@@ -644,6 +753,7 @@ const DynamoDBView = () => {
                     >
                       {tab === 'items' && 'Items Explorer'}
                       {tab === 'schema' && 'Table Schema'}
+                          {tab === 'partiql' && 'PartiQL'}
                       {tab === 'actions' && 'Table Operations'}
                     </button>
                   ))}
@@ -679,13 +789,41 @@ const DynamoDBView = () => {
                             Query Index/Keys
                           </label>
                         </div>
-                        <Button 
-                          size="sm" 
-                          onClick={() => openEditor()} 
-                          icon={<Plus size={12} />}
-                        >
-                          Create Item
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleExportItems}
+                            disabled={isExporting || items.length === 0}
+                            icon={<Download size={12} />}
+                            title="Export all displayed items as JSON"
+                          >
+                            {isExporting ? 'Exporting...' : 'Export JSON'}
+                          </Button>
+                          <label className={`
+                            inline-flex items-center justify-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide
+                            border border-brand-text bg-transparent text-brand-text
+                            hover:bg-brand-text hover:text-brand-bg transition-colors cursor-pointer
+                            ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}
+                          `}>
+                            <Upload size={12} />
+                            {isImporting ? 'Importing...' : 'Import JSON'}
+                            <input
+                              type="file"
+                              accept=".json"
+                              className="hidden"
+                              disabled={isImporting}
+                              onChange={handleImportFile}
+                            />
+                          </label>
+                          <Button
+                            size="sm"
+                            onClick={() => openEditor()}
+                            icon={<Plus size={12} />}
+                          >
+                            Create Item
+                          </Button>
+                        </div>
                       </div>
 
                       {operationType === 'query' && (
@@ -877,6 +1015,90 @@ const DynamoDBView = () => {
                         </Button>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {activeTab === 'partiql' && (
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col h-full">
+                    <Card className="flex flex-col gap-4">
+                      <div>
+                        <h4 className="font-bold text-[11px] uppercase tracking-widest text-brand-text mb-1 flex items-center gap-2">
+                          <Play size={12} className="text-brand-green" /> PartiQL Editor
+                        </h4>
+                        <p className="text-[10px] text-neutral-500 mt-1">
+                          Execute SQL-compatible queries on your DynamoDB table natively via the AWS SDK.
+                          <br />
+                          Example: <code className="bg-neutral-100 px-1 py-0.5 rounded text-neutral-700">SELECT * FROM "{selectedTableName}" WHERE pk = '123'</code>
+                        </p>
+                      </div>
+
+                      <div className="relative">
+                        <textarea
+                          className="w-full h-32 bg-brand-muted/10 border border-brand-text p-4 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-brand-text/50 resize-y"
+                          placeholder={`SELECT * FROM "${selectedTableName}"`}
+                          value={partiqlQuery}
+                          onChange={(e) => setPartiqlQuery(e.target.value)}
+                        />
+                        <div className="absolute bottom-3 right-3">
+                          <Button
+                            onClick={handleExecutePartiql}
+                            disabled={executingPartiql || !partiqlQuery.trim()}
+                            size="sm"
+                            icon={<Play size={12} />}
+                          >
+                            Execute Statement
+                          </Button>
+                        </div>
+                      </div>
+
+                      {partiqlError && (
+                        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 font-mono">
+                          {partiqlError}
+                        </div>
+                      )}
+                    </Card>
+
+                    {partiqlResults && (
+                      <Card className="flex-1 flex flex-col min-h-[300px] overflow-hidden p-0 border-0 shadow-none">
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="font-bold text-[11px] uppercase tracking-widest text-brand-text">
+                            Results ({partiqlResults.length})
+                          </h4>
+                        </div>
+                        <div className="flex-1 overflow-auto bg-white border border-brand-text">
+                          {partiqlResults.length === 0 ? (
+                            <div className="h-full flex items-center justify-center text-[11px] text-neutral-500 italic p-6 text-center">
+                              No items matched the statement.
+                            </div>
+                          ) : (
+                            <table className="w-full text-left border-collapse text-xs">
+                              <thead>
+                                <tr className="border-b border-brand-text bg-brand-muted">
+                                  {Array.from(new Set(partiqlResults.flatMap(Object.keys))).map(key => (
+                                    <th key={key} className="py-2 px-3 font-bold text-[10px] uppercase tracking-wider text-brand-text whitespace-nowrap">
+                                      {key}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {partiqlResults.map((item, idx) => (
+                                  <tr key={idx} className="border-b border-brand-text/10 hover:bg-brand-muted/20 transition-colors">
+                                    {Array.from(new Set(partiqlResults.flatMap(Object.keys))).map(key => (
+                                      <td key={key} className="py-2 px-3 text-[11px] font-mono whitespace-nowrap truncate max-w-[200px]">
+                                        {item[key] !== undefined
+                                          ? (typeof item[key] === 'object' ? JSON.stringify(item[key]) : String(item[key]))
+                                          : <span className="opacity-30">-</span>}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      </Card>
+                    )}
                   </div>
                 )}
 

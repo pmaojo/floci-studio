@@ -75,7 +75,7 @@ function LogModal({ env, recipeId, onClose }: { env: string; recipeId: string; o
         </div>
         <div className="flex-1 overflow-auto p-3 font-mono text-[11px] text-green-400 space-y-0.5 bg-brand-console">
           {logs.length === 0 && <div className="text-slate-500 italic">No logs yet…</div>}
-          {logs.map((l, i) => <div key={i} className={l.startsWith('[SYSTEM]') ? 'text-yellow-400' : ''}>{l}</div>)}
+          {logs.map((l, i) => <div key={`${i}-${l.slice(0, 20)}`} className={l.startsWith('[SYSTEM]') ? 'text-yellow-400' : ''}>{l}</div>)}
         </div>
       </div>
     </div>

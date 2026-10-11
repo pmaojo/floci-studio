@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ListEventBusesCommand, CreateEventBusCommand, PutEventsCommand, ListRulesCommand } from '@aws-sdk/client-eventbridge';
 import type { EventBus, Rule } from '@aws-sdk/client-eventbridge';
 import { useAws } from '../contexts/AwsContext';
@@ -15,7 +15,7 @@ const EventBridgeView = () => {
   const [newBusName, setNewBusName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const busResp = await clients.eventbridge.send(new ListEventBusesCommand({}));
@@ -27,7 +27,7 @@ const EventBridgeView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.eventbridge]);
 
   const handleCreateBus = async () => {
     if (!newBusName) return;
@@ -69,7 +69,7 @@ const EventBridgeView = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="flex flex-col h-full uppercase">

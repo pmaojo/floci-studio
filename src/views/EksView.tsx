@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Boxes, Cable, Server, Terminal } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { useAws } from '../contexts/AwsContext';
@@ -28,7 +28,7 @@ const EksView = () => {
     [overview.clusters],
   );
 
-  const loadOverview = async () => {
+  const loadOverview = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -42,11 +42,11 @@ const EksView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logActivity]);
 
   useEffect(() => {
     loadOverview();
-  }, []);
+  }, [loadOverview]);
 
   return (
     <div className="flex flex-col h-full uppercase">

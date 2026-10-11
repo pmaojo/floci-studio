@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DescribeRepositoriesCommand, CreateRepositoryCommand, DeleteRepositoryCommand } from '@aws-sdk/client-ecr';
 import type { Repository } from '@aws-sdk/client-ecr';
 import { useAws } from '../contexts/AwsContext';
@@ -13,7 +13,7 @@ const ECRView = () => {
   const [newName, setNewName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.ecr.send(new DescribeRepositoriesCommand({}));
@@ -24,7 +24,7 @@ const ECRView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.ecr, logActivity]);
 
   const handleCreate = async () => {
     if (!newName) return;
@@ -59,7 +59,7 @@ const ECRView = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="flex flex-col h-full uppercase">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { sidecarApi, type CostForecastResult } from '../lib/sidecarApi';
 import { PageHeader, Card, Button, Skeleton } from '../components/ui-elements';
 import { TrendingUp, Wallet, RefreshCw, Layers, DollarSign } from 'lucide-react';
@@ -10,7 +10,7 @@ const CostExplorerView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadForecast = async () => {
+  const loadForecast = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -28,11 +28,11 @@ const CostExplorerView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logActivity]);
 
   useEffect(() => {
     loadForecast();
-  }, []);
+  }, [loadForecast]);
 
   // Map service names to Tailwind background colors for the visual budget bar
   const getServiceColorClass = (service: string) => {

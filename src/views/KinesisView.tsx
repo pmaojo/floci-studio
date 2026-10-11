@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   ListStreamsCommand, 
   CreateStreamCommand, 
@@ -65,8 +65,9 @@ const KinesisView = () => {
   const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const iteratorRef = useRef<string | null>(null);
   const terminalBottomRef = useRef<HTMLDivElement>(null);
+  const isStreamingRef = useRef(false);
 
-  const fetchStreams = async () => {
+  const fetchStreams = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.kinesis.send(new ListStreamsCommand({}));
@@ -77,7 +78,7 @@ const KinesisView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.kinesis, logActivity]);
 
   const handleCreate = async () => {
     if (!newStreamName) return;
@@ -179,9 +180,10 @@ const KinesisView = () => {
     }
   };
 
-  const startStreaming = async () => {
+  const startStreaming = useCallback(async () => {
     if (!selectedStreamName || !selectedShardId) return;
     setIsStreaming(true);
+    isStreamingRef.current = true;
     setStreamRecords([]);
     iteratorRef.current = null;
 
@@ -199,7 +201,7 @@ const KinesisView = () => {
       const delay = parseInt(pollingInterval);
       
       const poll = async () => {
-        if (!iteratorRef.current || !isStreaming) return;
+        if (!iteratorRef.current || !isStreamingRef.current) return;
         try {
           const recordsRes = await clients.kinesis.send(new GetRecordsCommand({
             ShardIterator: iteratorRef.current
@@ -242,7 +244,7 @@ const KinesisView = () => {
         }
 
         // Loop next polling cycle
-        if (isStreaming) {
+        if (isStreamingRef.current) {
           pollingRef.current = setTimeout(poll, delay);
         }
       };
@@ -253,10 +255,11 @@ const KinesisView = () => {
       setIsStreaming(false);
       alert(`Could not start stream: ${err instanceof Error ? err.message : String(err)}`);
     }
-  };
+  }, [selectedStreamName, selectedShardId, iteratorType, pollingInterval, clients.kinesis, logActivity]);
 
   const stopStreaming = () => {
     setIsStreaming(false);
+    isStreamingRef.current = false;
     if (pollingRef.current) {
       clearTimeout(pollingRef.current);
       pollingRef.current = null;
@@ -277,15 +280,15 @@ const KinesisView = () => {
     return () => {
       stopStreaming();
     };
-  }, []);
+  }, [fetchStreams]);
 
-  // Update polling thread variables live
+  // Update polling thread variables live — use ref to avoid re-triggering on isStreaming state
   useEffect(() => {
-    if (isStreaming) {
+    if (isStreamingRef.current) {
       stopStreaming();
       startStreaming();
     }
-  }, [selectedShardId, iteratorType, pollingInterval]);
+  }, [selectedShardId, iteratorType, pollingInterval, startStreaming]);
 
   return (
     <div className="flex flex-col h-full uppercase font-sans">

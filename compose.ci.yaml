@@ -1,0 +1,13 @@
+# CI override — removes dev bind-mounts so images are used as built.
+# The development compose.yaml mounts .:/app which hides the .venv and
+# node_modules baked into the image layers; that works locally (devs have
+# those dirs) but breaks in CI where a clean checkout has neither.
+#
+# Usage:
+#   docker compose -f compose.yaml -f compose.ci.yaml up -d
+services:
+  gui:
+    volumes: !reset []
+
+  sidecar:
+    volumes: !reset []

@@ -1,11 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   ListBucketsCommand, 
   CreateBucketCommand, 
   DeleteBucketCommand,
   ListObjectsV2Command,
   PutObjectCommand,
-  DeleteObjectCommand 
+  DeleteObjectCommand,
+  GetBucketCorsCommand,
+  PutBucketCorsCommand,
+  DeleteBucketCorsCommand
 } from '@aws-sdk/client-s3';
 import { useAws } from '../contexts/AwsContext';
 import { 
@@ -20,9 +23,19 @@ import {
   ExternalLink,
   ChevronRight,
   Download,
-  FolderUp
+  FolderUp,
+  Settings
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
+
+const defaultCorsTemplate = `[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": ["ETag"]
+  }
+]`;
 
 const S3View = () => {
   const { clients, logActivity } = useAws();
@@ -105,19 +118,25 @@ const S3View = () => {
     }
   };
 
+  // CORS state
+  const [isCorsModalOpen, setIsCorsModalOpen] = useState(false);
+  const [corsJson, setCorsJson] = useState('');
+  const [isSavingCors, setIsSavingCors] = useState(false);
+  const [corsError, setCorsError] = useState<string | null>(null);
+
   // Fetch all S3 Buckets
-  const fetchBuckets = async () => {
+  const fetchBuckets = useCallback(async () => {
     setLoadingBuckets(true);
     try {
       const response = await clients.s3.send(new ListBucketsCommand({}));
       setBuckets(response.Buckets || []);
       logActivity('S3', 'ListBuckets', 'success');
-    } catch (err: any) {
-      logActivity('S3', 'ListBuckets failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('S3', 'ListBuckets failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingBuckets(false);
     }
-  };
+  }, [clients.s3, logActivity]);
 
   // Create a new S3 Bucket
   const handleCreateBucket = async () => {
@@ -129,9 +148,9 @@ const S3View = () => {
       setNewBucketName('');
       setIsBucketModalOpen(false);
       fetchBuckets();
-    } catch (err: any) {
-      logActivity('S3', `CreateBucket failed: ${newBucketName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('S3', `CreateBucket failed: ${newBucketName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setIsCreatingBucket(false);
     }
@@ -145,9 +164,72 @@ const S3View = () => {
       await clients.s3.send(new DeleteBucketCommand({ Bucket: bucketName }));
       logActivity('S3', `DeleteBucket: ${bucketName}`, 'success');
       fetchBuckets();
+    } catch (err: unknown) {
+      logActivity('S3', `DeleteBucket failed: ${bucketName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Could not delete bucket: ${err instanceof Error ? err.message : String(err)}. Make sure the bucket is empty.`);
+    }
+  };
+
+
+  // --- CORS Management ---
+  const handleOpenCors = async () => {
+    if (!selectedBucket) return;
+    setCorsError(null);
+    setCorsJson('');
+    setIsCorsModalOpen(true);
+    try {
+      const response = await clients.s3.send(new GetBucketCorsCommand({ Bucket: selectedBucket }));
+      if (response.CORSRules) {
+        setCorsJson(JSON.stringify(response.CORSRules, null, 2));
+      } else {
+        setCorsJson(defaultCorsTemplate);
+      }
+      logActivity('S3', `GetBucketCors: ${selectedBucket}`, 'success');
     } catch (err: any) {
-      logActivity('S3', `DeleteBucket failed: ${bucketName}`, 'error', err.message);
-      alert(`Could not delete bucket: ${err.message}. Make sure the bucket is empty.`);
+      if (err.name === 'NoSuchCORSConfiguration') {
+        setCorsJson(defaultCorsTemplate);
+        logActivity('S3', `GetBucketCors: ${selectedBucket} (No config found)`, 'success');
+      } else {
+        setCorsError(err.message);
+        setCorsJson(defaultCorsTemplate);
+        logActivity('S3', `GetBucketCors failed: ${selectedBucket}`, 'error', err.message);
+      }
+    }
+  };
+
+  const handleSaveCors = async () => {
+    if (!selectedBucket) return;
+    setIsSavingCors(true);
+    setCorsError(null);
+    try {
+      const rules = JSON.parse(corsJson);
+      await clients.s3.send(new PutBucketCorsCommand({
+        Bucket: selectedBucket,
+        CORSConfiguration: { CORSRules: rules }
+      }));
+      logActivity('S3', `PutBucketCors: ${selectedBucket}`, 'success');
+      setIsCorsModalOpen(false);
+    } catch (err: any) {
+      setCorsError(err.message);
+      logActivity('S3', `PutBucketCors failed: ${selectedBucket}`, 'error', err.message);
+    } finally {
+      setIsSavingCors(false);
+    }
+  };
+
+  const handleDeleteCors = async () => {
+    if (!selectedBucket) return;
+    setIsSavingCors(true);
+    setCorsError(null);
+    try {
+      await clients.s3.send(new DeleteBucketCorsCommand({ Bucket: selectedBucket }));
+      logActivity('S3', `DeleteBucketCors: ${selectedBucket}`, 'success');
+      setIsCorsModalOpen(false);
+    } catch (err: any) {
+      setCorsError(err.message);
+      logActivity('S3', `DeleteBucketCors failed: ${selectedBucket}`, 'error', err.message);
+    } finally {
+      setIsSavingCors(false);
     }
   };
 
@@ -173,8 +255,8 @@ const S3View = () => {
       setFolders(subdirs);
       setObjects(files);
       logActivity('S3', `ListObjects in ${bucketName} (prefix: "${prefix}")`, 'success');
-    } catch (err: any) {
-      logActivity('S3', `ListObjects failed in ${bucketName}`, 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('S3', `ListObjects failed in ${bucketName}`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingObjects(false);
     }
@@ -226,9 +308,9 @@ const S3View = () => {
       
       logActivity('S3', `UploadObject: ${objectKey}`, 'success');
       fetchObjects(selectedBucket, currentPrefix);
-    } catch (err: any) {
-      logActivity('S3', `UploadObject failed: ${objectKey}`, 'error', err.message);
-      alert(`Upload failed: ${err.message}`);
+    } catch (err: unknown) {
+      logActivity('S3', `UploadObject failed: ${objectKey}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Upload failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -247,9 +329,9 @@ const S3View = () => {
       }));
       logActivity('S3', `DeleteObject: ${objectKey}`, 'success');
       fetchObjects(selectedBucket, currentPrefix);
-    } catch (err: any) {
-      logActivity('S3', `DeleteObject failed: ${objectKey}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('S3', `DeleteObject failed: ${objectKey}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -276,7 +358,7 @@ const S3View = () => {
   // Initial load
   useEffect(() => {
     fetchBuckets();
-  }, []);
+  }, [fetchBuckets]);
 
   return (
     <div className="flex flex-col h-full uppercase">
@@ -290,6 +372,9 @@ const S3View = () => {
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setSelectedBucket(null)} icon={<ArrowLeft size={14} />}>
                 Back to Buckets
+              </Button>
+              <Button variant="secondary" onClick={handleOpenCors} icon={<Settings size={14} />}>
+                CORS Settings
               </Button>
               <input 
                 type="file" 
@@ -341,6 +426,43 @@ const S3View = () => {
              <Button variant="ghost" className="flex-1" onClick={() => setIsBucketModalOpen(false)}>Cancel</Button>
              <Button className="flex-1" onClick={handleCreateBucket} disabled={!newBucketName || isCreatingBucket}>
                {isCreatingBucket ? 'Creating...' : 'Create'}
+             </Button>
+          </div>
+        </div>
+      </Modal>
+
+
+      {/* CORS Modal */}
+      <Modal
+        isOpen={isCorsModalOpen}
+        onClose={() => setIsCorsModalOpen(false)}
+        title={`CORS Configuration: ${selectedBucket}`}
+        className="max-w-2xl"
+      >
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase opacity-60">CORS Rules (JSON Format)</label>
+            <textarea
+              value={corsJson}
+              onChange={e => setCorsJson(e.target.value)}
+              className="w-full h-64 font-mono text-[11px] p-3 border border-brand-text bg-white/50 focus:outline-none focus:ring-1 focus:ring-brand-text"
+              spellCheck={false}
+            />
+          </div>
+          {corsError && (
+             <div className="text-[10px] text-rose-600 bg-rose-50 border border-rose-200 p-2 font-mono">
+               Error: {corsError}
+             </div>
+          )}
+          <div className="pt-4 flex gap-3">
+             <Button variant="ghost" className="flex-1" onClick={handleDeleteCors} disabled={isSavingCors}>
+               Clear CORS
+             </Button>
+             <Button variant="ghost" className="flex-1" onClick={() => setIsCorsModalOpen(false)}>
+               Cancel
+             </Button>
+             <Button className="flex-1" onClick={handleSaveCors} disabled={isSavingCors}>
+               {isSavingCors ? 'Saving...' : 'Save Configuration'}
              </Button>
           </div>
         </div>

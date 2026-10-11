@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DescribeParametersCommand,
   GetParameterCommand,
@@ -49,14 +49,14 @@ const SSMView = () => {
   const [paramTier, setParamTier] = useState<'Standard' | 'Advanced'>('Standard');
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchParameters = async () => {
+  const fetchParameters = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await clients.ssm.send(new DescribeParametersCommand({}));
       const paramsList = response.Parameters || [];
       setParameters(paramsList);
-      
+
       // Auto select first parameter if none selected
       if (paramsList.length > 0 && !selectedParamName) {
         handleSelectParameter(paramsList[0].Name!);
@@ -68,7 +68,7 @@ const SSMView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.ssm, logActivity, selectedParamName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectParameter = async (name: string) => {
     setSelectedParamName(name);
@@ -200,7 +200,7 @@ const SSMView = () => {
 
   useEffect(() => {
     fetchParameters();
-  }, []);
+  }, [fetchParameters]);
 
   const filteredParams = parameters.filter(p => p.Name?.toLowerCase().includes(search.toLowerCase()));
   const activeParamDetail = parameters.find(p => p.Name === selectedParamName);

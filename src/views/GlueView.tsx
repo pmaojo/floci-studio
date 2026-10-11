@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GetDatabasesCommand, CreateDatabaseCommand, DeleteDatabaseCommand, GetTablesCommand } from '@aws-sdk/client-glue';
 import type { Database } from '@aws-sdk/client-glue';
 import { useAws } from '../contexts/AwsContext';
@@ -14,7 +14,7 @@ const GlueView = () => {
   const [newName, setNewName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await clients.glue.send(new GetDatabasesCommand({}));
@@ -37,7 +37,7 @@ const GlueView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.glue, logActivity]);
 
   const handleCreate = async () => {
     if (!newName) return;
@@ -74,7 +74,7 @@ const GlueView = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="flex flex-col h-full uppercase">

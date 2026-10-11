@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   ListMetricsCommand, 
   GetMetricStatisticsCommand, 
@@ -56,7 +56,7 @@ const CloudWatchMetricsView = () => {
   const [alarmStatistic, setAlarmStatistic] = useState<'Average' | 'Sum' | 'Maximum' | 'Minimum'>('Average');
   const [alarmComparison, setAlarmComparison] = useState<'GreaterThanOrEqualToThreshold' | 'GreaterThanThreshold' | 'LessThanThreshold' | 'LessThanOrEqualToThreshold'>('GreaterThanOrEqualToThreshold');
 
-  const fetchCatalog = async () => {
+  const fetchCatalog = useCallback(async () => {
     setLoadingCatalog(true);
     try {
       const res = await clients.cloudwatchMetrics.send(new ListMetricsCommand({}));
@@ -75,15 +75,15 @@ const CloudWatchMetricsView = () => {
         setSelectedMetricName('CPUUtilization');
         generateSimulatedChartData('CPUUtilization');
       }
-    } catch (err: any) {
-      logActivity('CloudWatch', 'ListMetrics failed, using simulation defaults', 'success', err.message);
+    } catch (err: unknown) {
+      logActivity('CloudWatch', 'ListMetrics failed, using simulation defaults', 'success', err instanceof Error ? err.message : String(err));
       setSelectedNamespace('AWS/EC2');
       setSelectedMetricName('CPUUtilization');
       generateSimulatedChartData('CPUUtilization');
     } finally {
       setLoadingCatalog(false);
     }
-  };
+  }, [clients.cloudwatchMetrics, logActivity]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const generateSimulatedChartData = (metricName: string) => {
     setIsSimulatedData(true);
@@ -109,7 +109,7 @@ const CloudWatchMetricsView = () => {
     setDatapoints(mockPoints);
   };
 
-  const fetchMetricStatistics = async (namespace: string, metricName: string) => {
+  const fetchMetricStatistics = useCallback(async (namespace: string, metricName: string) => {
     setLoadingChart(true);
     setIsSimulatedData(false);
     try {
@@ -137,25 +137,25 @@ const CloudWatchMetricsView = () => {
         const sorted = points.sort((a, b) => a.Timestamp!.getTime() - b.Timestamp!.getTime());
         setDatapoints(sorted);
       }
-    } catch (err: any) {
-      logActivity('CloudWatch', 'GetMetricStatistics failed, loading simulation', 'success', err.message);
+    } catch (err: unknown) {
+      logActivity('CloudWatch', 'GetMetricStatistics failed, loading simulation', 'success', err instanceof Error ? err.message : String(err));
       generateSimulatedChartData(metricName);
     } finally {
       setLoadingChart(false);
     }
-  };
+  }, [timeRange, selectedStatistic, clients.cloudwatchMetrics, logActivity]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchAlarms = async () => {
+  const fetchAlarms = useCallback(async () => {
     setLoadingAlarms(true);
     try {
       const res = await clients.cloudwatchMetrics.send(new DescribeAlarmsCommand({}));
       setAlarms(res.MetricAlarms || []);
-    } catch (err: any) {
-      logActivity('CloudWatch', 'DescribeAlarms failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('CloudWatch', 'DescribeAlarms failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingAlarms(false);
     }
-  };
+  }, [clients.cloudwatchMetrics, logActivity]);
 
   const handleCreateAlarm = async () => {
     if (!alarmName) return;
@@ -181,9 +181,9 @@ const CloudWatchMetricsView = () => {
       setAlarmName('');
       setAlarmDescription('');
       fetchAlarms();
-    } catch (err: any) {
-      logActivity('CloudWatch', `CreateAlarm failed: ${alarmName}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('CloudWatch', `CreateAlarm failed: ${alarmName}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setSubmittingAlarm(false);
     }
@@ -195,9 +195,9 @@ const CloudWatchMetricsView = () => {
       await clients.cloudwatchMetrics.send(new DeleteAlarmsCommand({ AlarmNames: [name] }));
       logActivity('CloudWatch', `DeleteAlarm: ${name}`, 'success');
       fetchAlarms();
-    } catch (err: any) {
-      logActivity('CloudWatch', `DeleteAlarm failed for ${name}`, 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('CloudWatch', `DeleteAlarm failed for ${name}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -226,14 +226,14 @@ const CloudWatchMetricsView = () => {
   useEffect(() => {
     fetchCatalog();
     fetchAlarms();
-  }, []);
+  }, [fetchCatalog, fetchAlarms]);
 
   // Poll for metrics whenever selections, statistic, or ranges update
   useEffect(() => {
     if (selectedNamespace && selectedMetricName && !loadingCatalog) {
       fetchMetricStatistics(selectedNamespace, selectedMetricName);
     }
-  }, [selectedNamespace, selectedMetricName, timeRange, selectedStatistic]);
+  }, [selectedNamespace, selectedMetricName, timeRange, selectedStatistic, loadingCatalog, fetchMetricStatistics]);
 
   // Compute SVG Plot Coordinates
   const svgCoordinates = useMemo(() => {
@@ -250,7 +250,7 @@ const CloudWatchMetricsView = () => {
     const chartHeight = height - paddingTop - paddingBottom;
 
     // Resolve statistic key dynamically
-    const values = datapoints.map(d => (d as any)[selectedStatistic] || 0);
+    const values = datapoints.map(d => d[selectedStatistic] ?? 0);
     const maxVal = Math.max(...values, 1) * 1.1; // pad height 10%
     const minVal = 0;
 
@@ -294,7 +294,7 @@ const CloudWatchMetricsView = () => {
         };
       })
     };
-  }, [datapoints, selectedStatistic]);
+  }, [datapoints, selectedStatistic, timeRange]);
 
   const getAlarmStateBadge = (state: string) => {
     switch (state) {
@@ -399,7 +399,7 @@ const CloudWatchMetricsView = () => {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase opacity-60">Statistic</label>
-              <Select value={alarmStatistic} onChange={e => setAlarmStatistic(e.target.value as any)}>
+              <Select value={alarmStatistic} onChange={e => setAlarmStatistic(e.target.value as 'Average' | 'Sum' | 'Maximum' | 'Minimum')}>
                 <option value="Average">Average</option>
                 <option value="Sum">Sum</option>
                 <option value="Maximum">Maximum</option>
@@ -430,7 +430,7 @@ const CloudWatchMetricsView = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase opacity-60">Condition Operator</label>
-              <Select value={alarmComparison} onChange={e => setAlarmComparison(e.target.value as any)}>
+              <Select value={alarmComparison} onChange={e => setAlarmComparison(e.target.value as 'GreaterThanOrEqualToThreshold' | 'GreaterThanThreshold' | 'LessThanThreshold' | 'LessThanOrEqualToThreshold')}>
                 <option value="GreaterThanOrEqualToThreshold">&gt;= threshold</option>
                 <option value="GreaterThanThreshold">&gt; threshold</option>
                 <option value="LessThanThreshold">&lt; threshold</option>
@@ -542,7 +542,7 @@ const CloudWatchMetricsView = () => {
                     {/* Statistic Dropdown */}
                     <Select 
                       value={selectedStatistic} 
-                      onChange={e => setSelectedStatistic(e.target.value as any)}
+                      onChange={e => setSelectedStatistic(e.target.value as 'Average' | 'Sum' | 'Maximum' | 'Minimum')}
                       className="py-1 text-[9px] font-black h-8 w-28 bg-white"
                     >
                       <option value="Average">Average</option>
@@ -652,7 +652,7 @@ const CloudWatchMetricsView = () => {
 
                         {/* Interactive Data coordinate Dots */}
                         {datapoints.map((p, idx) => {
-                          const val = (p as any)[selectedStatistic] || 0;
+                          const val = p[selectedStatistic] ?? 0;
                           const width = 800;
                           const height = 260;
                           const paddingLeft = 60;
@@ -718,8 +718,8 @@ const CloudWatchMetricsView = () => {
 
                 {/* Statistics summaries grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {['Average', 'Sum', 'Maximum', 'Minimum'].map(stat => {
-                    const values = datapoints.map(d => (d as any)[stat] || 0);
+                  {(['Average', 'Sum', 'Maximum', 'Minimum'] as const).map(stat => {
+                    const values = datapoints.map(d => d[stat] ?? 0);
                     let finalVal = 0;
                     if (stat === 'Average') {
                       finalVal = values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 0;

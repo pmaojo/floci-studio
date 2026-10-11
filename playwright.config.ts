@@ -24,8 +24,8 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    /* Overridable via BASE_URL env var so the Docker test container can point at the gui service */
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -35,12 +35,24 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        /* Stable 1440x900 canvas so docs screenshots are reproducible. */
+        viewport: { width: 1440, height: 900 },
+        /*
+         * Sandboxes that ship a pre-baked Chromium (different build than the
+         * one `@playwright/test` pins) can point at it with
+         * PLAYWRIGHT_CHROMIUM_PATH. Unset in CI → Playwright uses its own.
+         */
+        launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+          ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+          : {},
+      },
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
+  /* Start the dev server locally; in CI/Docker the server is an external service */
+  webServer: process.env.CI ? undefined : {
     command: 'pnpm run sidecar:dev & pnpm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true,

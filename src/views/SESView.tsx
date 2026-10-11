@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   ListIdentitiesCommand,
   VerifyEmailIdentityCommand,
@@ -62,7 +62,7 @@ const SESView = () => {
 
   // ─── Data fetching ──────────────────────────────────────────────────────────
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [listRes, quotaRes] = await Promise.all([
@@ -94,9 +94,9 @@ const SESView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.ses, logActivity]);
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   // ─── Verify email ──────────────────────────────────────────────────────────
 

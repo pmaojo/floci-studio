@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   // Roles
   ListRolesCommand,
@@ -117,7 +117,7 @@ const IAMView = () => {
 
   // ─── Data fetch helpers ─────────────────────────────────────────────────────
 
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     setLoadingRoles(true);
     try {
       const r = await clients.iam.send(new ListRolesCommand({}));
@@ -126,9 +126,9 @@ const IAMView = () => {
     } catch (e) {
       logActivity('IAM', 'ListRoles failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingRoles(false); }
-  };
+  }, [clients.iam, logActivity]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoadingUsers(true);
     try {
       const r = await clients.iam.send(new ListUsersCommand({}));
@@ -137,9 +137,9 @@ const IAMView = () => {
     } catch (e) {
       logActivity('IAM', 'ListUsers failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingUsers(false); }
-  };
+  }, [clients.iam, logActivity]);
 
-  const fetchPolicies = async () => {
+  const fetchPolicies = useCallback(async () => {
     setLoadingPolicies(true);
     try {
       const r = await clients.iam.send(new ListPoliciesCommand({ Scope: 'Local' }));
@@ -148,13 +148,13 @@ const IAMView = () => {
     } catch (e) {
       logActivity('IAM', 'ListPolicies failed', 'error', e instanceof Error ? e.message : String(e));
     } finally { setLoadingPolicies(false); }
-  };
+  }, [clients.iam, logActivity]);
 
   useEffect(() => {
     fetchRoles();
     fetchUsers();
     fetchPolicies();
-  }, []);
+  }, [fetchRoles, fetchUsers, fetchPolicies]);
 
   // ─── Detail panel ────────────────────────────────────────────────────────────
 

@@ -20,8 +20,8 @@ export default function JwtMocksView() {
       if (!res.ok) throw new Error(data.error || 'Failed to generate token');
       setToken(data.token);
       setError('');
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
       setToken('');
     }
   };

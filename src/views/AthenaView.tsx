@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   sidecarApi 
 } from '../lib/sidecarApi';
@@ -61,15 +61,6 @@ const AthenaView = () => {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const statusPollRef = useRef<any>(null);
 
-  // Initial loads
-  useEffect(() => {
-    fetchCatalog();
-    fetchHistory();
-    return () => {
-      if (statusPollRef.current) clearInterval(statusPollRef.current);
-    };
-  }, []);
-
   // Sync scroll of line numbers gutter
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -86,7 +77,7 @@ const AthenaView = () => {
     }
   };
 
-  const fetchCatalog = async () => {
+  const fetchCatalog = useCallback(async () => {
     setLoadingCatalog(true);
     try {
       const res = await sidecarApi.getAthenaCatalog();
@@ -101,26 +92,35 @@ const AthenaView = () => {
         }
       }
       logActivity('Athena', 'List databases and tables from Glue', 'success');
-    } catch (err: any) {
-      logActivity('Athena', 'Fetch catalog failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('Athena', 'Fetch catalog failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingCatalog(false);
     }
-  };
+  }, [logActivity]);
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     setLoadingHistory(true);
     try {
       const res = await sidecarApi.getAthenaHistory();
       if (res.ok) {
         setHistory(res.history);
       }
-    } catch (err: any) {
-      logActivity('Athena', 'Fetch execution history failed', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('Athena', 'Fetch execution history failed', 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingHistory(false);
     }
-  };
+  }, [logActivity]);
+
+  // Initial loads
+  useEffect(() => {
+    fetchCatalog();
+    fetchHistory();
+    return () => {
+      if (statusPollRef.current) clearInterval(statusPollRef.current);
+    };
+  }, [fetchCatalog, fetchHistory]);
 
   const handleExecuteQuery = async (overrideQuery?: string) => {
     const code = overrideQuery || queryText;
@@ -142,10 +142,10 @@ const AthenaView = () => {
       } else {
         throw new Error('Could not start query execution');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsExecuting(false);
-      setQueryError(err.message || 'Execution failed');
-      logActivity('Athena', 'Query submission failed', 'error', err.message);
+      setQueryError(err instanceof Error ? err.message : String(err) || 'Execution failed');
+      logActivity('Athena', 'Query submission failed', 'error', err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -174,10 +174,10 @@ const AthenaView = () => {
             setQueryError(res.execution.errorMessage || 'Query failed with standard AWS syntax error');
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         clearInterval(statusPollRef.current);
         setIsExecuting(false);
-        setQueryError(err.message);
+        setQueryError(err instanceof Error ? err.message : String(err));
       }
 
       if (attempts > 30) {
@@ -196,8 +196,8 @@ const AthenaView = () => {
         setHistory([]);
         logActivity('Athena', 'Cleared queries execution history', 'success');
       }
-    } catch (err: any) {
-      alert(`Failed: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 

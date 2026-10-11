@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import type { AliasListEntry } from '@aws-sdk/client-kms';
 import {
   CreateAliasCommand,
@@ -25,7 +25,7 @@ const KMSView = () => {
   const [diagnostic, setDiagnostic] = useState<KmsRoundTripResult | null>(null);
   const [diagnosticRunning, setDiagnosticRunning] = useState(false);
 
-  const fetchKeys = async () => {
+  const fetchKeys = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -35,16 +35,16 @@ const KMSView = () => {
       ]);
       setKeys(keysResponse.Keys || []);
       setAliases(aliasesResponse.Aliases || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch KMS keys');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err) || 'Failed to fetch KMS keys');
     } finally {
       setLoading(false);
     }
-  };
+  }, [clients.kms]);
 
   useEffect(() => {
     fetchKeys();
-  }, []);
+  }, [fetchKeys]);
 
   const handleCreateKey = async () => {
     try {
@@ -54,9 +54,9 @@ const KMSView = () => {
       }));
       logActivity('KMS', 'CreateKey', 'success');
       fetchKeys();
-    } catch (err: any) {
-      logActivity('KMS', 'CreateKey failed', 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('KMS', 'CreateKey failed', 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -88,9 +88,9 @@ const KMSView = () => {
 
       logActivity('KMS', 'CreateAmadeusAlias', 'success', AMADEUS_KMS_ALIAS);
       fetchKeys();
-    } catch (err: any) {
-      logActivity('KMS', 'CreateAmadeusAlias failed', 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('KMS', 'CreateAmadeusAlias failed', 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -103,9 +103,9 @@ const KMSView = () => {
       }));
       logActivity('KMS', 'ScheduleKeyDeletion', 'success', keyId);
       fetchKeys();
-    } catch (err: any) {
-      logActivity('KMS', 'ScheduleKeyDeletion failed', 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('KMS', 'ScheduleKeyDeletion failed', 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -115,9 +115,9 @@ const KMSView = () => {
       await clients.kms.send(new DeleteAliasCommand({ AliasName: aliasName }));
       logActivity('KMS', 'DeleteAlias', 'success', aliasName);
       fetchKeys();
-    } catch (err: any) {
-      logActivity('KMS', 'DeleteAlias failed', 'error', err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      logActivity('KMS', 'DeleteAlias failed', 'error', err instanceof Error ? err.message : String(err));
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -135,13 +135,13 @@ const KMSView = () => {
       );
       // Refresh listings to surface the transient diagnostic key + any cleanup state.
       fetchKeys();
-    } catch (err: any) {
-      logActivity('KMS', 'Diagnostic unreachable', 'error', err.message);
+    } catch (err: unknown) {
+      logActivity('KMS', 'Diagnostic unreachable', 'error', err instanceof Error ? err.message : String(err));
       setDiagnostic({
         ok: false,
         matches: false,
         plaintext: '',
-        steps: [{ name: 'sidecar', ok: false, durationMs: 0, error: err.message }],
+        steps: [{ name: 'sidecar', ok: false, durationMs: 0, error: err instanceof Error ? err.message : String(err) }],
         cleanup: { ok: true },
       });
     } finally {
