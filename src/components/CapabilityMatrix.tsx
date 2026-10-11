@@ -41,7 +41,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   // Security & Identity
   { key: 'iam', name: 'IAM Roles', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Users, groups, policies and execution role definitions.' },
   { key: 'sts', name: 'STS Identity', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Token validation and caller identity operations.' },
-  { key: 'cognito', name: 'Cognito Pools', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'User pools, user management and authentication configurations.' },
+  { key: 'cognito', name: 'Cognito Pools', category: 'Security & Identity', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'User pools, identity pools and developer authentication.' },
   { key: 'identitycenter', name: 'IAM Identity Center', category: 'Security & Identity', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Single sign-on instances metadata store.' },
   { key: 'secrets', name: 'Secrets Manager', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Database credentials and API key secure store.' },
   { key: 'ssm', name: 'SSM Parameters', category: 'Security & Identity', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'Systems Manager Parameter Store configuration strings.' },
@@ -53,7 +53,7 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   { key: 'elb', name: 'Elastic Load Balancing', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Load balancer classic and v2 emulations.' },
   { key: 'route53', name: 'DNS Zones', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Hosted zones, resolver rules and DNS records.' },
   { key: 'cloudfront', name: 'CloudFront', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'CDN distributions and edge functions configuration.' },
-  { key: 'apigateway', name: 'API Gateway', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'REST APIs, WebSocket and HTTP APIs endpoint routing.' },
+  { key: 'apigateway', name: 'API Gateway', category: 'Networking & Content', type: 'native', endpoint: 'Browser-Direct (SDK)', storage: 'Localstack Memory', description: 'REST APIs, WebSocket and HTTP APIs endpoint routing.' },
   { key: 'appsync', name: 'AppSync GraphQL', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'GraphQL APIs schemas and resolvers.' },
   { key: 'transitgateway', name: 'Transit Gateways', category: 'Networking & Content', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'VPC transit gateway routing nodes.' },
 
@@ -97,7 +97,6 @@ const SERVICES_DATA: CapabilityServiceInfo[] = [
   { key: 'costexplorer', name: 'Cost Explorer', category: 'Billing & Cost', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Visual cost allocation dashboards based on local resources.' },
 
   // Floci
-  { key: 'data-seeder', name: 'Data Seeder', category: 'Floci Management', type: 'native', endpoint: 'Sidecar Routed', storage: 'Localstack Memory', description: 'Generate mock data for databases and buckets using Faker.' },
   { key: 'roadmap', name: 'Roadmap', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Development roadmap items.' },
   { key: 'codeartifact', name: 'CodeArtifact', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Code repository artifact domains.' },
   { key: 'ses', name: 'SES Sink', category: 'Floci Management', type: 'compat', endpoint: 'Sidecar Routed', storage: 'JSON Persistent Store', description: 'Email transmission sink logs.' },

@@ -28,6 +28,7 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 from tools import (
+    apigateway,
     athena,
     devtools,
     dynamodb,
@@ -56,6 +57,7 @@ for module in [
     meta,
     lambda_,
     sqs,
+    apigateway,
     sns,
     s3,
     dynamodb,
