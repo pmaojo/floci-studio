@@ -30,6 +30,7 @@ from floci_backend.api.extensibility_routes import create_extensibility_router
 from floci_backend.api.tags_routes import create_tags_router
 from floci_backend.api.ws_routes import create_ws_router
 from floci_backend.api.auth_routes import create_auth_router
+from floci_backend.api.s3_routes import create_s3_router
 
 from floci_backend.application.iac_generator import IacGenerator
 from floci_backend.application.data_seeder import DataSeeder
@@ -139,3 +140,4 @@ app.state.lifecycle_hub = lifecycle_hub
 app.include_router(create_tags_router(tags_service), prefix="/api")
 app.include_router(create_ws_router(realtime_service), prefix="/api")
 app.include_router(create_auth_router(), prefix="/api")
+app.include_router(create_s3_router(), prefix="/api")
