@@ -173,3 +173,14 @@ def register(mcp):
             scan_params["ExclusiveStartKey"] = last_evaluated_key
 
         return {"table": table, "truncated": True, "deleted_count": deleted_count}
+
+    @mcp.tool()
+    async def execute_partiql_dynamodb(statement: str) -> dict:
+        """
+        Ejecuta una consulta PartiQL en DynamoDB.
+        PartiQL es un lenguaje compatible con SQL.
+
+        Ejemplo: SELECT * FROM "mi_tabla" WHERE "pk" = '123'
+        """
+        r = make_client("dynamodb").execute_statement(Statement=statement)
+        return clean({"items": r.get("Items", [])})
