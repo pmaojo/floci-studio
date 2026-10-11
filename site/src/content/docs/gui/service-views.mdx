@@ -1,0 +1,97 @@
+---
+title: Service Views — A Visual Tour
+description: Every Floci Studio service view, rendering real resources seeded into the local AWS emulator. Captured from the automated end-to-end GUI tour.
+---
+
+Each AWS service the cockpit supports has a purpose-built view. The screenshots
+below come straight from the [end-to-end GUI tour](/gui/testing/): the harness
+seeds a realistic dataset into the emulator, opens each view, asserts the seeded
+resources are visible, and captures the screen.
+
+The dataset is deterministic — 4 S3 buckets, 2 DynamoDB tables, 3 Lambda
+functions, 3 KMS keys, 3 secrets, and so on — so these views are exactly what
+you'd see after running `e2e/seed.py` against your own stack.
+
+## S3 — Object storage
+
+Browse buckets and drill into objects. Here: four seeded buckets
+(`floci-app-uploads`, `floci-data-lake`, `floci-static-site`,
+`floci-terraform-state`), with a live `S3.ListBuckets 200` in the event stream.
+
+![S3 Object Storage view showing four buckets as cards](../../../assets/gui/s3.png)
+
+## DynamoDB — Tables & items
+
+A developer console with an items explorer, table schema, and operations tabs.
+Selecting `floci-users` scans the table and renders the typed rows
+(string, boolean) with inline edit/delete actions.
+
+![DynamoDB Developer Console — the floci-users table scanned, showing three typed item rows](../../../assets/gui/dynamodb.png)
+
+## Lambda — Compute
+
+Lists functions with runtime, memory, timeout and handler, plus invoke / code /
+config / logs actions per function.
+
+![Lambda Compute view listing three seeded functions with runtime and configuration metadata](../../../assets/gui/lambda.png)
+
+## SQS — Queues & messages
+
+Standard and FIFO queues with their depths and message controls.
+
+![SQS Queues view listing the seeded job, email and DLQ queues](../../../assets/gui/sqs.png)
+
+## SNS — Topics & subscriptions
+
+Pub/sub topics with their subscriptions.
+
+![SNS Topics view listing alert, billing and deploy topics](../../../assets/gui/sns.png)
+
+## KMS — Cryptography
+
+Customer-managed keys with their aliases, plus diagnose and key-generation
+controls.
+
+![KMS / Cryptography view listing the seeded application, RDS and S3 encryption keys](../../../assets/gui/kms.png)
+
+## Secrets Manager
+
+Secrets with their full ARNs, reveal and rotate/drop actions.
+
+![Secrets Manager view listing the seeded prod database, Stripe and JWT secrets](../../../assets/gui/secrets.png)
+
+## IAM — Identity & access
+
+Roles, users and policies with their trust relationships.
+
+![IAM Identity & Access view listing the seeded execution, task and CI roles](../../../assets/gui/iam.png)
+
+## CloudWatch Logs
+
+A three-pane drill-down: log groups → streams → events. Here, the
+`/aws/lambda/floci-image-resizer` group is opened down to its `START / INFO /
+END` log lines.
+
+![CloudWatch Logs view drilled into a log group, stream and its events](../../../assets/gui/cloudwatch.png)
+
+## ECR — Container registries
+
+Image repositories for your services.
+
+![ECR Registries view listing the seeded api, worker and web repositories](../../../assets/gui/ecr.png)
+
+## Step Functions
+
+State machines rendered as an SVG flowchart alongside their Amazon States
+Language definition.
+
+![Step Functions Explorer rendering the floci-order-fulfillment state machine as a START→Validate→Charge→Ship→END flowchart](../../../assets/gui/stepfunctions.png)
+
+## EC2 — Inventory (via the sidecar)
+
+Some views read through the sidecar's AWS-CLI connector rather than the browser
+SDK. The EC2 inventory shows the source (**AWS CLI SIDECAR**), the endpoint, and
+the real `describe-instances` / `describe-vpcs` output — including the seeded
+`floci-prod-vpc`.
+
+![EC2 inventory view served through the AWS-CLI sidecar connector, showing instances and VPCs](../../../assets/gui/ec2.png)
