@@ -30,6 +30,7 @@ const ElastiCacheView = lazy(() => import('./views/ElastiCacheView'));
 const GlueView = lazy(() => import('./views/GlueView'));
 const WAFView = lazy(() => import('./views/WAFView'));
 const SettingsView = lazy(() => import('./views/SettingsView'));
+const RoadmapView = lazy(() => import('./views/RoadmapView'));
 
 const ArchitectureView = lazy(() => import('./views/studio/ArchitectureView'));
 const LambdaLogsView = lazy(() => import('./views/studio/LambdaLogsView'));
@@ -171,7 +172,7 @@ const AppContent = () => {
                 <Route path="/codedeploy" element={awsServiceRoute('codedeploy', 'CodeDeploy')} />
                 <Route path="/appsync" element={awsServiceRoute('appsync', 'AppSync')} />
                 <Route path="/marketplace" element={<MarketplaceView />} />
-                <Route path="/roadmap" element={awsServiceRoute('roadmap', 'Roadmap')} />
+                <Route path="/roadmap" element={<RoadmapView />} />
                 <Route path="/settings" element={<SettingsView />} />
 
               <Route path="/studio/architecture" element={<ArchitectureView />} />

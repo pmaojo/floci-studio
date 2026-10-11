@@ -65,6 +65,7 @@ export default defineConfig({
 					items: [
 						{ label: 'AWS Service Coverage', slug: 'reference/aws-services' },
 						{ label: 'Marketplace Recipes', slug: 'reference/recipes' },
+						{ label: 'Enterprise Roadmap', slug: 'reference/roadmap' },
 					],
 				},
 			],
