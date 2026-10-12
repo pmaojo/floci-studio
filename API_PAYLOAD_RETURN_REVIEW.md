@@ -3,8 +3,8 @@
 ## Overview
 This review identifies discrepancies between:
 - Frontend API contract definitions (`src/lib/sidecarApi.ts`)
-- Backend route handlers (`mcp/floci_backend/api/*.py`)
-- Service implementations (`mcp/floci_backend/application/*.py`)
+- Backend route handlers (`backend/floci_backend/api/*.py`)
+- Service implementations (`backend/floci_backend/application/*.py`)
 
 ---
 

@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "sidecar:dev": "uv run --project mcp uvicorn floci_backend.server:app --port 8000 --app-dir mcp",
+    "sidecar:dev": "uv run --project backend uvicorn floci_backend.server:app --port 8000 --app-dir backend",
     "dev:full": "docker compose up --build",
     "dev:full:down": "docker compose down",
     "dev:full:reset": "docker compose down -v",
@@ -21,8 +21,7 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "smoke:kms": "node scripts/smoke-kms.mjs",
-    "mcp:start": "uv run --project mcp python mcp/floci_mcp.py"
+    "smoke:kms": "node scripts/smoke-kms.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-acm": "^3.1049.0",

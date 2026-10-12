@@ -6,13 +6,12 @@ ENV UV_COMPILE_BYTECODE=1 \
 WORKDIR /app
 
 # Copiar configuración de dependencias e instalar en limpio
-COPY mcp/pyproject.toml mcp/README.md ./mcp/
-RUN uv sync --project mcp --no-install-project --no-dev
+COPY backend/pyproject.toml backend/README.md ./backend/
+RUN uv sync --project backend --no-install-project --no-dev
 
 # Copiar el código del backend y del servidor MCP
-COPY mcp/floci_backend/ ./mcp/floci_backend/
-COPY mcp/floci_mcp.py ./mcp/
-RUN uv sync --project mcp --no-dev
+COPY backend/floci_backend/ ./backend/floci_backend/
+RUN uv sync --project backend --no-dev
 
 # Capa de ejecución ligera
 FROM python:3.12-alpine
@@ -26,7 +25,7 @@ COPY --from=builder /app /app
 # Local dev: the .:/app volume mount overlays this with the live directory.
 COPY recipes/ ./recipes/
 
-ENV PATH="/app/mcp/.venv/bin:$PATH" \
+ENV PATH="/app/backend/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     AWS_ENDPOINT_URL="http://floci:4566" \
     AWS_DEFAULT_REGION="us-east-1"
@@ -34,4 +33,4 @@ ENV PATH="/app/mcp/.venv/bin:$PATH" \
 EXPOSE 8000
 
 # Arrancar el servidor Uvicorn en el puerto 8000
-CMD ["uvicorn", "mcp.floci_backend.server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend.floci_backend.server:app", "--host", "0.0.0.0", "--port", "8000"]
