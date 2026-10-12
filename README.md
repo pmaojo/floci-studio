@@ -2,7 +2,7 @@
 
 **Floci Studio is an unofficial, community-built frontend for [Floci](https://floci.io).**
 
-[Floci](https://floci.io) is a free, open-source (MIT) local cloud emulator created and maintained by the Floci authors and contributors ([floci-io](https://github.com/floci-io) on GitHub, main repository [floci-io/floci](https://github.com/floci-io/floci)). Floci does the actual emulation; Floci Studio only adds a GUI, an MCP server and a recipe marketplace on top of it. Floci Studio is not affiliated with or endorsed by the Floci project, and all credit for the emulator goes to its authors.
+[Floci](https://floci.io) is a free, open-source (MIT) local cloud emulator created and maintained by the Floci authors and contributors ([floci-io](https://github.com/floci-io) on GitHub, main repository [floci-io/floci](https://github.com/floci-io/floci)). Floci does the actual emulation; Floci Studio only adds a GUI and a recipe marketplace on top of it. The MCP server for AI agents now lives in [floci-mcp-unofficial](https://github.com/pmaojo/floci-mcp-unofficial). Floci Studio is not affiliated with or endorsed by the Floci project, and all credit for the emulator goes to its authors.
 
 If you find Floci useful, please star and support the [upstream project](https://github.com/floci-io/floci).
 
@@ -15,15 +15,12 @@ The Floci Studio ecosystem is composed of several seamlessly coordinated archite
 ```mermaid
 graph TD
     %% Components
-    LLM[AI / Claude / Cursor] <-->|JSON-RPC Stdio| MCP[Python MCP Server - uv]
     SPA[Vite SPA - React] <-->|API Calls| Backend[FastAPI Backend - Python]
-    MCP <-->|In-Memory ASGI| Backend
     Backend <-->|Local SDK / FS| LocalStack[Floci emulator - floci.io]
     Backend <-->|Docker Socket| DockerMarket[Docker Compose - Marketplace]
 
     %% Styles
     style LLM fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
-    style MCP fill:#efebe9,stroke:#8d6e63,stroke-width:2px
     style SPA fill:#ede7f6,stroke:#673ab7,stroke-width:2px
     style Backend fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
     style LocalStack fill:#fff3e0,stroke:#ff9800,stroke-width:2px
@@ -32,7 +29,6 @@ graph TD
 
 * **Vite SPA (React + TypeScript):** Reactive tactical interface with dynamic loading (Lazy Loading) of 50+ AWS service views, optimized to offer ultra-fast rendering and a premium-retro aesthetic.
 * **Backend API (FastAPI + Python):** Backend gateway running on port `8000` that interacts with the Docker Socket, orchestrates Marketplace recipes, routes compatibility calls, and persists state in JSON files on disk.
-* **Native MCP Server (Python + `uv`):** Model Context Protocol server with 89 tools that natively communicates in-memory via `httpx.ASGITransport` with the backend. It enables Large Language Models (LLMs) to audit the AWS emulator state, provision local architectures, manage resource tags across all services, and deploy Marketplace recipes — all via natural language.
 * **Engine ([Floci](https://floci.io)):** The local AWS emulator, developed by the Floci project (not part of this repository), exposed on port `4566`. Floci Studio runs the official `floci/floci` Docker image.
 
 ---
@@ -87,7 +83,7 @@ The catalog ships **35 recipes** out of the box — including a fully local AI s
 
 ### 🔁 Local ↔ AWS Parity
 
-Every recipe maps to a **managed AWS service**, so what you test locally behaves the same in production — the emulator's whole promise. Each recipe carries this mapping in its `recipe.json` (`aws` block), shows it as a **"Deploys to …"** badge on its Marketplace card, and documents it under **Path to AWS** in its README. The MCP server exposes the `aws` block too, so your AI agent can drive the migration.
+Every recipe maps to a **managed AWS service**, so what you test locally behaves the same in production — the emulator's whole promise. Each recipe carries this mapping in its `recipe.json` (`aws` block), shows it as a **"Deploys to …"** badge on its Marketplace card, and documents it under **Path to AWS** in its README. The [MCP server](https://github.com/pmaojo/floci-mcp-unofficial) exposes the `aws` block too, so your AI agent can drive the migration.
 
 | Recipe | Managed AWS service | Switch to production |
 |---|---|---|
@@ -131,57 +127,9 @@ Every recipe maps to a **managed AWS service**, so what you test locally behaves
 
 ---
 
-## 🛠️ Floci Studio MCP Server Integration
+## 🤖 MCP server
 
-The MCP server allows you to interact with your local AWS environment and local software Marketplace using natural language.
-
-### Option A: Native Execution with `uv` (Recommended)
-`uv` automatically manages the virtual environment and Python version transparently without complex global configurations on Windows:
-
-```bash
-# Sync virtual environment and dependencies
-uv sync --project mcp
-
-# Start the MCP server
-uv run --project mcp python mcp/floci_mcp.py
-```
-
-### Option B: Dockerized Execution 🐳
-If you prefer to completely isolate the server or don't have Python/uv on your host, you can run the MCP server directly as an interactive Docker container:
-
-```bash
-# Build the MCP server image
-docker build -t floci-mcp mcp/
-
-# Start the MCP server bound to standard input and output (stdio)
-docker run -i --rm -e AWS_ENDPOINT_URL=http://host.docker.internal:4566 -e SIDECAR_TOKEN=open floci-mcp
-```
-
-### Configuration in Claude Desktop / Cursor
-Add this block to your `claude_desktop_config.json` file to load it automatically:
-
-```json
-{
-  "mcpServers": {
-    "floci-mcp": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--project",
-        "./mcp",
-        "python",
-        "./mcp/floci_mcp.py"
-      ],
-      "env": {
-        "SIDECAR_TOKEN": "open",
-        "AWS_ENDPOINT_URL": "http://127.0.0.1:4566"
-      }
-    }
-  }
-}
-```
-
----
+The Model Context Protocol server that lets AI agents drive Floci moved to its own repository: [floci-mcp-unofficial](https://github.com/pmaojo/floci-mcp-unofficial). It is multi-cloud and no longer depends on Studio.
 
 ## 🚀 From Floci Studio to Real Amazon AWS: How to Go to Production?
 

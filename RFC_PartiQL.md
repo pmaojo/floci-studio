@@ -16,7 +16,7 @@ La implementación respetará rigurosamente los principios de arquitectura de Fl
 
 ### 3.2. MCP Server (Python Backend) - Integración IA
 Para mantener el alineamiento con el espíritu *AI-native* de Floci, la característica también se expondrá como una herramienta MCP.
-- **Archivo**: `mcp/tools/dynamodb.py`.
+- **Archivo**: `floci-mcp-unofficial: tools/dynamodb.py`.
 - **Tool**: `@mcp.tool() async def execute_partiql_dynamodb(statement: str) -> dict`.
 - **Integración Boto3**: Utilizará el proxy estandarizado `make_client("dynamodb").execute_statement(Statement=statement)`.
 
