@@ -55,9 +55,7 @@ export default defineConfig({
 				{
 					label: 'MCP Server',
 					items: [
-						{ label: 'Overview', slug: 'mcp/overview' },
-						{ label: 'Connect Claude / Cursor', slug: 'mcp/setup' },
-						{ label: 'Tools Reference', slug: 'mcp/tools-reference' },
+						{ label: 'Moved to floci-mcp-unofficial', slug: 'mcp/overview' },
 					],
 				},
 				{

@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="The local AWS cockpit for AI-native development. 36 native service views, 119 MCP tools, 35 marketplace recipes — each mapped to a managed AWS service." />
+  <meta name="description" content="The local AWS cockpit for AI-native development. 36 native service views, 35 marketplace recipes — each mapped to a managed AWS service." />
   <title>Floci Studio — Local AWS Cockpit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -424,7 +424,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-badge">119 MCP Tools · Real-Time Dashboard · AWS Profile Support</div>
+    <div class="hero-badge">Real-Time Dashboard · AWS Profile Support · 35 Recipes</div>
     <h1>
       The local AWS cockpit<br />
       for <span>AI-native</span><br />
@@ -486,15 +486,14 @@
       </div>
       <div class="feature-card">
         <div class="feature-icon" style="background:#111; color: #22c55e; border-color:#111;">◈</div>
-        <h3>MCP-Native</h3>
+        <h3>MCP-Ready</h3>
         <p>
-          The first local AWS emulator built with AI agents in mind. Connect Claude, Cursor,
-          or any MCP-compatible client and let your agent create queues, invoke lambdas, read messages,
-          seed DynamoDB tables, and run end-to-end flows — all via natural language.
+          The MCP server for AI agents is its own project now. Connect Claude, Cursor or any
+          MCP-compatible client to the same Floci runtime and let your agent drive it.
         </p>
         <div class="feature-stat">
-          <strong>119</strong>
-          MCP tools across 20 modules
+          <strong><a href="https://github.com/pmaojo/floci-mcp-unofficial">floci-mcp-unofficial</a></strong>
+          separate repository
         </div>
       </div>
       <div class="feature-card">
@@ -592,8 +591,8 @@
           <h2 class="section-title" style="color: #f5f5f0;">Let your AI agent drive the whole stack.</h2>
           <p class="section-sub">
             Connect Claude Desktop, Cursor, or any MCP client with a single config block.
-            Your agent gets 119 tools: create queues, publish events, invoke lambdas, seed databases,
-            tag resources across services, generate architecture diagrams, export Terraform — all from a conversation.
+            The server lives in <a href="https://github.com/pmaojo/floci-mcp-unofficial">floci-mcp-unofficial</a>: AWS, Azure, GCP and OCI tools,
+            and the same recipe catalog, all from a conversation.
           </p>
           <div class="mcp-tools-list">
             {['SQS', 'SNS', 'SES', 'S3', 'Lambda', 'DynamoDB', 'EventBridge', 'Step Functions',
@@ -610,8 +609,8 @@
           <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"command"</span>: <span style="color:#86efac">"uv"</span>,</div>
           <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"args"</span>: [</div>
           <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"run"</span>, <span style="color:#86efac">"--project"</span>,</div>
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"./mcp"</span>, <span style="color:#86efac">"python"</span>,</div>
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"./mcp/floci_mcp.py"</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"/path/to/floci-mcp-unofficial"</span>,</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"python"</span>, <span style="color:#86efac">"floci_mcp.py"</span></div>
           <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],</div>
           <div class="white">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"env"</span>: {`{`}</div>
           <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yellow">"SIDECAR_TOKEN"</span>: <span style="color:#86efac">"open"</span>,</div>

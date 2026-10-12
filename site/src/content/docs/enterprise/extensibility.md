@@ -189,18 +189,19 @@ proprietary internal API, a niche AWS service, or a wrapper around a CLI tool
 
 ### Directory layout
 
-Drop a folder inside `mcp/plugins/`:
+Drop a folder inside the `plugins/` directory of [floci-mcp-unofficial](https://github.com/pmaojo/floci-mcp-unofficial):
 
 ```
-mcp/plugins/
+plugins/
 └── my_plugin/
     ├── plugin.json   ← manifest
     └── tools.py      ← MCP tool registrations
 ```
 
 The MCP server discovers every `plugin.json` at startup and loads the matching
-`tools.py`. The backend exposes the full catalog at
-`GET /api/extensibility/plugins`.
+`tools.py`. The Studio backend lists the plugins it finds in `backend/plugins/` (or
+`FLOCI_PLUGINS_DIR`) at `GET /api/extensibility/plugins`; point both at the same
+folder to see them in the cockpit.
 
 ### `plugin.json`
 
@@ -248,15 +249,15 @@ tools.
 ### Overriding the plugins directory
 
 Set `FLOCI_PLUGINS_DIR` to load plugins from a different path — useful for
-monorepos where plugins live outside the `mcp/` tree:
+monorepos where plugins live outside the repository:
 
 ```bash
-FLOCI_PLUGINS_DIR=/workspace/floci-plugins uv run --project mcp python mcp/floci_mcp.py
+FLOCI_PLUGINS_DIR=/workspace/floci-plugins uv run python floci_mcp.py
 ```
 
 ### Bundled example
 
-`mcp/plugins/example_hello/` is a minimal working plugin you can copy as a
+`plugins/example_hello/` is a minimal working plugin you can copy as a
 template. It registers one tool, `floci_hello`, that accepts a name and returns
 a greeting.
 
@@ -280,4 +281,4 @@ Claude: [calls floci_hello(name="Alice")]
 | **MCP — interceptors** | `list_http_interceptors` · `register_http_interceptor` · `delete_http_interceptor` |
 | **MCP — plugins** | `list_floci_plugins` |
 | **State file** | `state/lifecycle.json` |
-| **Plugins dir** | `mcp/plugins/` (override with `FLOCI_PLUGINS_DIR`) |
+| **Plugins dir** | `plugins/` (override with `FLOCI_PLUGINS_DIR`) |

@@ -1,6 +1,6 @@
 # Python dependencies for the Floci Studio E2E harness (see e2e/README.md).
 #
-# Installed into a dedicated e2e/.venv so a `uv sync --project mcp` (which the
+# Installed into a dedicated e2e/.venv so a `uv sync --project backend` (which the
 # web SessionStart hook runs) never prunes them.
 #
 #   uv venv e2e/.venv

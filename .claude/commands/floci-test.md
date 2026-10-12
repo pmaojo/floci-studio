@@ -1,6 +1,6 @@
 # Floci Studio — Run UI Tests
 
-Run Playwright end-to-end tests via the Floci Studio MCP using `run_ui_tests`.
+Run Playwright end-to-end tests via the floci-mcp-unofficial MCP server using `run_ui_tests`.
 
 ## Arguments
 

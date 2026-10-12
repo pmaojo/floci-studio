@@ -131,7 +131,7 @@ export default function ExtensibilityView() {
       <Card className="p-0">
         <div className="border-b border-brand-text bg-brand-muted p-4 flex items-center gap-2"><Puzzle size={16} /><h3 className="font-serif-italic text-lg text-brand-text">Installed Plugins</h3></div>
         <div className="p-4 space-y-2">
-          {plugins.length === 0 && <div className="text-slate-500 italic">No plugins installed. Drop one into mcp/plugins/&lt;name&gt;/.</div>}
+          {plugins.length === 0 && <div className="text-slate-500 italic">No plugins installed. Drop one into backend/plugins/&lt;name&gt;/.</div>}
           {plugins.map(p => (
             <div key={p.id} className="border border-slate-700 p-3">
               <div className="flex items-center justify-between">

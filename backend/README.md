@@ -1,8 +1,13 @@
-# Floci MCP Server
+# Floci Studio backend
 
-Model Context Protocol (MCP) server written in Python to interact with Floci.io (local AWS emulator and Sidecar) and its Infrastructure Applications Marketplace.
+FastAPI gateway behind the Floci Studio cockpit. It talks to the Floci emulator,
+orchestrates the recipe Marketplace with Docker Compose and keeps the cockpit's
+state on disk.
 
-This MCP server enables AI agents (like Claude Desktop or Cursor) to directly interface with Floci via natural language. By connecting through the MCP protocol, your AI can:
-- **Audit AWS state:** Query and inspect resources across local AWS services directly.
-- **Provision infrastructure:** Deploy and manage Marketplace apps (e.g., PostgreSQL, Redis, MinIO) locally using Docker Compose recipes.
-- **Run local diagnostics:** Perform tasks like data seeding, network topology mapping, or test execution to speed up development workflows.
+```bash
+uv sync --project backend
+uv run --project backend uvicorn floci_backend.server:app --port 8000 --app-dir backend
+```
+
+The MCP server that used to live here is now a separate project:
+[floci-mcp-unofficial](https://github.com/pmaojo/floci-mcp-unofficial).

@@ -1,6 +1,6 @@
 # Floci Studio — Explore
 
-Survey the full state of the local Floci Studio environment using the MCP tools.
+Survey the full state of the local Floci Studio environment using the tools of [floci-mcp-unofficial](https://github.com/pmaojo/floci-mcp-unofficial).
 
 ## Steps
 

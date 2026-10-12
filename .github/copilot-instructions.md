@@ -4,30 +4,27 @@ Welcome, AI Agent. When working on this repository, you must strictly adhere to 
 
 ## 1. Terminology Directive
 - **ALWAYS** refer to the project as **'Floci Studio'** (never 'Floci.io' or 'Floci').
-- Refer to its MCP server specifically as **'Floci Studio MCP'**.
 - Ensure all documentation, commit messages, and outputs adhere to this exact naming convention.
 
 ## 2. Project Architecture
 - **Frontend**: A Vite React Single Page Application (SPA) that proxies `/api` requests to the backend.
-- **Backend**: A unified Python FastAPI backend located in `mcp/floci_backend/` (running on port 8000). It completely replaces any legacy Node.js/TypeScript sidecar.
-- **MCP Server**: The Python backend also functions as an MCP (Model Context Protocol) server (`mcp/floci_mcp.py`). The MCP server uses `httpx.ASGITransport(app=app)` to communicate directly with the FastAPI application in-memory, avoiding local network round-trips.
+- **Backend**: A unified Python FastAPI backend located in `backend/floci_backend/` (running on port 8000). It completely replaces any legacy Node.js/TypeScript sidecar.
 - **Floci Studio Engine**: Acts as a local, cost-free AWS emulator and development environment leveraging Localstack, Docker Compose recipes (Marketplace), and a native Python compatibility layer.
 
 ## 3. Tooling and Commands
 - **Package Manager**: You MUST use **pnpm version 11** for frontend/Node package management.
-- **Python Manager**: The project relies on **uv** for Python dependency management and environment isolation. Configuration is located at `mcp/pyproject.toml`.
+- **Python Manager**: The project relies on **uv** for Python dependency management and environment isolation. Configuration is located at `backend/pyproject.toml`.
 
 ### Setup Commands
 - `pnpm install` (Node dependencies)
 - `pnpm exec playwright install` (Playwright browsers for E2E tests)
-- `uv sync --project mcp` (Python dependencies)
+- `uv sync --project backend` (Python dependencies)
 
 ### Execution Commands (Run from repo root)
 - **Frontend**: `pnpm run dev`
 - **Backend**: `pnpm run sidecar:dev` (runs FastAPI via uvicorn)
 - **E2E Tests**: `pnpm run test:e2e`
 - **Linting**: `pnpm run lint` (TypeScript type checking)
-- **MCP Test Harness**: `uv run --project mcp python mcp/verify_mcp.py`
 
 ## 4. Testing Guidelines
 - Playwright E2E tests are located in the `.playwright-mcp/` directory.
