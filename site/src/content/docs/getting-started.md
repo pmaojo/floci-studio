@@ -46,4 +46,4 @@ Click **SQS** in the sidebar, then **Create Queue**. Name it `my-queue` and clic
 
 - [Installation guide](/getting-started/installation/) — full prerequisites, building from source, MCP setup
 - [SQS guide](/guides/sqs/) — send and receive messages
-- [MCP server](/mcp/overview/) — connect Claude or Cursor to drive the stack
+- [MCP server](https://github.com/pmaojo/floci-mcp-unofficial) — connect Claude or Cursor to drive the stack

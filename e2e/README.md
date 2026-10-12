@@ -69,7 +69,7 @@ No spec changes are needed — the cockpit speaks standard AWS APIs either way.
 ## Notes
 
 - `e2e/.venv` is created on first `run.sh up` and is **not** pruned by
-  `uv sync --project mcp` (which the web SessionStart hook runs), so the harness
+  `uv sync --project backend` (which the web SessionStart hook runs), so the harness
   keeps working across sessions.
 - In sandboxes whose pre-baked Chromium differs from the `@playwright/test`
   pinned build, set `PLAYWRIGHT_CHROMIUM_PATH` to its executable. Unset in CI.

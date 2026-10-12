@@ -50,23 +50,7 @@ uv run python floci_backend/main.py
 
 ## MCP server
 
-The MCP server is a separate process your AI agent connects to via stdio.
-
-### With uv (recommended)
-
-```bash
-uv run --project mcp python mcp/floci_mcp.py
-```
-
-### With Docker
-
-```bash
-docker build -t floci-mcp mcp/
-docker run -i --rm \
-  -e AWS_ENDPOINT_URL=http://host.docker.internal:4566 \
-  -e SIDECAR_TOKEN=open \
-  floci-mcp
-```
+The MCP server is a separate project, [floci-mcp-unofficial](https://github.com/pmaojo/floci-mcp-unofficial). Install it there and point your agent at the same Floci runtime.
 
 ## Verifying the installation
 

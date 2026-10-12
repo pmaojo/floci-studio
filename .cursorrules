@@ -4,7 +4,6 @@ Welcome, AI Agent. When working on this repository, you must strictly adhere to 
 
 ## 1. Terminology Directive
 - **ALWAYS** refer to the project as **'Floci Studio'** (never 'Floci.io' or 'Floci').
-- Refer to its MCP server specifically as **'Floci Studio MCP'**.
 - Ensure all documentation, commit messages, and outputs adhere to this exact naming convention.
 
 ## 2. Project Architecture

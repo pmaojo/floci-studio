@@ -69,7 +69,7 @@ up() {
   PATH="$ROOT/$VENV/bin:$PATH" \
   SIDECAR_PORT=8000 SIDECAR_HOST=0.0.0.0 \
   SIDECAR_ALLOWED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000" \
-  uv run --project mcp uvicorn floci_backend.server:app --port 8000 --host 0.0.0.0 --app-dir mcp \
+  uv run --project backend uvicorn floci_backend.server:app --port 8000 --host 0.0.0.0 --app-dir backend \
     >"$LOGS/sidecar.log" 2>&1 &
   wait_for "http://localhost:8000/health" "sidecar"
 
