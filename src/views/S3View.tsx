@@ -8,8 +8,10 @@ import {
   DeleteObjectCommand,
   GetBucketCorsCommand,
   PutBucketCorsCommand,
-  DeleteBucketCorsCommand
+  DeleteBucketCorsCommand,
+  GetObjectCommand
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { useAws } from '../contexts/AwsContext';
 import { 
   Box, 
@@ -22,7 +24,8 @@ import {
   Copy, 
   ExternalLink,
   ChevronRight,
-  Settings
+  Settings,
+  Link
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
@@ -255,6 +258,23 @@ const S3View = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  // Generate Presigned URL
+  const handleGeneratePresignedUrl = async (objectKey: string) => {
+    if (!selectedBucket) return;
+    try {
+      const command = new GetObjectCommand({
+        Bucket: selectedBucket,
+        Key: objectKey,
+      });
+      const url = await getSignedUrl(clients.s3, command, { expiresIn: 3600 });
+      handleCopyText(url);
+      logActivity('S3', `Generated Presigned URL for: ${objectKey}`, 'success');
+    } catch (err: unknown) {
+      logActivity('S3', `Generate Presigned URL failed: ${objectKey}`, 'error', err instanceof Error ? err.message : String(err));
+      alert(`Could not generate presigned URL: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -558,6 +578,13 @@ const S3View = () => {
                               >
                                 <ExternalLink size={12} />
                               </a>
+                              <button
+                                onClick={() => handleGeneratePresignedUrl(obj.Key!)}
+                                title="Generate Presigned URL (1 Hour)"
+                                className="p-1.5 border border-brand-text/10 hover:bg-brand-muted hover:border-brand-text transition-all text-brand-text"
+                              >
+                                <Link size={12} />
+                              </button>
                               <button 
                                 onClick={() => handleDeleteObject(obj.Key!)}
                                 title="Delete File"
