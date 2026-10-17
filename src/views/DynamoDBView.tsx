@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal, Select } from '../components/ui-elements';
 import { unmarshalItem, marshalItem, marshalValue } from './dynamodbUtils';
+import { jsonToCsv, csvToJson } from './csvUtils';
 
 // Interface for attribute row in modal form
 interface FormAttributeRow {
@@ -69,6 +70,8 @@ const DynamoDBView = () => {
   // Bulk import / export state
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isImportingCsv, setIsImportingCsv] = useState(false);
+  const [isExportingCsv, setIsExportingCsv] = useState(false);
 
   // Query / Scan operation
   const [operationType, setOperationType] = useState<'scan' | 'query'>('scan');
@@ -570,6 +573,54 @@ const DynamoDBView = () => {
   };
 
   // Bulk Import Logic
+  const handleImportCSVFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !selectedTableName) return;
+    const file = e.target.files[0];
+
+    setIsImportingCsv(true);
+    try {
+      const text = await file.text();
+      const parsedItems = csvToJson(text);
+
+      if (!Array.isArray(parsedItems)) {
+        throw new Error("CSV file could not be parsed into an array of objects.");
+      }
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const item of parsedItems) {
+        try {
+          const marshalledItem = marshalItem(item);
+          await clients.dynamo.send(new PutItemCommand({
+            TableName: selectedTableName,
+            Item: marshalledItem
+          }));
+          successCount++;
+        } catch (err) {
+          console.error("Failed to import item", item, err);
+          failCount++;
+        }
+      }
+
+      const msg = `Imported ${successCount} items successfully.` + (failCount > 0 ? ` Failed to import ${failCount} items.` : '');
+      alert(msg);
+      logActivity('DynamoDB', `Imported CSV to ${selectedTableName}`, 'success', msg);
+
+      // Refresh items
+      handleScanOrQuery();
+    } catch (err) {
+      alert(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `Import CSV failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsImportingCsv(false);
+      // Reset input
+      if (e.target) {
+        e.target.value = '';
+      }
+    }
+  };
+
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !selectedTableName) return;
     const file = e.target.files[0];
@@ -618,6 +669,29 @@ const DynamoDBView = () => {
   };
 
   // Bulk Export Logic
+  const handleExportCSVItems = () => {
+    if (!items || items.length === 0) return;
+    try {
+      setIsExportingCsv(true);
+      const csvStr = jsonToCsv(items);
+      const blob = new Blob([csvStr], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedTableName || 'dynamodb'}_export.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      logActivity('DynamoDB', `Exported ${items.length} items to CSV from ${selectedTableName}`, 'success');
+    } catch (err) {
+      alert(`CSV Export failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `CSV Export failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsExportingCsv(false);
+    }
+  };
+
   const handleExportItems = () => {
     if (!items || items.length === 0) return;
     try {
@@ -793,6 +867,35 @@ const DynamoDBView = () => {
                           <Button
                             size="sm"
                             variant="secondary"
+                            onClick={handleExportCSVItems}
+                            disabled={isExportingCsv || items.length === 0}
+                            icon={<Download size={12} />}
+                            title="Export all displayed items as CSV"
+                          >
+                            {isExportingCsv ? 'Exporting...' : 'Export CSV'}
+                          </Button>
+                          <label className={`
+                            inline-flex items-center justify-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide
+                            border border-brand-text bg-transparent text-brand-text
+                            hover:bg-brand-text hover:text-brand-bg transition-colors cursor-pointer
+                            ${isImportingCsv ? 'opacity-50 cursor-not-allowed' : ''}
+                          `}>
+                            <Upload size={12} />
+                            {isImportingCsv ? 'Importing...' : 'Import CSV'}
+                            <input
+                              type="file"
+                              accept=".csv"
+                              className="hidden"
+                              disabled={isImportingCsv}
+                              onChange={handleImportCSVFile}
+                            />
+                          </label>
+
+                          <div className="w-px h-6 bg-brand-text/30 mx-1"></div>
+
+                          <Button
+                            size="sm"
+                            variant="secondary"
                             onClick={handleExportItems}
                             disabled={isExporting || items.length === 0}
                             icon={<Download size={12} />}
@@ -816,6 +919,9 @@ const DynamoDBView = () => {
                               onChange={handleImportFile}
                             />
                           </label>
+
+                          <div className="w-px h-6 bg-brand-text/30 mx-1"></div>
+
                           <Button
                             size="sm"
                             onClick={() => openEditor()}
