@@ -608,7 +608,7 @@ const DynamoDBView = () => {
       logActivity('DynamoDB', `Imported CSV to ${selectedTableName}`, 'success', msg);
 
       // Refresh items
-      handleScanOrQuery();
+      fetchItems(selectedTableName, null, operationType);
     } catch (err) {
       alert(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
       logActivity('DynamoDB', `Import CSV failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
