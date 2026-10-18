@@ -8,8 +8,10 @@ import {
   DeleteObjectCommand,
   GetBucketCorsCommand,
   PutBucketCorsCommand,
-  DeleteBucketCorsCommand
+  DeleteBucketCorsCommand,
+  GetObjectCommand
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { useAws } from '../contexts/AwsContext';
 import { 
   Box, 
@@ -22,7 +24,8 @@ import {
   Copy, 
   ExternalLink,
   ChevronRight,
-  Settings
+  Settings,
+  Link as LinkIcon
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
@@ -283,6 +286,19 @@ const S3View = () => {
   // Get direct emulated URL for downloads
   const getObjectUrl = (bucketName: string, key: string) => {
     return `http://localhost:4566/${bucketName}/${key}`;
+  };
+
+  const handleGeneratePresignedUrl = async (bucketName: string, key: string) => {
+    try {
+      const command = new GetObjectCommand({ Bucket: bucketName, Key: key });
+      const url = await getSignedUrl(clients.s3 as any, command, { expiresIn: 3600 });
+      await navigator.clipboard.writeText(url);
+      alert('Presigned URL copied to clipboard!\nExpires in 3600 seconds.');
+      logActivity('S3', `Generated presigned URL for ${key}`, 'success');
+    } catch (err: any) {
+      alert(`Failed to generate presigned URL: ${err.message}`);
+      logActivity('S3', `Presigned URL generation failed`, 'error', err.message);
+    }
   };
 
   // Format bytes
@@ -548,6 +564,13 @@ const S3View = () => {
                                 className="p-1.5 border border-brand-text/10 hover:bg-brand-muted hover:border-brand-text transition-all"
                               >
                                 <Copy size={12} />
+                              </button>
+                              <button
+                                onClick={() => handleGeneratePresignedUrl(selectedBucket, obj.Key!)}
+                                title="Copy Presigned URL (Expires 1h)"
+                                className="p-1.5 border border-brand-text/10 hover:bg-brand-muted hover:border-brand-text transition-all text-brand-text"
+                              >
+                                <LinkIcon size={12} />
                               </button>
                               <a 
                                 href={getObjectUrl(selectedBucket, obj.Key!)}

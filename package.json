@@ -52,6 +52,7 @@
     "@aws-sdk/client-ssm": "^3.1050.0",
     "@aws-sdk/client-sts": "^3.1049.0",
     "@aws-sdk/client-wafv2": "^3.1049.0",
+    "@aws-sdk/s3-request-presigner": "^3.1152.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "clsx": "^2.1.1",
