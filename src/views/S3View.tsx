@@ -22,7 +22,8 @@ import {
   Copy, 
   ExternalLink,
   ChevronRight,
-  Settings
+  Settings,
+  Image as ImageIcon
 } from 'lucide-react';
 import { PageHeader, Card, Button, Input, Skeleton, Modal } from '../components/ui-elements';
 
@@ -62,6 +63,10 @@ const S3View = () => {
   const [corsJson, setCorsJson] = useState('');
   const [isSavingCors, setIsSavingCors] = useState(false);
   const [corsError, setCorsError] = useState<string | null>(null);
+
+  // Object preview state
+  const [previewObjectKey, setPreviewObjectKey] = useState<string | null>(null);
+  const [previewImageError, setPreviewImageError] = useState(false);
 
   // Fetch all S3 Buckets
   const fetchBuckets = useCallback(async () => {
@@ -294,6 +299,12 @@ const S3View = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Helper to determine if a file is previewable
+  const isImageFile = (key: string) => {
+    const ext = key.split('.').pop()?.toLowerCase();
+    return ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext || '');
+  };
+
   // Initial load
   useEffect(() => {
     fetchBuckets();
@@ -370,6 +381,45 @@ const S3View = () => {
         </div>
       </Modal>
 
+
+      {/* Image Preview Modal */}
+      <Modal
+        isOpen={!!previewObjectKey}
+        onClose={() => {
+          setPreviewObjectKey(null);
+          setPreviewImageError(false);
+        }}
+        title="Object Preview"
+        className="max-w-4xl"
+      >
+        <div className="flex flex-col items-center justify-center space-y-4 bg-brand-muted/20 p-4 rounded min-h-[300px]">
+          {previewObjectKey && selectedBucket && !previewImageError ? (
+            <img
+              src={getObjectUrl(selectedBucket, previewObjectKey)}
+              alt={previewObjectKey}
+              className="max-w-full max-h-[70vh] object-contain border border-brand-text shadow-sm"
+              onError={() => setPreviewImageError(true)}
+            />
+          ) : previewObjectKey && selectedBucket && previewImageError ? (
+            <div className="text-[10px] text-rose-600 font-mono italic">Failed to load preview image</div>
+          ) : (
+            <div className="text-[10px] opacity-40 font-mono italic">NO_PREVIEW_AVAILABLE</div>
+          )}
+
+          <div className="text-[10px] font-mono opacity-60 w-full truncate text-center">
+            {previewObjectKey}
+          </div>
+
+          <div className="pt-2 w-full flex justify-end">
+            <Button variant="ghost" onClick={() => {
+              setPreviewObjectKey(null);
+              setPreviewImageError(false);
+            }}>
+              Close Preview
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* CORS Modal */}
       <Modal
@@ -530,11 +580,16 @@ const S3View = () => {
                     {/* Files */}
                     {objects.map(obj => {
                       const name = obj.Key!.replace(currentPrefix, '');
+                      const canPreview = isImageFile(obj.Key!);
                       return (
                         <tr key={obj.Key} className="border-b border-brand-text/10 hover:bg-neutral-50 align-middle">
                           <td className="p-3 font-semibold text-brand-text">
                             <div className="flex items-center gap-2.5">
-                              <File size={14} className="text-neutral-500" />
+                              {canPreview ? (
+                                <ImageIcon size={14} className="text-neutral-500" />
+                              ) : (
+                                <File size={14} className="text-neutral-500" />
+                              )}
                               <span className="normal-case truncate max-w-md">{name}</span>
                             </div>
                           </td>
@@ -542,6 +597,19 @@ const S3View = () => {
                           <td className="p-3 text-neutral-500">{new Date(obj.LastModified).toLocaleString()}</td>
                           <td className="p-3 text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              {canPreview && (
+                                <button
+                                  onClick={() => {
+                                    setPreviewObjectKey(obj.Key!);
+                                    setPreviewImageError(false);
+                                    logActivity('S3', `PreviewObject: ${obj.Key}`, 'success');
+                                  }}
+                                  title="Preview Image"
+                                  className="p-1.5 border border-brand-text/10 hover:bg-brand-muted hover:border-brand-text transition-all text-brand-text"
+                                >
+                                  <ImageIcon size={12} />
+                                </button>
+                              )}
                               <button 
                                 onClick={() => handleCopyText(`s3://${selectedBucket}/${obj.Key}`)}
                                 title="Copy S3 URI"
