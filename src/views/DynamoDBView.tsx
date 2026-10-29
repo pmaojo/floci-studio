@@ -617,6 +617,102 @@ const DynamoDBView = () => {
     }
   };
 
+  const handleImportCSVFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !selectedTableName) return;
+    const file = e.target.files[0];
+
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+
+      const parseCSVLine = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            if (inQuotes && line[i+1] === '"') {
+              current += '"';
+              i++; // skip escaped quote
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current);
+        return result;
+      };
+
+      const lines = text.split('\n').filter(l => l.trim() !== '');
+      if (lines.length < 2) throw new Error("CSV file must contain headers and at least one row of data.");
+
+      const headers = parseCSVLine(lines[0]);
+      const parsedItems: Record<string, unknown>[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        const obj: Record<string, unknown> = {};
+        for (let j = 0; j < headers.length; j++) {
+          if (j < values.length && values[j] !== '') {
+            const val = values[j];
+            if (!isNaN(Number(val)) && val.trim() !== '') {
+              obj[headers[j]] = Number(val);
+            } else if (val.toLowerCase() === 'true' || val.toLowerCase() === 'false') {
+              obj[headers[j]] = val.toLowerCase() === 'true';
+            } else if (val.startsWith('{') || val.startsWith('[')) {
+              try {
+                obj[headers[j]] = JSON.parse(val);
+              } catch {
+                obj[headers[j]] = val;
+              }
+            } else {
+              obj[headers[j]] = val;
+            }
+          }
+        }
+        parsedItems.push(obj);
+      }
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const item of parsedItems) {
+        try {
+          const marshalledItem = marshalItem(item);
+          await clients.dynamo.send(new PutItemCommand({
+            TableName: selectedTableName,
+            Item: marshalledItem
+          }));
+          successCount++;
+        } catch (itemErr) {
+          console.error("Failed to import item:", item, itemErr);
+          failCount++;
+        }
+      }
+
+      const msg = `Imported ${successCount} items from CSV successfully.` + (failCount > 0 ? ` Failed to import ${failCount} items.` : '');
+      alert(msg);
+      logActivity('DynamoDB', `Imported CSV to ${selectedTableName}`, 'success', msg);
+
+      // Refresh items
+      fetchItems(selectedTableName, null, 'scan');
+    } catch (err) {
+      alert(`CSV Import failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `CSV Import failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsImporting(false);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
+    }
+  };
+
   // Bulk Export Logic
   const handleExportItems = () => {
     if (!items || items.length === 0) return;
@@ -636,6 +732,48 @@ const DynamoDBView = () => {
     } catch (err) {
       alert(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
       logActivity('DynamoDB', `Export failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (!items || items.length === 0) return;
+    try {
+      setIsExporting(true);
+      const headersSet = new Set<string>();
+      items.forEach(item => {
+        Object.keys(item).forEach(k => headersSet.add(k));
+      });
+      const headers = Array.from(headersSet);
+
+      const escapeCSV = (val: unknown) => {
+        if (val === null || val === undefined) return '';
+        const str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      };
+
+      const rows = items.map(item => {
+        return headers.map(h => escapeCSV((item as Record<string, unknown>)[h])).join(',');
+      });
+
+      const csvStr = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csvStr], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedTableName || 'dynamodb'}_export.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      logActivity('DynamoDB', `Exported ${items.length} items from ${selectedTableName} as CSV`, 'success');
+    } catch (err) {
+      alert(`CSV Export failed: ${err instanceof Error ? err.message : String(err)}`);
+      logActivity('DynamoDB', `CSV Export failed for ${selectedTableName}`, 'error', err instanceof Error ? err.message : String(err));
     } finally {
       setIsExporting(false);
     }
@@ -800,6 +938,16 @@ const DynamoDBView = () => {
                           >
                             {isExporting ? 'Exporting...' : 'Export JSON'}
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleExportCSV}
+                            disabled={isExporting || items.length === 0}
+                            icon={<Download size={12} />}
+                            title="Export all displayed items as CSV"
+                          >
+                            {isExporting ? 'Exporting...' : 'Export CSV'}
+                          </Button>
                           <label className={`
                             inline-flex items-center justify-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide
                             border border-brand-text bg-transparent text-brand-text
@@ -814,6 +962,22 @@ const DynamoDBView = () => {
                               className="hidden"
                               disabled={isImporting}
                               onChange={handleImportFile}
+                            />
+                          </label>
+                          <label className={`
+                            inline-flex items-center justify-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide
+                            border border-brand-text bg-transparent text-brand-text
+                            hover:bg-brand-text hover:text-brand-bg transition-colors cursor-pointer
+                            ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}
+                          `}>
+                            <Upload size={12} />
+                            {isImporting ? 'Importing...' : 'Import CSV'}
+                            <input
+                              type="file"
+                              accept=".csv"
+                              className="hidden"
+                              disabled={isImporting}
+                              onChange={handleImportCSVFile}
                             />
                           </label>
                           <Button
