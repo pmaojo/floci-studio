@@ -72,6 +72,7 @@ const DynamoDBView = () => {
 
   // Query / Scan operation
   const [operationType, setOperationType] = useState<'scan' | 'query'>('scan');
+  const [selectedIndexName, setSelectedIndexName] = useState<string>('');
   const [queryPartitionValue, setQueryPartitionValue] = useState('');
   const [querySortValue, setQuerySortValue] = useState('');
   const [querySortOperator, setQuerySortOperator] = useState<'=' | '<' | '>' | 'begins_with'>('=');
@@ -137,6 +138,7 @@ const DynamoDBView = () => {
       setTableDetails(res.Table || null);
       
       // Reset query states
+      setSelectedIndexName('');
       setQueryPartitionValue('');
       setQuerySortValue('');
       setPageHistory([]);
@@ -160,15 +162,26 @@ const DynamoDBView = () => {
 
   // Extract Partition Key and Sort Key from schemas
   const primaryKeys = useMemo(() => {
-    const keySchema = tableDetails?.KeySchema;
+    let keySchema = tableDetails?.KeySchema;
+
+    // If a GSI is selected, use its KeySchema instead
+    if (selectedIndexName && tableDetails?.GlobalSecondaryIndexes) {
+      const gsi = tableDetails.GlobalSecondaryIndexes.find(g => g.IndexName === selectedIndexName);
+      if (gsi && gsi.KeySchema) {
+        keySchema = gsi.KeySchema;
+      }
+    }
+
     if (!keySchema) return { hashKey: '', rangeKey: '' };
-    const hash = keySchema.find((k) => k.KeyType === 'HASH');
-    const range = keySchema.find((k) => k.KeyType === 'RANGE');
+
+    const hash = keySchema.find((k: any) => k.KeyType === 'HASH');
+    const range = keySchema.find((k: any) => k.KeyType === 'RANGE');
+
     return {
       hashKey: hash?.AttributeName || '',
       rangeKey: range?.AttributeName || ''
     };
-  }, [tableDetails]);
+  }, [tableDetails, selectedIndexName]);
 
   // Fetch Items via Scan or Query
   const fetchItems = async (
@@ -211,6 +224,7 @@ const DynamoDBView = () => {
 
         response = await clients.dynamo.send(new QueryCommand({
           TableName: tableName,
+          IndexName: selectedIndexName || undefined,
           KeyConditionExpression: keyConditionExpression,
           ExpressionAttributeNames: expressionAttributeNames,
           ExpressionAttributeValues: expressionAttributeValues,
@@ -218,16 +232,17 @@ const DynamoDBView = () => {
           ExclusiveStartKey: startKey || undefined
         }));
         
-        logActivity('DynamoDB', `Query table ${tableName}`, 'success', `Key: ${queryPartitionValue}`);
+        logActivity('DynamoDB', `Query table ${tableName}`, 'success', `Key: ${queryPartitionValue}${selectedIndexName ? ` (Index: ${selectedIndexName})` : ''}`);
       } else {
         // Standard scan
         response = await clients.dynamo.send(new ScanCommand({
           TableName: tableName,
+          IndexName: selectedIndexName || undefined,
           Limit: limit,
           ExclusiveStartKey: startKey || undefined
         }));
         
-        logActivity('DynamoDB', `Scan table ${tableName}`, 'success', `Page ${currentPage + 1}`);
+        logActivity('DynamoDB', `Scan table ${tableName}`, 'success', `Page ${currentPage + 1}${selectedIndexName ? ` (Index: ${selectedIndexName})` : ''}`);
       }
 
       const rawItems = response.Items || [];
@@ -905,27 +920,47 @@ const DynamoDBView = () => {
                     {/* Scan / Query Expression builder */}
                     <div className="p-4 border-b border-brand-text bg-white/70 space-y-4 shrink-0">
                       <div className="flex items-center justify-between border-b border-brand-text/20 pb-2">
-                        <div className="flex gap-3 text-[10px] font-bold uppercase">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="radio" 
-                              name="opType" 
-                              checked={operationType === 'scan'}
-                              onChange={() => setOperationType('scan')}
-                              className="accent-brand-text"
-                            />
-                            Scan Table
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="radio" 
-                              name="opType"
-                              checked={operationType === 'query'}
-                              onChange={() => setOperationType('query')}
-                              className="accent-brand-text"
-                            />
-                            Query Index/Keys
-                          </label>
+                        <div className="flex gap-4 text-[10px] font-bold uppercase items-center">
+                          <div className="flex gap-3">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="opType"
+                                checked={operationType === 'scan'}
+                                onChange={() => setOperationType('scan')}
+                                className="accent-brand-text"
+                              />
+                              Scan Table
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="opType"
+                                checked={operationType === 'query'}
+                                onChange={() => setOperationType('query')}
+                                className="accent-brand-text"
+                              />
+                              Query Index/Keys
+                            </label>
+                          </div>
+
+                          <div className="border-l border-brand-text/30 pl-4 flex items-center gap-2">
+                            <span className="opacity-60">Index:</span>
+                            <Select
+                              value={selectedIndexName}
+                              onChange={e => {
+                                setSelectedIndexName(e.target.value);
+                                setQueryPartitionValue('');
+                                setQuerySortValue('');
+                              }}
+                              className="h-7 py-0 px-2 min-w-[120px] font-mono text-[9px]"
+                            >
+                              <option value="">Base Table</option>
+                              {tableDetails?.GlobalSecondaryIndexes?.map((gsi: any) => (
+                                <option key={gsi.IndexName} value={gsi.IndexName}>{gsi.IndexName}</option>
+                              ))}
+                            </Select>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
